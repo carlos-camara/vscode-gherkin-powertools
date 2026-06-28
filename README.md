@@ -35,7 +35,7 @@ Say goodbye to manual spacing. The robust AST-based formatter parses your Gherki
 - **Auto-Casing**: Automatically capitalizes Gherkin keywords (`given` → `Given`) while supporting over 10 languages (English, Spanish, French, German, etc.).
 - **Tag Wrapping**: Keeps your files clean by intelligently wrapping long `@tags` lists that exceed 80 characters.
 
-![Formatter Demonstration](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/formatter.gif)
+![Formatter Demonstration](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/formatter.webp)
 
 ### 2. Live Diagnostics (Linter)
 Writing Gherkin should be error-free before you even run the tests.
@@ -43,19 +43,19 @@ Writing Gherkin should be error-free before you even run the tests.
 - Detects missing colons (e.g., `Scenario` instead of `Scenario:`).
 - Highlights structural errors in red, ensuring your keywords are perfectly formed.
 
-![Linter Demonstration](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/linter.gif)
+![Linter Demonstration](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/linter.webp)
 
 ### 3. Editor Productivity & Navigation
 - **Go To Definition (Behave / Python)**: Instantly jump from a `.feature` file to the exact Python definition. `Cmd + Click` (or `F12`) on a step like `Given I login`, and VS Code will search your `steps/` folder to find the matching `@given('I login')` decorator.
 - **Native Outline View**: Navigating massive `.feature` files is now a breeze. The extension contributes a hierarchical tree view to VS Code's Outline panel, breaking down your document into `Feature` > `Rule` > `Scenario`.
 
-![Go To Definition](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/definition.gif)
+![Go To Definition](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/definition.webp)
 
 ### 4. BDD Project Dashboard
 - **Statistics Webview**: Right-click anywhere in a `.feature` file (or use the Command Palette) to open the **Gherkin: Show Project Statistics** dashboard. 
 - Get instant, beautiful HTML metrics detailing how many Features, Rules, and Scenarios you have across your entire workspace, including unsaved buffers!
 
-![Dashboard Demonstration](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/dashboard.gif)
+![Dashboard Demonstration](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/dashboard.webp)
 
 ### 5. Professional Syntax Highlighting
 Replaces glaring, standard colors with a curated palette that looks absolutely stunning on dark themes (like Dark+):
@@ -63,7 +63,7 @@ Replaces glaring, standard colors with a curated palette that looks absolutely s
 - **Actions** (`Given`, `When`): Crisp Blue (`#569CD6`).
 - **Tags** (`@smoke`): Soft Cyan (`#4EC9B0`).
 
-![Syntax Highlighting](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/highlighting.png)
+![Syntax Highlighting](https://raw.githubusercontent.com/carloscamara/vscode-gherkin-beautifier/main/assets/highlighting.webp)
 
 ---
 
