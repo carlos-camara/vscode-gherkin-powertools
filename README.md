@@ -137,16 +137,18 @@ def step_login(context, user):
 
 **Right-click** inside any `.feature` file → *Gherkin: Show Project Statistics*, or open it from the Command Palette (`Ctrl+Shift+P`).
 
-Get a live HTML report across your entire workspace, now completely redesigned for **V4 Ultimate Squeeze**:
+Get a live HTML report across your entire workspace:
 
 | Metric | What it counts |
 |--------|---------------|
-| 🥇 **Gherkin Quality Score (GQS)** | A 0-100 score analyzing Reusability, Parametrization, Documentation, and Complexity |
+| 🥇 **Gherkin Quality Score (GQS)** | A 0-100 score analyzing BG Reuse, Tables, Comments, and Complexity |
 | 🚀 **Automation ROI** | Estimated manual hours saved by your automated tests |
 | 🎯 **Executable Tests** | Total Scenarios + Data Permutations (table rows) |
-| 🏆 **Top 5 Tags** | Leaderboard of the most frequently used tags in your workspace |
+| 🧠 **Scenario Intelligence** | Vocabulary richness, step conciseness, data density, and most complex scenario detection |
+| 🧩 **Behavioral Archetypes** | Real-time classification of UI vs API vs Database steps |
+| 📈 **Step Execution Breakdown** | Distribution of Given, When, Then, And/But steps across your project |
+| 🏆 **Top Tags & Steps** | Expandable leaderboard of the most frequently used tags and steps |
 | 📦 **Code Density** | Empty lines vs code lines for formatting health |
-| 🏗️ **Structural Blocks** | Features, Rules, Scenarios, and Backgrounds count |
 
 ![Dashboard Demonstration](assets/dashboard.webp)
 
