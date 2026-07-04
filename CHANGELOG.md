@@ -13,13 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.6.0] - 2026-06-29
 
 ### Added — Omega Squeeze (Project Analytics V6)
-- **Dashboard Redesign**: Completely redesigned the `Gherkin: Show Project Statistics` dashboard with a premium glassmorphism interface, CSS masonry layouts, and animated dynamic numbers.
-- **Scenario Intelligence**: Tracks vocabulary richness, average step conciseness, data density, and actively flags the "Most Complex Scenario" in your suite.
-- **Step Execution Breakdown**: Real-time progress bars charting the distribution of Given, When, Then, And/But usages.
-- **Behavioral Archetypes**: Scans step vocabulary to classify your project into UI, API, and DB operations.
-- **Expandable Metrics**: Added interactive UI for Top Tags and Top Repeated Steps, allowing text expansion with a click.
-- **Gherkin Quality Score (GQS)**: Added a proprietary algorithm to evaluate code quality based on BG Reuse, Tables, Comments, and Complexity penalties.
+- **Project Analytics**: Completely redesigned the `Gherkin: Show Project Statistics` dashboard with a premium glassmorphism interface and animated dynamic numbers.
+- **Gherkin Quality Score (GQS)**: Added a proprietary algorithm to evaluate code quality based on Reusability (Backgrounds), Parametrization (Examples), Documentation (Comments), and Complexity (Avg Steps per Scenario).
 - **Automation ROI Tracking**: Added a new metric to calculate the estimated manual hours saved by your automated tests, using the exact number of executable permutations.
+- **Tags Intelligence**: Added in-memory tracking of all tags to display a "Top 5 Most Used Tags" leaderboard.
+- **Density Metrics**: The dashboard now calculates the exact line density of your feature files, checking empty lines vs code lines.
 
 ### Added — Community & Open Source Infrastructure
 - **Issue Templates**: Added `bug_report.yml` (with Gherkin-specific fields and VS Code version) and `feature_request.yml` via GitHub Issue Forms.
@@ -38,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added — Documentation Site (MkDocs Material)
 - **`mkdocs.yml`**: Full MkDocs Material configuration with deep purple theme, dark/light mode, search, code copy, and Mermaid diagrams.
 - **14 documentation pages**: Home, Installation, Configuration, 7 feature pages (Formatter, Linter, Go To Definition, Outline, Statistics, Highlighting, Snippets), Architecture (with Mermaid diagrams), Contributing, Code of Conduct, Security, and Changelog.
+- Documentation will be deployed to `https://carlos-camara.github.io/vscode-gherkin-beautifier/`.
 
 ### Changed
 - **`src/formatter.ts`**: Prefixed unused parameters with underscore (`_options`, `_token`) to suppress TypeScript lint warnings.
@@ -47,8 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`src/outline.ts`**: Prefixed unused `_token` param, narrowed return type to `DocumentSymbol[]`.
 - **`src/statistics.ts`**: Prefixed unused `_context` parameter.
 - **`README.md` & `CONTRIBUTING.md`**: Complete rewrite with modern layout, feature showcase with GIF/PNG demos, configuration table, roadmap section, and author footer. Upgraded to use native GitHub Alerts (`> [!NOTE]`).
-- **Documentation (`docs/`)**: Upgraded all markdown pages to use GitHub Alerts and standard markdown formatting.
-- **Packaging**: Highly optimized `.vscodeignore` to exclude heavy `docs/` and `assets/` folders, dropping the `.vsix` payload size significantly while maintaining functional URLs in the Marketplace.
+- **Documentation (`docs/`)**: Upgraded all markdown pages to use MkDocs Admonitions (`!!! tip`) and visual emojis.
+- **Packaging**: Highly optimized `.vscodeignore` to exclude heavy `docs/` and `assets/` folders, dropping the `.vsix` payload size from 18 MB to 408 KB while maintaining functional URLs in the Marketplace.
 - **Testing**: Upgraded integration tests to run on Node 22 via `@vscode/test-electron@3.0.0`.
 
 ## [1.5.0] - 2026-06-25
@@ -66,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Project Statistics Dashboard**: Added a new command (`Gherkin: Show Project Statistics`) that scans your workspace and displays a beautiful HTML dashboard with metrics on your Features, Rules, and Scenarios. This is also accessible by Right-Clicking inside the editor.
 - **Beautiful Syntax Highlighting**: Overrides default VS Code themes to dynamically colorize Gherkin files. Features a stunning **Magenta** for structural keywords (`Feature`, `Scenario`, `Rule`) and **Blue** for action steps (`Given`, `When`, `Then`).
 - **Real-time Diagnostic Linter**: Includes a built-in Linter that monitors your feature files as you type. If you mistype a keyword or use invalid syntax, the editor will immediately underline it in red and provide an explanation.
+- **Built-in Snippets**: Includes standard autocompletion snippets. Type `feature`, `scenario`, `outline`, or `rule` inside a blank document and press `Tab` to instantly scaffold properly formatted templates.
 
 ### Changed
 - Refactored internal formatting engine to use dynamic Regex mapping for multi-language support.
