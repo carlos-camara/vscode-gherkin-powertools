@@ -41,6 +41,10 @@ npm run coverage
 !!! note
     Always ensure all tests pass before submitting a Pull Request. If adding a new feature, please add a corresponding test case.
 
+## CI/CD Pipeline
+
+Our CI/CD pipeline leverages reusable GitHub Actions from the [qa-hub-actions](https://github.com/carlos-camara/qa-hub-actions) repository. This ensures consistency and enterprise-grade quality checks. Specifically, coverage reporting and other QA gates are handled externally by these actions.
+
 ## Packaging
 
 To create a local `.vsix` file:
