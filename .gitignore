@@ -4,4 +4,4 @@ out/
 *.vsix
 .DS_Store
 coverage/
-.nyc_output/
+
