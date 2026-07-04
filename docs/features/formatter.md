@@ -2,10 +2,12 @@
 
 The core feature of Gherkin Beautifier. The robust formatting engine parses your Gherkin syntax and aligns it automatically.
 
-!!! tip "How to Use"
-    - **Full Document**: `Shift+Alt+F` or right-click → "Format Gherkin Document"
-    - **Selection Only**: Highlight text → `Cmd+K Cmd+F` / `Ctrl+K Ctrl+F`
-    - **On Save**: Enable `editor.formatOnSave` (see [Configuration](../configuration.md))
+> [!TIP]
+> **How to Use**
+>
+> - **Full Document**: `Shift+Alt+F` or right-click → "Format Gherkin Document"
+> - **Selection Only**: Highlight text → `Cmd+K Cmd+F` / `Ctrl+K Ctrl+F`
+> - **On Save**: Enable `editor.formatOnSave` (see [Configuration](../configuration.md))
 
 ## Capabilities
 

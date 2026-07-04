@@ -2,9 +2,11 @@
 
 Get instant, enterprise-grade BDD analytics about your entire project with the **Omega Squeeze** dashboard.
 
-!!! tip "How to Use"
-    - **Right-click** inside any `.feature` file → **Gherkin: Show Project Statistics**
-    - Or open the **Command Palette** (`Cmd+Shift+P`) → **Gherkin: Show Project Statistics**
+> [!TIP]
+> **How to Use**
+>
+> - **Right-click** inside any `.feature` file → **Gherkin: Show Project Statistics**
+> - Or open the **Command Palette** (`Cmd+Shift+P`) → **Gherkin: Show Project Statistics**
 
 ## 🏆 The Gherkin Quality Score (GQS)
 The dashboard acts as an automated Quality Auditor for your BDD suite. It calculates a proprietary score from 0 to 100 based on BDD best practices:

@@ -15,9 +15,6 @@
     <a href="https://github.com/carlos-camara/vscode-gherkin-beautifier/actions/workflows/lint.yml">
       <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-beautifier/lint.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Lint" alt="Lint" />
     </a>
-    <a href="https://carlos-camara.github.io/vscode-gherkin-beautifier/">
-      <img src="https://img.shields.io/badge/Docs-MkDocs-purple?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Documentation" />
-    </a>
     <a href="./LICENSE">
       <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-beautifier?style=for-the-badge&color=yellow" alt="License: MIT" />
     </a>
@@ -29,11 +26,11 @@
 
 **Gherkin Beautifier** transforms chaotic, hand-edited `.feature` files into perfectly aligned, professionally formatted BDD specifications — in milliseconds. Built natively for VS Code, it integrates directly with the editor's formatting API, linter, and navigation system.
 
-Works with any Gherkin-based framework: **Cucumber** · **Behave** · **SpecFlow** · **Karate** · **pytest-bdd**
+Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** · **SpecFlow** · **Karate** · **pytest-bdd**
 
 ---
 
-## ✨ What's inside
+## ✨ What's Inside
 
 | | Feature | Description |
 |:---:|---------|-------------|
@@ -44,6 +41,20 @@ Works with any Gherkin-based framework: **Cucumber** · **Behave** · **SpecFlow
 | 💡 | **Syntax Highlighting** | Curated VS Code color palette for dark themes |
 | 📝 | **Snippets** | Instant scaffolding for `feature`, `scenario`, `outline`, `rule` |
 | 🌐 | **i18n** | Format keywords in English, Spanish, French & German |
+
+---
+
+## 📚 In-Depth Documentation
+
+Want to master the extension? Read the dedicated documentation for each feature:
+
+- [**🎨 Formatter Guide**](docs/features/formatter.md)
+- [**🔍 Live Linter Guide**](docs/features/linter.md)
+- [**🧭 Go To Definition Guide**](docs/features/definition.md)
+- [**📊 Statistics Dashboard Guide**](docs/features/statistics.md)
+- [**💡 Syntax Highlighting Guide**](docs/features/highlighting.md)
+- [**🌳 Outline Provider Guide**](docs/features/outline.md)
+- [**📝 Snippets Guide**](docs/features/snippets.md)
 
 ---
 
@@ -243,10 +254,9 @@ code --install-extension vscode-gherkin-beautifier-1.6.0.vsix
 
 ## 🤝 Contributing
 
-All contributions are welcome — bug reports, feature requests, documentation, or code.
-Read [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
+All contributions are highly welcome — bug reports, feature requests, documentation, or code.
+Read our detailed [CONTRIBUTING.md](./CONTRIBUTING.md) guide to get started.
 
 ## 📄 License
 
-[MIT](./LICENSE) © [Carlos Camara](https://github.com/carlos-camara)
-
+This project is licensed under the [MIT License](./LICENSE) - © [Carlos Camara](https://github.com/carlos-camara).
