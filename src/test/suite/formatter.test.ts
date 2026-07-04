@@ -11,10 +11,7 @@ const defaultOptions: FormatterOptions = {
 function runFormat(formatter: GherkinFormattingEditProvider, unformatted: string[]): string[] {
     const text = unformatted.join('\n');
     const formattedText = formatter.formatGherkin(text, defaultOptions);
-    if (formattedText === null) {
-        throw new Error("Syntax error formatting");
-    }
-    return formattedText.split('\n');
+    return formattedText ? formattedText.split('\n') : [];
 }
 
 suite('Formatter Test Suite', () => {
@@ -101,6 +98,8 @@ suite('Formatter Test Suite', () => {
             'Given a docstring:',
             '"""',
             'some content',
+            '',
+            'more content',
             '"""',
             '# standalone comment',
             'Then success'
@@ -111,8 +110,69 @@ suite('Formatter Test Suite', () => {
         assert.strictEqual(formatted[3], '    Given a docstring:');
         assert.strictEqual(formatted[4], '      """');
         assert.strictEqual(formatted[5], '      some content');
-        assert.strictEqual(formatted[6], '      """');
-        assert.strictEqual(formatted[7], '    # standalone comment');
-        assert.strictEqual(formatted[8], '    Then success');
+        assert.strictEqual(formatted[6], '');
+        assert.strictEqual(formatted[7], '      more content');
+        assert.strictEqual(formatted[8], '      """');
+        assert.strictEqual(formatted[9], '    # standalone comment');
+        assert.strictEqual(formatted[10], '    Then success');
+    });
+
+    test('Formats Rules, Backgrounds, and Examples', () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: complex',
+            'Rule: This is a rule',
+            'Background: setup',
+            'Given rule setup',
+            'Scenario Outline: complex scenario',
+            'Given <param>',
+            '@tag',
+            'Examples:',
+            '|param|',
+            '|val|'
+        ];
+
+        const formatted = runFormat(formatter, unformatted);
+        assert.strictEqual(formatted[0], 'Feature: complex');
+        assert.strictEqual(formatted[2], '  Rule: This is a rule');
+        assert.strictEqual(formatted[4], '    Background: setup');
+        assert.strictEqual(formatted[5], '    Given rule setup');
+        assert.strictEqual(formatted[7], '    Scenario Outline: complex scenario');
+        assert.strictEqual(formatted[8], '    Given <param>');
+        assert.strictEqual(formatted[9], '    @tag');
+        assert.strictEqual(formatted[10], '    Examples:');
+        assert.strictEqual(formatted[11], '      | param |');
+        assert.strictEqual(formatted[12], '      | val   |');
+    });
+
+    test('Preserves unmapped descriptions and removes trailing empty lines', () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: desc',
+            'this is an unmapped description line',
+            'Scenario: scenario',
+            'Given step',
+            '',
+            '',
+            ''
+        ];
+
+        const formatted = runFormat(formatter, unformatted);
+        assert.strictEqual(formatted[0], 'Feature: desc');
+        assert.strictEqual(formatted[1], '  this is an unmapped description line');
+        assert.strictEqual(formatted[3], '  Scenario: scenario');
+        assert.strictEqual(formatted[4], '    Given step');
+        assert.strictEqual(formatted.length, 5); // Trailing lines removed
+    });
+
+    test('Refuses to format on invalid syntax', () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'BlahBlahBlah: test',
+            'This is not valid Gherkin at all'
+        ];
+
+        const formatted = runFormat(formatter, unformatted);
+        assert.strictEqual(formatted.length, 0); // Should return null/empty
     });
 });

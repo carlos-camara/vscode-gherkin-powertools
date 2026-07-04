@@ -1,6 +1,6 @@
 # 🎨 Intelligent Formatter
 
-The core feature of Gherkin Beautifier. The robust formatting engine parses your Gherkin syntax and aligns it automatically.
+The core feature of Gherkin Beautifier. Powered by the official `@cucumber/gherkin` Abstract Syntax Tree (AST) parser, the robust formatting engine analyzes your Gherkin syntax with mathematical precision and aligns it automatically.
 
 > [!TIP]
 > **How to Use**
@@ -11,8 +11,8 @@ The core feature of Gherkin Beautifier. The robust formatting engine parses your
 
 ## Capabilities
 
-### Strict Flat Indentation
-Enforces consistent alignment where all steps (`Given`, `When`, `Then`, `And`) share the exact same starting column.
+### AST-Powered Flat Indentation
+Enforces consistent alignment where all steps (`Given`, `When`, `Then`, `And`) share the exact same starting column. Since it uses an AST, it correctly ignores keywords hidden inside DocStrings or Comments.
 
 ### Smart Table Alignment
 Data tables (pipes `|`) dynamically pad themselves to align perfectly with the keyword of the preceding step.

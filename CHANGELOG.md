@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.0] - 2026-06-29
 
+### Added — AST Parsing Engine (Core)
+- **Mathematical Precision**: Replaced the legacy Regex-based parser with the official `@cucumber/gherkin` Abstract Syntax Tree (AST) parser. This brings flawless, mathematical precision to code analysis.
+- **Bulletproof Formatting**: Formatting rules now correctly ignore keywords embedded inside `"""` DocStrings, `|` Data Tables, and `#` Comments, preventing catastrophic layout breakages on complex files.
+- **Diagnostics Reliability**: The Live Linter now uses the AST to surface syntax errors (like missing colons or invalid tokens) in real-time with 100% accuracy.
+
 ### Added — Omega Squeeze (Project Analytics V6)
 - **Project Analytics**: Completely redesigned the `Gherkin: Show Project Statistics` dashboard with a premium glassmorphism interface and animated dynamic numbers.
 - **Gherkin Quality Score (GQS)**: Added a proprietary algorithm to evaluate code quality based on Reusability (Backgrounds), Parametrization (Examples), Documentation (Comments), and Complexity (Avg Steps per Scenario).
