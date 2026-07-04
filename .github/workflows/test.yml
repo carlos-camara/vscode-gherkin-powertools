@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   test:
@@ -32,9 +33,9 @@ jobs:
       - name: 🧪 Run Tests & Generate Coverage
         run: xvfb-run -a npm run coverage
 
-      - name: 📊 Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: 📊 Report Coverage to PR
+        uses: zgosalvez/github-actions-report-lcov@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-          verbose: true
+          coverage-files: coverage/lcov.info
+          minimum-coverage: 70
+          github-token: ${{ secrets.GITHUB_TOKEN }}
