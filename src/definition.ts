@@ -48,6 +48,9 @@ export class GherkinDefinitionProvider implements vscode.DefinitionProvider {
                     // Escape special regex characters except .*
                     regexPattern = regexPattern.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&').replace(/\\\.\\\*/g, '.*');
 
+                    // Prevent exponential backtracking (ReDoS) by collapsing consecutive .*
+                    regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');
+
                     try {
                         const regex = new RegExp('^' + regexPattern + '$', 'i');
                         if (regex.test(stepText)) {
