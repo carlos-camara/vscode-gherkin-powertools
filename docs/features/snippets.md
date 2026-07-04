@@ -11,10 +11,12 @@ Built-in autocompletion snippets for common Gherkin blocks.
 | `outline` | Scenario Outline | Outline with Examples table |
 | `rule` | Rule block | Rule with nested Scenario |
 
-!!! tip "How to Use"
-    1. Open a `.feature` file
-    2. Type a snippet prefix (e.g., `scenario`)
-    3. Press **Tab** to expand
+> [!TIP]
+> **How to Use**
+>
+> 1. Open a `.feature` file
+> 2. Type a snippet prefix (e.g., `scenario`)
+> 3. Press **Tab** to expand
 
 ## Example
 
@@ -27,5 +29,8 @@ Scenario: Scenario name
     Then expected result
 ```
 
-!!! tip "Custom Snippets"
-    You can extend the built-in snippets by creating your own in `.vscode/gherkin.code-snippets`.
+> [!TIP]
+> **Custom Snippets**
+>
+> You can extend the built-in snippets by creating your own in `.vscode/gherkin.code-snippets`.
+

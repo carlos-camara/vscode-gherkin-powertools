@@ -27,8 +27,10 @@ The provider recognizes all standard Behave/Cucumber Python decorators:
 @step('I perform an action')
 ```
 
-!!! warning "Requirements"
-    - Python step files must be in a `steps/` directory (any depth)
-    - Decorators must use `@given`, `@when`, `@then`, or `@step`
+> [!WARNING]
+> **Requirements**
+>
+> - Python step files must be in a `steps/` directory (any depth)
+> - Decorators must use `@given`, `@when`, `@then`, or `@step`
 
 ![Go To Definition](../assets/definition.webp)

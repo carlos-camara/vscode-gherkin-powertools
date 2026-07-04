@@ -2,10 +2,12 @@
 
 Navigate massive `.feature` files with ease using VS Code's native Outline panel.
 
-!!! tip "How to Use"
-    1. Open any `.feature` file
-    2. Open the **Outline** panel (sidebar or `Cmd+Shift+O` / `Ctrl+Shift+O`)
-    3. Click any item to jump directly to it
+> [!TIP]
+> **How to Use**
+>
+> 1. Open any `.feature` file
+> 2. Open the **Outline** panel (sidebar or `Cmd+Shift+O` / `Ctrl+Shift+O`)
+> 3. Click any item to jump directly to it
 
 ## Hierarchy
 

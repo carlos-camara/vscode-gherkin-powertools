@@ -14,10 +14,12 @@ The built-in linter monitors your `.feature` files **in real-time** as you type.
 | Invalid keywords | Detects misspelled Gherkin keywords | `Givn I login` → ❌ |
 | Structural errors | Validates proper nesting | Steps outside a Scenario → ❌ |
 
-!!! tip "Integration"
-    Diagnostics appear in:
-    - **Editor gutter** — Red underlines on the offending line
-    - **Problems panel** — `Ctrl+Shift+M` / `Cmd+Shift+M`
-    - **Minimap** — Red highlights for quick scanning
+> [!TIP]
+> **Integration**
+>
+> Diagnostics appear in:
+> - **Editor gutter** — Red underlines on the offending line
+> - **Problems panel** — `Ctrl+Shift+M` / `Cmd+Shift+M`
+> - **Minimap** — Red highlights for quick scanning
 
 ![Linter Demonstration](../assets/linter.webp)
