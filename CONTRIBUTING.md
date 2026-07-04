@@ -51,8 +51,19 @@ To run the test suite:
 npm test
 ```
 
+To run the tests and generate a coverage report (requires VS Code to be downloaded internally):
+```bash
+npm run coverage
+```
+
 > [!IMPORTANT]
 > Always ensure that all tests pass before submitting a Pull Request. If you are adding a new feature, please add a corresponding test case in the `test/` directory.
+
+---
+
+## 🤖 CI/CD Pipeline
+
+Our CI/CD pipeline leverages reusable GitHub Actions from the [qa-hub-actions](https://github.com/carlos-camara/qa-hub-actions) repository. This ensures consistency and enterprise-grade quality checks. Specifically, coverage reporting and other QA gates are handled externally by these actions.
 
 ---
 

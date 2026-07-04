@@ -50,6 +50,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation (`docs/`)**: Upgraded all markdown pages to use MkDocs Admonitions (`!!! tip`) and visual emojis.
 - **Packaging**: Highly optimized `.vscodeignore` to exclude heavy `docs/` and `assets/` folders, dropping the `.vsix` payload size from 18 MB to 408 KB while maintaining functional URLs in the Marketplace.
 - **Testing**: Upgraded integration tests to run on Node 22 via `@vscode/test-electron@3.0.0`.
+- **Internal / CI**:
+  - Migrated tests from custom programmatic Mocha runner to the official `@vscode/test-cli`.
+  - Removed `nyc` in favor of built-in `c8` V8 coverage reporting.
+  - Migrated code coverage reporting in Pull Requests to a reusable GitHub Action from the `qa-hub-actions` repository (replacing the local bash script to maximize modularity).
 
 ## [1.5.0] - 2026-06-25
 ### Added

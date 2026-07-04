@@ -110,17 +110,18 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "vscode-test",
+    "coverage": "vscode-test --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=json-summary"
   },
   "devDependencies": {
-    "@types/vscode": "^1.80.0",
-    "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^26.0.1",
-    "glob": "^13.0.6",
+    "@types/vscode": "^1.80.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^3.0.0",
+    "c8": "^11.0.0",
     "mocha": "^11.7.6",
-    "typescript": "^6.0.3",
-    "@vscode/test-electron": "^3.0.0"
+    "typescript": "^6.0.3"
   },
   "overrides": {
     "serialize-javascript": "^7.0.5"

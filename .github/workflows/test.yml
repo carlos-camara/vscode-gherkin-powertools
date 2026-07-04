@@ -1,3 +1,4 @@
+---
 name: 🧪 Run Tests
 
 on:
@@ -8,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   test:
@@ -29,5 +31,11 @@ jobs:
       - name: 🔨 Compile TypeScript
         run: npm run compile
 
-      - name: 🧪 Run Tests
-        run: xvfb-run -a npm test
+      - name: 🧪 Run Tests & Generate Coverage
+        run: xvfb-run -a npm run coverage
+
+      - name: 📊 Report Coverage to PR
+        uses: carlos-camara/qa-hub-actions/report-coverage@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-number: ${{ github.event.pull_request.number }}
