@@ -17,7 +17,7 @@ BRNCH_PCT=$(jq -r '.total.branches.pct' "$COVERAGE_FILE")
 
 # Generate the markdown table for the comment
 MARKDOWN_BODY=$(cat <<EOF
-## 📊 Code Coverage Report (Native)
+## 📊 Code Coverage Report
 
 | Metric | Percentage |
 |---|---|
@@ -25,8 +25,6 @@ MARKDOWN_BODY=$(cat <<EOF
 | **Statements** | ${STMTS_PCT}% |
 | **Functions** | ${FUNCS_PCT}% |
 | **Branches** | ${BRNCH_PCT}% |
-
-*Report generated automatically by native GitHub Actions without third-party dependencies.*
 EOF
 )
 
@@ -35,8 +33,16 @@ echo "$MARKDOWN_BODY"
 
 # Post the comment to the Pull Request if we are in a PR context
 if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-    echo "Posting coverage to PR #$PR_NUMBER..."
-    gh pr comment "$PR_NUMBER" --body "$MARKDOWN_BODY" || echo "Failed to post comment, check permissions."
+    echo "Checking for existing coverage comment on PR #$PR_NUMBER..."
+    COMMENT_ID=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("## 📊 Code Coverage Report"))) | .id' | head -n 1)
+
+    if [ -n "$COMMENT_ID" ]; then
+        echo "Updating existing comment #$COMMENT_ID..."
+        gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID" -f body="$MARKDOWN_BODY" || echo "Failed to update comment."
+    else
+        echo "Posting new coverage comment to PR #$PR_NUMBER..."
+        gh pr comment "$PR_NUMBER" --body "$MARKDOWN_BODY" || echo "Failed to post comment, check permissions."
+    fi
 else
     echo "Not running in a PR context (or PR_NUMBER is missing). Skipping comment."
 fi
