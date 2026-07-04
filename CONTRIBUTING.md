@@ -51,6 +51,11 @@ To run the test suite:
 npm test
 ```
 
+To run the tests and generate a coverage report (requires VS Code to be downloaded internally):
+```bash
+npm run coverage
+```
+
 > [!IMPORTANT]
 > Always ensure that all tests pass before submitting a Pull Request. If you are adding a new feature, please add a corresponding test case in the `test/` directory.
 

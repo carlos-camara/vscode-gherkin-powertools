@@ -28,10 +28,14 @@ The extension is written in **TypeScript** and uses the native **VS Code Extensi
 
 ## Testing
 
-We use `@vscode/test-electron` with Mocha for integration tests:
-
+We use `@vscode/test-electron` with Mocha for integration tests. To run the test suite:
 ```bash
 npm test
+```
+
+To run the tests and generate a coverage report (requires VS Code to be downloaded internally):
+```bash
+npm run coverage
 ```
 
 !!! note
