@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-*(No unreleased changes at this time)*
+### Security
+- **Dependency Override**: Forced `serialize-javascript` to version `^7.0.5` via npm `overrides` to mitigate a critical Remote Code Execution (RCE) vulnerability (CVE-2020-7660 incomplete fix) caused by unescaped RegExp flags and Date properties. This secures the test framework (`mocha`) without requiring a major framework downgrade.
 
 ## [1.6.0] - 2026-06-29
 
