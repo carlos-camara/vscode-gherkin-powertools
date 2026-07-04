@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Internal / CI**:
   - Migrated tests from custom programmatic Mocha runner to the official `@vscode/test-cli`.
   - Removed `nyc` in favor of built-in `c8` V8 coverage reporting.
-  - Migrated code coverage reporting in Pull Requests to a 100% native, zero-dependency bash script (replacing Codecov and other third-party actions to maximize supply chain security).
+  - Migrated code coverage reporting in Pull Requests to a reusable GitHub Action from the `qa-hub-actions` repository (replacing the local bash script to maximize modularity).
 
 ## [1.5.0] - 2026-06-25
 ### Added

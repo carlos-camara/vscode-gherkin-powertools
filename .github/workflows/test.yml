@@ -35,7 +35,7 @@ jobs:
         run: xvfb-run -a npm run coverage
 
       - name: 📊 Report Coverage to PR
-        uses: carlos-camara/qa-hub-actions/report-coverage@feat/report-coverage-action
+        uses: carlos-camara/qa-hub-actions/report-coverage@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-number: ${{ github.event.pull_request.number }}
