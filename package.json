@@ -111,7 +111,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
     "test": "vscode-test",
-    "coverage": "vscode-test --coverage --coverage-reporter=lcov --coverage-reporter=text"
+    "coverage": "vscode-test --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=json-summary"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
