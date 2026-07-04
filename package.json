@@ -125,5 +125,9 @@
   },
   "overrides": {
     "serialize-javascript": "^7.0.5"
+  },
+  "dependencies": {
+    "@cucumber/gherkin": "^26.2.0",
+    "@cucumber/messages": "^22.0.0"
   }
 }

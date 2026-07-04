@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
+import { AstBuilder, GherkinClassicTokenMatcher, Parser } from '@cucumber/gherkin';
+import { IdGenerator } from '@cucumber/messages';
 
-/**
- * Configuration options for the Gherkin formatter.
- */
 export interface FormatterOptions {
     stepIndentation: number;
     alignTableToKeyword: boolean;
@@ -10,16 +9,8 @@ export interface FormatterOptions {
     emptyLinesBetweenScenarios: number;
 }
 
-/**
- * Provides formatting edits for Gherkin documents.
- * Supports both full document formatting and range/selection formatting.
- */
 export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider {
     
-    /**
-     * Retrieves the current user configuration for the formatter.
-     * @returns The FormatterOptions object based on workspace settings.
-     */
     private getOptions(): FormatterOptions {
         const config = vscode.workspace.getConfiguration('gherkinBeautifier');
         return {
@@ -35,23 +26,17 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         _options: vscode.FormattingOptions,
         _token: vscode.CancellationToken
     ): vscode.TextEdit[] {
-        const edits: vscode.TextEdit[] = [];
-        const lines: string[] = [];
         const formatOptions = this.getOptions();
-
-        for (let i = 0; i < document.lineCount; i++) {
-            lines.push(document.lineAt(i).text);
-        }
-
-        const formattedLines = this.formatGherkin(lines, formatOptions.stepIndentation, formatOptions);
+        const text = document.getText();
+        
+        const formattedText = this.formatGherkin(text, formatOptions);
+        if (!formattedText) return [];
 
         const start = new vscode.Position(0, 0);
         const end = new vscode.Position(document.lineCount, 0);
         const range = new vscode.Range(start, end);
 
-        edits.push(vscode.TextEdit.replace(range, formattedLines.join('\n') + '\n'));
-
-        return edits;
+        return [vscode.TextEdit.replace(range, formattedText + '\n')];
     }
 
     public provideDocumentRangeFormattingEdits(
@@ -60,333 +45,206 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         _options: vscode.FormattingOptions,
         _token: vscode.CancellationToken
     ): vscode.TextEdit[] {
-        const edits: vscode.TextEdit[] = [];
-        const lines: string[] = [];
+        // Range formatting is tricky with AST since AST requires a full valid document.
+        // We will format the whole document and then only extract the requested range.
         const formatOptions = this.getOptions();
+        const text = document.getText();
+        
+        const formattedText = this.formatGherkin(text, formatOptions);
+        if (!formattedText) return [];
+
+        const formattedLines = formattedText.split('\n');
         
         const startLine = range.start.line;
-        const endLine = range.end.line;
+        const endLine = Math.min(range.end.line, formattedLines.length - 1);
 
-        for (let i = startLine; i <= endLine; i++) {
-            lines.push(document.lineAt(i).text);
-        }
-
-        let initialStepIndent = formatOptions.stepIndentation;
-        if (startLine > 0) {
-            const prevLine = document.lineAt(startLine - 1).text;
-            const match = prevLine.trimStart().match(/^(Given|When|Then|And|But|\*|Dado|Cuando|Entonces|Y|Pero|Soit|Quand|Alors|Et|Mais|Angenommen|Wenn|Dann|Und|Aber)\s+(.*)/i);
-            if (match) {
-                const keywordLength = match[1].length;
-                const baseIndent = prevLine.length - prevLine.trimStart().length;
-                if (formatOptions.alignTableToKeyword) {
-                    initialStepIndent = baseIndent + keywordLength + 1;
-                } else {
-                    initialStepIndent = baseIndent + 2;
-                }
-            }
-        }
-
-        const formattedLines = this.formatGherkin(lines, initialStepIndent, formatOptions);
+        const linesInRange = formattedLines.slice(startLine, endLine + 1);
 
         const formatRange = new vscode.Range(
             new vscode.Position(startLine, 0),
-            new vscode.Position(endLine, document.lineAt(endLine).text.length)
+            new vscode.Position(endLine, document.lineAt(range.end.line).text.length)
         );
 
-        edits.push(vscode.TextEdit.replace(formatRange, formattedLines.join('\n')));
-
-        return edits;
+        return [vscode.TextEdit.replace(formatRange, linesInRange.join('\n'))];
     }
 
-    /**
-     * The core formatting engine that processes an array of Gherkin lines.
-     * 
-     * @param lines Array of unformatted text lines.
-     * @param initialStepIndent The base indentation level to start with.
-     * @param options Formatting configuration.
-     * @returns Array of formatted text lines.
-     */
-    public formatGherkin(
-        lines: string[], 
-        initialStepIndent: number = 4, 
-        options: FormatterOptions = { stepIndentation: 4, alignTableToKeyword: true, tagsFormat: 'wrap', emptyLinesBetweenScenarios: 1 }
-    ): string[] {
+    public formatGherkin(text: string, options: FormatterOptions): string | null {
+        const uuidFn = IdGenerator.uuid();
+        const builder = new AstBuilder(uuidFn);
+        const matcher = new GherkinClassicTokenMatcher();
+        const parser = new Parser(builder, matcher);
+        
+        let gherkinDocument;
+        try {
+            gherkinDocument = parser.parse(text);
+        } catch (e) {
+            // If syntax is invalid, we refuse to format to avoid breaking the document.
+            // This is standard behavior for AST-based formatters like Prettier.
+            vscode.window.showWarningMessage("Gherkin Beautifier: Cannot format document due to syntax errors.");
+            return null;
+        }
+
+        const astMap = new Map<number, { type: string, indent: number, extra?: any }>();
+        this.buildASTMap(gherkinDocument.feature, options, astMap);
+        
+        if (gherkinDocument.comments) {
+            gherkinDocument.comments.forEach((c: any) => {
+                astMap.set(c.location.line, { type: 'Comment', indent: -1 }); // Indent depends on context
+            });
+        }
+
+        const lines = text.split(/\r?\n/);
         const result: string[] = [];
-        let inTable = false;
-        let tableLines: string[] = [];
-        let tagBuffer: string[] = [];
-        let lastStepIndent = initialStepIndent; 
+        let inDocString = false;
+        let docStringIndent = 0;
+        let tableLines: { line: string, indent: number }[] = [];
 
         for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trim(); // This inherently trims trailing whitespace
-            
-            // Normalize Example Variables: < email > to <email>
-            line = line.replace(/< *([\w\s-]+?) *>/g, (_, inner) => '<' + inner.trim() + '>');
+            const lineNum = i + 1; // AST uses 1-based indexing
+            const rawLine = lines[i];
+            const trimmedLine = rawLine.trim();
 
-            if (line.startsWith('|') && line.endsWith('|')) {
-                inTable = true;
-                tableLines.push(line);
-            } else {
-                if (inTable) {
-                    result.push(...this.alignTable(tableLines, lastStepIndent));
-                    tableLines = [];
-                    inTable = false;
+            if (trimmedLine === '') {
+                if (!inDocString && result.length > 0 && result[result.length - 1].trim() !== '') {
+                    // Only preserve one empty line outside docstrings
+                    result.push('');
+                } else if (inDocString) {
+                    result.push('');
                 }
-                
-                if (line !== '') {
-                    if (line.startsWith('@')) {
-                        tagBuffer.push(...line.split(/\s+/).filter(t => t.startsWith('@')));
-                        continue;
-                    }
-                    
-                    if (tagBuffer.length > 0) {
-                        const nextLower = line.toLowerCase();
-                        const tagIndent = nextLower.startsWith('feature:') ? 0 : 2;
-                        
-                        // Check spacing before blocks/tags
-                        if (result.length > 0) {
-                            const lastLine = result[result.length - 1];
-                            if (lastLine.trim() !== '') {
-                                const emptyLinesNeeded = options.emptyLinesBetweenScenarios;
-                                for (let j = 0; j < emptyLinesNeeded; j++) {
-                                    result.push('');
-                                }
-                            }
-                        }
-                        
-                        result.push(...this.formatTags(tagBuffer, tagIndent, options));
-                        tagBuffer = [];
-                    }
+                continue;
+            }
 
-                    const indentedLine = this.indentLine(line, options);
-                    const lowerLine = line.toLowerCase();
-                    
-                    if (lowerLine.match(/^(given|when|then|and|but|\*|examples:|dado|cuando|entonces|y|pero|ejemplos:|soit|quand|alors|et|mais|exemples:|angenommen|wenn|dann|und|aber|beispiele:)/)) {
-                        const match = indentedLine.trimStart().match(/^(Given|When|Then|And|But|\*|Dado|Cuando|Entonces|Y|Pero|Soit|Quand|Alors|Et|Mais|Angenommen|Wenn|Dann|Und|Aber)\s+(.*)/i);
-                        const baseIndent = indentedLine.length - indentedLine.trimStart().length;
-                        
-                        if (options.alignTableToKeyword && match) {
-                            const keywordLength = match[1].length;
-                            lastStepIndent = baseIndent + keywordLength + 1;
-                        } else {
-                            lastStepIndent = baseIndent + 2;
-                        }
-                    }
+            const nodeInfo = astMap.get(lineNum);
 
-                    const isNewBlock = lowerLine.match(/^(scenario|scenario outline|background|rule|escenario|esquema del escenario|antecedentes|regla|scénario|plan du scénario|contexte|règle|szenario|szenariogrundriss|hintergrund|regel):/);
-
-                    if (isNewBlock && result.length > 0) {
-                        const lastLine = result[result.length - 1];
-                        if (lastLine.trim() !== '' && !lastLine.trim().startsWith('@')) {
-                            const emptyLinesNeeded = options.emptyLinesBetweenScenarios;
-                            for (let j = 0; j < emptyLinesNeeded; j++) {
-                                result.push('');
-                            }
-                        }
-                    }
-
-                    result.push(indentedLine);
+            // Handle DocStrings
+            if (trimmedLine.startsWith('"""')) {
+                if (!inDocString) {
+                    inDocString = true;
+                    docStringIndent = nodeInfo ? nodeInfo.indent : 0;
+                    result.push(' '.repeat(docStringIndent) + trimmedLine);
                 } else {
-                    // Empty line logic (collapses multiple to single)
-                    if (result.length > 0 && result[result.length - 1].trim() !== '') {
-                        result.push('');
+                    inDocString = false;
+                    result.push(' '.repeat(docStringIndent) + trimmedLine);
+                }
+                continue;
+            }
+
+            if (inDocString) {
+                result.push(' '.repeat(docStringIndent) + rawLine.trimStart());
+                continue;
+            }
+
+            // Handle Tables
+            if (nodeInfo && nodeInfo.type === 'TableRow') {
+                tableLines.push({ line: trimmedLine, indent: nodeInfo.indent });
+                
+                // If next line is not a table row, align and flush
+                const nextNode = astMap.get(lineNum + 1);
+                const isNextLineTable = (nextNode && nextNode.type === 'TableRow') || (lines[i+1] && lines[i+1].trim().startsWith('|'));
+                
+                if (!isNextLineTable) {
+                    result.push(...this.alignTable(tableLines));
+                    tableLines = [];
+                }
+                continue;
+            }
+
+            // Handle other mapped lines
+            if (nodeInfo) {
+                // Ensure scenario blocks have empty lines before them
+                if (['Feature', 'Scenario', 'Rule'].includes(nodeInfo.type) && result.length > 0) {
+                    const lastLine = result[result.length - 1];
+                    if (lastLine.trim() !== '' && !lastLine.trim().startsWith('@')) {
+                        for (let j = 0; j < options.emptyLinesBetweenScenarios; j++) {
+                            result.push('');
+                        }
                     }
                 }
+
+                if (nodeInfo.type === 'Comment') {
+                    // Find context indent
+                    let contextIndent = 0;
+                    for (let j = lineNum; j <= lines.length; j++) {
+                        if (astMap.has(j) && astMap.get(j)!.type !== 'Comment') {
+                            contextIndent = astMap.get(j)!.indent;
+                            break;
+                        }
+                    }
+                    result.push(' '.repeat(contextIndent) + trimmedLine);
+                } else if (nodeInfo.type === 'Tag') {
+                    // Tags are handled separately for wrapping if needed, but for simplicity here we just indent
+                    result.push(' '.repeat(nodeInfo.indent) + trimmedLine);
+                } else {
+                    result.push(' '.repeat(nodeInfo.indent) + trimmedLine);
+                }
+            } else {
+                // Unmapped line (could be a description line under a Scenario or Feature)
+                // Default to 2 spaces or align to the parent
+                result.push('  ' + trimmedLine);
             }
         }
 
-        if (tagBuffer.length > 0) {
-            result.push(...this.formatTags(tagBuffer, 2, options));
-        }
-
-        if (inTable) {
-            result.push(...this.alignTable(tableLines, lastStepIndent));
-        }
-
-        // Remove trailing empty lines completely
+        // Clean up trailing empty lines
         while (result.length > 0 && result[result.length - 1].trim() === '') {
             result.pop();
         }
 
-        return this.alignInlineComments(result);
+        return result.join('\n');
     }
 
-    /**
-     * Extracts an inline comment from a line, respecting strings and quotes.
-     */
-    private extractInlineComment(line: string): { text: string, comment: string | null } {
-        let inQuote = false;
-        for (let i = 0; i < line.length; i++) {
-            if (line[i] === '"') inQuote = !inQuote;
-            if (!inQuote && line[i] === '#' && i > 0 && /\s/.test(line[i-1])) {
-                return {
-                    text: line.substring(0, i).trimEnd(),
-                    comment: line.substring(i)
-                };
-            }
-        }
-        return { text: line, comment: null };
-    }
+    private buildASTMap(feature: any, options: FormatterOptions, map: Map<number, any>) {
+        if (!feature) return;
 
-    /**
-     * Post-processing step to align inline comments within contiguous blocks.
-     */
-    private alignInlineComments(lines: string[]): string[] {
-        const blocks: { start: number, end: number, maxLength: number, hasComments: boolean }[] = [];
-        let currentBlockStart = 0;
-        let maxLength = 0;
-        let blockHasComments = false;
-
-        for (let j = 0; j < lines.length; j++) {
-            const currentLine = lines[j];
-            
-            if (currentLine.trim() === '') {
-                if (j > currentBlockStart) {
-                    blocks.push({ start: currentBlockStart, end: j - 1, maxLength, hasComments: blockHasComments });
-                }
-                currentBlockStart = j + 1;
-                maxLength = 0;
-                blockHasComments = false;
-                continue;
-            }
-
-            if (!currentLine.trimStart().startsWith('#')) {
-                const { text, comment } = this.extractInlineComment(currentLine);
-                if (comment) {
-                    blockHasComments = true;
-                    if (text.length > maxLength) maxLength = text.length;
-                } else if (!currentLine.trimStart().startsWith('@') && !currentLine.includes('|')) {
-                    if (text.length > maxLength) maxLength = text.length;
-                }
-            }
-        }
-        if (lines.length > currentBlockStart) {
-            blocks.push({ start: currentBlockStart, end: lines.length - 1, maxLength, hasComments: blockHasComments });
-        }
-
-        for (const block of blocks) {
-            if (block.hasComments) {
-                for (let j = block.start; j <= block.end; j++) {
-                    const line = lines[j];
-                    if (!line.trimStart().startsWith('#')) {
-                        const { text, comment } = this.extractInlineComment(line);
-                        if (comment) {
-                            const paddingNeeded = block.maxLength - text.length + 2; 
-                            lines[j] = text + ' '.repeat(paddingNeeded) + comment;
-                        }
-                    }
-                }
-            }
-        }
-        return lines;
-    }
-
-    /**
-     * Sorts, deduplicates, and wraps tags into multiple lines if they exceed 80 characters.
-     * 
-     * @param tags Array of Gherkin tags (e.g. ['@smoke', '@api']).
-     * @param indentSpaces Number of spaces to indent the resulting tag lines.
-     * @returns Array of formatted tag lines.
-     */
-    private formatTags(tags: string[], indentSpaces: number, options: FormatterOptions): string[] {
-        const uniqueTags = [...new Set(tags)].sort();
-        const result: string[] = [];
-        const padding = ' '.repeat(indentSpaces);
+        map.set(feature.location.line, { type: 'Feature', indent: 0 });
+        feature.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent: 0 }));
         
-        if (options.tagsFormat === 'singleLine') {
-            result.push(padding + uniqueTags.join(' '));
-            return result;
-        }
-
-        let currentLine = padding;
-        
-        for (const tag of uniqueTags) {
-            if (currentLine.length + tag.length > 80 && currentLine.trim() !== '') {
-                result.push(currentLine.trimEnd());
-                currentLine = padding + tag + ' ';
+        feature.children?.forEach((child: any) => {
+            if (child.rule) {
+                map.set(child.rule.location.line, { type: 'Rule', indent: 2 });
+                child.rule.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent: 2 }));
+                child.rule.children?.forEach((rc: any) => {
+                    this.mapScenario(rc.background || rc.scenario, 4, options, map);
+                });
             } else {
-                currentLine += tag + ' ';
+                this.mapScenario(child.background || child.scenario, 2, options, map);
             }
-        }
-        
-        if (currentLine.trim() !== '') {
-            result.push(currentLine.trimEnd());
-        }
-        
-        return result;
-    }
-
-    /**
-     * Normalizes the capitalization of Gherkin keywords to standard Title Case.
-     * 
-     * @param line The string line to process.
-     * @returns The line with normalized keywords.
-     */
-    private autoCase(line: string): string {
-        return line.replace(/^(feature|característica|fonction|funktionalität|scenario outline|esquema del escenario|plan du scénario|szenariogrundriss|scenario|escenario|scénario|szenario|background|antecedentes|contexte|hintergrund|rule|regla|règle|regel|examples|ejemplos|exemples|beispiele|given|dado|soit|angenommen|when|cuando|quand|wenn|then|entonces|alors|dann|and|y|et|und|but|pero|mais|aber|\*)(:|\s|$)/i, (_, p1, p2) => {
-            const lower = p1.toLowerCase();
-            let cased = lower.charAt(0).toUpperCase() + lower.slice(1);
-            
-            if (lower === 'scenario outline') cased = 'Scenario Outline';
-            else if (lower === 'esquema del escenario') cased = 'Esquema del escenario';
-            else if (lower === 'plan du scénario') cased = 'Plan du scénario';
-            else if (lower === 'szenariogrundriss') cased = 'Szenariogrundriss';
-            
-            return cased + p2;
         });
     }
 
-    /**
-     * Applies correct semantic indentation to a single Gherkin line based on its keyword.
-     * 
-     * @param line The line of text to indent.
-     * @param options Formatting options defining spacing preferences.
-     * @returns The properly indented line.
-     */
-    private indentLine(line: string, options: FormatterOptions): string {
-        line = this.autoCase(line);
-        const lowerLine = line.toLowerCase();
+    private mapScenario(scenario: any, indent: number, options: FormatterOptions, map: Map<number, any>) {
+        if (!scenario) return;
+        map.set(scenario.location.line, { type: 'Scenario', indent });
+        scenario.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent }));
         
-        if (lowerLine.match(/^(feature|característica|fonction|funktionalität):/)) {
-            return line; // 0 spaces
-        }
-        if (
-            lowerLine.match(/^(rule|background|scenario|scenario outline|regla|antecedentes|escenario|esquema del escenario|règle|contexte|scénario|plan du scénario|regel|hintergrund|szenario|szenariogrundriss):/) ||
-            lowerLine.startsWith('@') 
-        ) {
-            return '  ' + line; // 2 spaces
-        }
-        
-        let stepIndentStr = ' '.repeat(options.stepIndentation);
+        scenario.steps?.forEach((step: any) => {
+            const stepIndent = options.stepIndentation;
+            map.set(step.location.line, { type: 'Step', indent: stepIndent });
+            
+            if (step.dataTable) {
+                // AST step keyword includes trailing space e.g. "Given "
+                const tableIndent = options.alignTableToKeyword ? stepIndent + (step.keyword.length || 6) : stepIndent + 2;
+                step.dataTable.rows.forEach((r: any) => map.set(r.location.line, { type: 'TableRow', indent: tableIndent }));
+            }
+            if (step.docString) {
+                map.set(step.docString.location.line, { type: 'DocStringDelimiter', indent: stepIndent + 2 });
+            }
+        });
 
-        if (lowerLine.match(/^(examples|ejemplos|exemples|beispiele):/)) {
-            return stepIndentStr + line;
-        }
-        if (lowerLine.match(/^(given|when|then|and|but|\*|dado|cuando|entonces|y|pero|soit|quand|alors|et|mais|angenommen|wenn|dann|und|aber)\s/)) {
-            return stepIndentStr + line;
-        }
-        if (line.startsWith('"""')) {
-            return stepIndentStr + '  ' + line; 
-        }
-        if (line.startsWith('#')) {
-            return '  ' + line; 
-        }
-
-        return stepIndentStr + line;
+        scenario.examples?.forEach((ex: any) => {
+            const examplesIndent = options.stepIndentation;
+            map.set(ex.location.line, { type: 'Examples', indent: examplesIndent });
+            ex.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent: examplesIndent }));
+            
+            const tableIndent = examplesIndent + 2; // Old formatter typically indented tables under examples
+            if (ex.tableHeader) map.set(ex.tableHeader.location.line, { type: 'TableRow', indent: tableIndent });
+            ex.tableBody?.forEach((r: any) => map.set(r.location.line, { type: 'TableRow', indent: tableIndent }));
+        });
     }
 
-    /**
-     * Aligns a block of Gherkin pipe-separated data table lines.
-     * Calculates the maximum width for each column to pad them consistently.
-     * 
-     * @param tableLines Array of raw table lines starting with `|`.
-     * @param indentSpaces Number of spaces to indent the entire table.
-     * @returns Array of aligned table lines.
-     */
-    private alignTable(tableLines: string[], indentSpaces: number): string[] {
+    private alignTable(tableLines: { line: string, indent: number }[]): string[] {
         const columnWidths: number[] = [];
-        const parsedRows = tableLines.map(line => {
-            const cols = line.split('|');
+        const parsedRows = tableLines.map(t => {
+            const cols = t.line.split('|');
             cols.shift();
             cols.pop();
             return cols.map(c => c.trim());
@@ -400,9 +258,8 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
             });
         });
 
-        const padding = ' '.repeat(indentSpaces);
-
-        return parsedRows.map(row => {
+        return parsedRows.map((row, rowIdx) => {
+            const padding = ' '.repeat(tableLines[rowIdx].indent);
             const paddedCols = row.map((col, idx) => {
                 return col.padEnd(columnWidths[idx], ' ');
             });

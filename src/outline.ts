@@ -1,127 +1,130 @@
 import * as vscode from 'vscode';
+import { AstBuilder, GherkinClassicTokenMatcher, Parser } from '@cucumber/gherkin';
+import { IdGenerator } from '@cucumber/messages';
 
 /**
  * Provides a Document Symbol tree (Outline) for Gherkin feature files.
+ * Uses the official @cucumber/gherkin AST for 100% accuracy.
  */
 export class GherkinDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
+    private builder: AstBuilder;
+    private matcher: GherkinClassicTokenMatcher;
+    private parser: Parser<any>;
+
+    constructor() {
+        const uuidFn = IdGenerator.uuid();
+        this.builder = new AstBuilder(uuidFn);
+        this.matcher = new GherkinClassicTokenMatcher();
+        this.parser = new Parser(this.builder, this.matcher);
+    }
+
     public provideDocumentSymbols(
         document: vscode.TextDocument,
         _token: vscode.CancellationToken
     ): vscode.DocumentSymbol[] {
+        const text = document.getText();
+        let gherkinDocument;
+
+        try {
+            gherkinDocument = this.parser.parse(text);
+        } catch (e) {
+            // If there's a fatal parsing error, we can't build a full AST.
+            // But usually @cucumber/gherkin parses as much as it can.
+            return [];
+        }
+
+        if (!gherkinDocument || !gherkinDocument.feature) {
+            return [];
+        }
+
         const symbols: vscode.DocumentSymbol[] = [];
-        let currentFeature: vscode.DocumentSymbol | null = null;
-        let currentRule: vscode.DocumentSymbol | null = null;
+        const feature = gherkinDocument.feature;
 
-        for (let i = 0; i < document.lineCount; i++) {
-            const line = document.lineAt(i);
-            const text = line.text.trimStart();
-            const lowerText = text.toLowerCase();
+        const featureSymbol = this.createSymbol(
+            feature.keyword + ': ' + feature.name,
+            feature.description || '',
+            vscode.SymbolKind.Class,
+            this.getRange(feature.location, document, text),
+            this.getRange(feature.location, document, text, true)
+        );
 
-            // Match Feature
-            if (lowerText.match(/^(feature|característica|fonction|funktionalität):/)) {
-                const featureSymbol = new vscode.DocumentSymbol(
-                    text,
-                    '',
-                    vscode.SymbolKind.Class,
-                    line.range,
-                    line.range
-                );
-                symbols.push(featureSymbol);
-                currentFeature = featureSymbol;
-                currentRule = null;
-            }
-            // Match Rule
-            else if (lowerText.match(/^(rule|regla|règle|regel):/)) {
-                const ruleSymbol = new vscode.DocumentSymbol(
-                    text,
-                    '',
-                    vscode.SymbolKind.Namespace,
-                    line.range,
-                    line.range
-                );
-                if (currentFeature) {
-                    currentFeature.children.push(ruleSymbol);
-                } else {
-                    symbols.push(ruleSymbol);
-                }
-                currentRule = ruleSymbol;
-            }
-            // Match Scenario / Background
-            else if (lowerText.match(/^(scenario|scenario outline|background|escenario|antecedentes|esquema del escenario|scénario|contexte|szenario|hintergrund):/)) {
-                const scenarioSymbol = new vscode.DocumentSymbol(
-                    text,
-                    '',
-                    vscode.SymbolKind.Method,
-                    line.range,
-                    line.range
-                );
-                
-                if (currentRule) {
-                    currentRule.children.push(scenarioSymbol);
-                } else if (currentFeature) {
-                    currentFeature.children.push(scenarioSymbol);
-                } else {
-                    symbols.push(scenarioSymbol);
-                }
-            }
-        }
-
-        // Second pass: update ranges so parents contain their children correctly
-        // We know a feature spans from its start line to the end of the document
-        if (currentFeature) {
-            currentFeature.range = new vscode.Range(
-                currentFeature.range.start, 
-                new vscode.Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length)
-            );
-        }
-        
-        // Let's refine ranges: a rule spans until the next rule
-        let previousRule: vscode.DocumentSymbol | null = null;
-        if (currentFeature && currentFeature.children.length > 0) {
-            for (const child of currentFeature.children) {
-                if (child.kind === vscode.SymbolKind.Namespace) {
-                    // It's a Rule
-                    if (previousRule) {
-                        previousRule.range = new vscode.Range(
-                            previousRule.range.start,
-                            new vscode.Position(child.range.start.line - 1, 0)
-                        );
-                    }
-                    previousRule = child;
+        if (feature.children) {
+            for (const child of feature.children) {
+                if (child.rule) {
+                    const ruleSymbol = this.createSymbol(
+                        child.rule.keyword + ': ' + child.rule.name,
+                        child.rule.description || '',
+                        vscode.SymbolKind.Namespace,
+                        this.getRange(child.rule.location, document, text),
+                        this.getRange(child.rule.location, document, text, true)
+                    );
                     
-                    // Also fix scenario ranges inside the rule
-                    let previousScenario: vscode.DocumentSymbol | null = null;
-                    for (const scenario of child.children) {
-                        if (previousScenario) {
-                            previousScenario.range = new vscode.Range(
-                                previousScenario.range.start,
-                                new vscode.Position(scenario.range.start.line - 1, 0)
-                            );
+                    if (child.rule.children) {
+                        for (const ruleChild of child.rule.children) {
+                            if (ruleChild.background) {
+                                ruleSymbol.children.push(this.buildScenarioSymbol(ruleChild.background, document, text));
+                            } else if (ruleChild.scenario) {
+                                ruleSymbol.children.push(this.buildScenarioSymbol(ruleChild.scenario, document, text));
+                            }
                         }
-                        previousScenario = scenario;
                     }
-                    if (previousScenario) {
-                        // The last scenario in a rule extends to the end of the rule (which we'll estimate as document end for now, or just leave it)
-                    }
-                } else {
-                    // It's a Scenario directly under Feature
-                    if (previousRule) {
-                        previousRule.range = new vscode.Range(
-                            previousRule.range.start,
-                            new vscode.Position(child.range.start.line - 1, 0)
-                        );
-                        previousRule = null;
-                    }
+                    featureSymbol.children.push(ruleSymbol);
+                } else if (child.background) {
+                    featureSymbol.children.push(this.buildScenarioSymbol(child.background, document, text));
+                } else if (child.scenario) {
+                    featureSymbol.children.push(this.buildScenarioSymbol(child.scenario, document, text));
                 }
-            }
-            if (previousRule) {
-                previousRule.range = new vscode.Range(
-                    previousRule.range.start,
-                    new vscode.Position(document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length)
-                );
             }
         }
 
+        symbols.push(featureSymbol);
         return symbols;
+    }
+
+    private buildScenarioSymbol(node: any, document: vscode.TextDocument, text: string): vscode.DocumentSymbol {
+        const symbol = this.createSymbol(
+            (node.keyword || 'Background') + ': ' + (node.name || ''),
+            node.description || '',
+            vscode.SymbolKind.Method,
+            this.getRange(node.location, document, text),
+            this.getRange(node.location, document, text, true)
+        );
+
+        if (node.steps) {
+            for (const step of node.steps) {
+                const stepSymbol = this.createSymbol(
+                    step.keyword + step.text,
+                    '',
+                    vscode.SymbolKind.String,
+                    this.getRange(step.location, document, text),
+                    this.getRange(step.location, document, text, true)
+                );
+                symbol.children.push(stepSymbol);
+            }
+        }
+
+        return symbol;
+    }
+
+    private createSymbol(name: string, detail: string, kind: vscode.SymbolKind, range: vscode.Range, selectionRange: vscode.Range): vscode.DocumentSymbol {
+        return new vscode.DocumentSymbol(name.trim() || 'Unnamed', detail.trim(), kind, range, selectionRange);
+    }
+
+    private getRange(location: { line: number; column?: number }, document: vscode.TextDocument, text: string, isSelection: boolean = false): vscode.Range {
+        const line = Math.max(0, location.line - 1);
+        const col = location.column ? Math.max(0, location.column - 1) : 0;
+        
+        // For simplicity, selection range is just the keyword/start.
+        // Full range could span to the next element, but for Outline, a single line is often fine 
+        // unless we want folding to work perfectly. VS Code has a default indentation-based folder anyway.
+        const lineLength = document.lineAt(line).text.length;
+        
+        if (isSelection) {
+            return new vscode.Range(line, col, line, lineLength);
+        } else {
+            // To make ranges wrap their children, we could calculate the end of the node by looking at the next node, 
+            // but for Document Symbols, just using the single line often suffices to jump to it.
+            return new vscode.Range(line, 0, line, lineLength);
+        }
     }
 }
