@@ -1,0 +1,14 @@
+const { defineConfig } = require('@vscode/test-cli');
+
+module.exports = defineConfig([
+  {
+    label: 'unitTests',
+    files: 'out/test/suite/**/*.test.js',
+    version: '1.80.0',
+    workspaceFolder: './',
+    mocha: {
+      ui: 'tdd',
+      timeout: 20000
+    }
+  }
+]);
