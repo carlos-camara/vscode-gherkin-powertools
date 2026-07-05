@@ -9,12 +9,16 @@ Instantly jump from a `.feature` file to the exact Python step definition.
 
 ## How It Works
 
-When you click on a step like `Given I login`, the extension:
+When you open your workspace, the extension builds an ultra-fast **In-Memory Symbol Cache** by scanning your `.py` files. 
+
+When you click on a step like `Given I login`:
 
 1. Extracts the step text (e.g., `I login`)
-2. Recursively searches your `steps/` folder
+2. Instantly queries the Symbol Cache in RAM (0ms latency).
 3. Finds the matching Python decorator (`@given('I login')`)
 4. Opens the `.py` file at the exact line
+
+The cache automatically updates in the background when you create, modify, or delete Python files.
 
 ## Supported Decorators
 

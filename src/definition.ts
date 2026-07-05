@@ -1,7 +1,12 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
+import { SymbolCache } from './cache';
 
 export class GherkinDefinitionProvider implements vscode.DefinitionProvider {
+    private cache: SymbolCache;
+
+    constructor(cache: SymbolCache) {
+        this.cache = cache;
+    }
 
     public async provideDefinition(
         document: vscode.TextDocument,
@@ -20,52 +25,11 @@ export class GherkinDefinitionProvider implements vscode.DefinitionProvider {
 
         const stepText = match[1].trim();
 
-        // Search for Python files in any 'steps' folder
-        const stepFiles = await vscode.workspace.findFiles('**/steps/**/*.py', '**/node_modules/**');
-
-        for (const file of stepFiles) {
-            if (token.isCancellationRequested) {
-                return null;
-            }
-
-            const content = fs.readFileSync(file.fsPath, 'utf8');
-            const lines = content.split(/\r?\n/);
-
-            for (let i = 0; i < lines.length; i++) {
-                const pyLine = lines[i].trim();
-
-                // Look for Behave decorators: @given('...'), @when(r"..."), etc.
-                const decoratorMatch = pyLine.match(/^@(given|when|then|step)\s*\(\s*(?:r|u|f|b)?(['"])(.*?)\2/i);
-                if (decoratorMatch) {
-                    const patternText = decoratorMatch[3];
-                    
-                    // Convert Behave pattern to JS RegExp
-                    // Replace {variable} or (?P<variable>...) with .*
-                    let regexPattern = patternText
-                        .replace(/\{[^}]*\}/g, '.*')
-                        .replace(/\(\?P<[^>]+>.*?\)/g, '.*');
-
-                    // Escape special regex characters except .*
-                    regexPattern = regexPattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\\\.\\\*/g, '.*');
-
-                    // Prevent exponential backtracking (ReDoS) by collapsing consecutive .*
-                    regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');
-
-                    try {
-                        const regex = new RegExp('^' + regexPattern + '$', 'i');
-                        if (regex.test(stepText)) {
-                            return new vscode.Location(
-                                vscode.Uri.file(file.fsPath),
-                                new vscode.Position(i, pyLine.indexOf(decoratorMatch[1]) - 1)
-                            );
-                        }
-                    } catch (e) {
-                        // Ignore invalid regex generated from python string
-                    }
-                }
-            }
+        if (token.isCancellationRequested) {
+            return null;
         }
 
-        return null; // No definition found
+        // Query the in-memory Symbol Cache instantly
+        return this.cache.findDefinition(stepText);
     }
 }
