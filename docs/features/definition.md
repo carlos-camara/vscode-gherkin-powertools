@@ -9,7 +9,7 @@ Instantly jump from a `.feature` file to the exact Python step definition.
 
 ## How It Works
 
-When you open your workspace, the extension builds an ultra-fast **In-Memory Symbol Cache** by scanning your `.py` files. 
+When you open your workspace, the extension builds an ultra-fast **In-Memory Symbol Cache** by scanning your `.py` files.
 
 When you click on a step like `Given I login`:
 
