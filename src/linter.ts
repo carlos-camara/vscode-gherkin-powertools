@@ -1,6 +1,4 @@
 import * as vscode from 'vscode';
-import { AstBuilder, GherkinClassicTokenMatcher, Parser } from '@cucumber/gherkin';
-import { IdGenerator } from '@cucumber/messages';
 
 /**
  * Diagnostic Provider that acts as a realtime Linter for Gherkin files.
@@ -8,24 +6,32 @@ import { IdGenerator } from '@cucumber/messages';
  */
 export class GherkinLinter {
     private diagnosticCollection: vscode.DiagnosticCollection;
-    private builder: AstBuilder;
-    private matcher: GherkinClassicTokenMatcher;
-    private parser: Parser<any>;
+    private parserPromise?: Promise<any>;
 
     constructor() {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection('gherkin');
-        
-        const uuidFn = IdGenerator.uuid();
-        this.builder = new AstBuilder(uuidFn);
-        this.matcher = new GherkinClassicTokenMatcher();
-        this.parser = new Parser(this.builder, this.matcher);
+    }
+
+    private async getParser() {
+        if (!this.parserPromise) {
+            this.parserPromise = (async () => {
+                const dynamicImport = new Function('specifier', 'return import(specifier)');
+                const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
+                const { IdGenerator } = await dynamicImport('@cucumber/messages');
+                const uuidFn = IdGenerator.uuid();
+                const builder = new AstBuilder(uuidFn);
+                const matcher = new GherkinClassicTokenMatcher();
+                return new Parser(builder, matcher);
+            })();
+        }
+        return this.parserPromise;
     }
 
     /**
      * Lints the document and applies diagnostics.
      * @param document The VS Code text document to lint.
      */
-    public lint(document: vscode.TextDocument) {
+    public async lint(document: vscode.TextDocument) {
         if (document.languageId !== 'feature' && document.languageId !== 'gherkin') {
             return;
         }
@@ -34,8 +40,9 @@ export class GherkinLinter {
         const text = document.getText();
 
         try {
+            const parser = await this.getParser();
             // We parse the document to catch syntax errors
-            this.parser.parse(text);
+            parser.parse(text);
         } catch (e: any) {
             // @cucumber/gherkin throws an array of errors for syntax issues
             const errors = Array.isArray(e.errors) ? e.errors : [e];

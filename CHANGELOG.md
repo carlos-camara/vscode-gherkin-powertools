@@ -60,6 +60,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed `nyc` in favor of built-in `c8` V8 coverage reporting.
   - Migrated code coverage reporting in Pull Requests to a reusable GitHub Action from the `qa-hub-actions` repository (replacing the local bash script to maximize modularity).
 
+### Fixed
+- **Packaging**: Removed `node_modules/**` from `.vscodeignore` so the AST parser runtime dependencies are correctly bundled in the VSIX.
+- **Go To Definition**: Fixed greedy Regex matching that consumed entire lines in Behave steps.
+- **Go To Definition**: Added support for Python string literal prefixes (`r`, `u`, `f`, `b`) in `@given`, `@when`, `@then` decorators.
+- **Go To Definition**: Fixed escaping of `*` in the Regex generator to prevent ReDoS and matching failures.
+
 ## [1.5.0] - 2026-06-25
 ### Added
 - **Multi-language Support (i18n)**: Formatter now fully supports formatting, indenting, and Auto-Casing for English, Spanish, French, and German Gherkin keywords.

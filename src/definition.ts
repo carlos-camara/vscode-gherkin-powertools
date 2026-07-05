@@ -34,19 +34,19 @@ export class GherkinDefinitionProvider implements vscode.DefinitionProvider {
             for (let i = 0; i < lines.length; i++) {
                 const pyLine = lines[i].trim();
 
-                // Look for Behave decorators: @given('...'), @when("..."), @then('...'), @step('...')
-                const decoratorMatch = pyLine.match(/^@(given|when|then|step)\s*\(\s*['"](.+)['"]\s*\)/i);
+                // Look for Behave decorators: @given('...'), @when(r"..."), etc.
+                const decoratorMatch = pyLine.match(/^@(given|when|then|step)\s*\(\s*(?:r|u|f|b)?(['"])(.*?)\2/i);
                 if (decoratorMatch) {
-                    const patternText = decoratorMatch[2];
+                    const patternText = decoratorMatch[3];
                     
                     // Convert Behave pattern to JS RegExp
                     // Replace {variable} or (?P<variable>...) with .*
                     let regexPattern = patternText
                         .replace(/\{[^}]*\}/g, '.*')
-                        .replace(/\(\?P<[^>]+>.*\)/g, '.*');
+                        .replace(/\(\?P<[^>]+>.*?\)/g, '.*');
 
                     // Escape special regex characters except .*
-                    regexPattern = regexPattern.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&').replace(/\\\.\\\*/g, '.*');
+                    regexPattern = regexPattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\\\.\\\*/g, '.*');
 
                     // Prevent exponential backtracking (ReDoS) by collapsing consecutive .*
                     regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');

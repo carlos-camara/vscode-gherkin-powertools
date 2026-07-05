@@ -1,32 +1,37 @@
 import * as vscode from 'vscode';
-import { AstBuilder, GherkinClassicTokenMatcher, Parser } from '@cucumber/gherkin';
-import { IdGenerator } from '@cucumber/messages';
 
 /**
  * Provides a Document Symbol tree (Outline) for Gherkin feature files.
  * Uses the official @cucumber/gherkin AST for 100% accuracy.
  */
 export class GherkinDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
-    private builder: AstBuilder;
-    private matcher: GherkinClassicTokenMatcher;
-    private parser: Parser<any>;
+    private parserPromise?: Promise<any>;
 
-    constructor() {
-        const uuidFn = IdGenerator.uuid();
-        this.builder = new AstBuilder(uuidFn);
-        this.matcher = new GherkinClassicTokenMatcher();
-        this.parser = new Parser(this.builder, this.matcher);
+    private async getParser() {
+        if (!this.parserPromise) {
+            this.parserPromise = (async () => {
+                const dynamicImport = new Function('specifier', 'return import(specifier)');
+                const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
+                const { IdGenerator } = await dynamicImport('@cucumber/messages');
+                const uuidFn = IdGenerator.uuid();
+                const builder = new AstBuilder(uuidFn);
+                const matcher = new GherkinClassicTokenMatcher();
+                return new Parser(builder, matcher);
+            })();
+        }
+        return this.parserPromise;
     }
 
-    public provideDocumentSymbols(
+    public async provideDocumentSymbols(
         document: vscode.TextDocument,
         _token: vscode.CancellationToken
-    ): vscode.DocumentSymbol[] {
+    ): Promise<vscode.DocumentSymbol[]> {
         const text = document.getText();
         let gherkinDocument;
 
         try {
-            gherkinDocument = this.parser.parse(text);
+            const parser = await this.getParser();
+            gherkinDocument = parser.parse(text);
         } catch (e) {
             // If there's a fatal parsing error, we can't build a full AST.
             // But usually @cucumber/gherkin parses as much as it can.
