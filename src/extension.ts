@@ -5,6 +5,7 @@ import { GherkinLinter } from './linter';
 import { GherkinHighlighter } from './highlighter';
 import { showStatisticsDashboard } from './statistics';
 import { GherkinDefinitionProvider } from './definition';
+import { SymbolCache } from './cache';
 
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
@@ -19,6 +20,17 @@ export function activate(context: vscode.ExtensionContext) {
 
     const formatter = new GherkinFormattingEditProvider();
     const symbolProvider = new GherkinDocumentSymbolProvider();
+    
+    // Initialize Symbol Cache for definitions
+    const symbolCache = new SymbolCache();
+    symbolCache.initialize();
+
+    // Watch for changes in Python step files
+    const watcher = vscode.workspace.createFileSystemWatcher('**/steps/**/*.py');
+    watcher.onDidCreate(uri => symbolCache.updateFile(uri));
+    watcher.onDidChange(uri => symbolCache.updateFile(uri));
+    watcher.onDidDelete(uri => symbolCache.removeFile(uri));
+    context.subscriptions.push(watcher);
     
     // Register the context menu command to format the document
     context.subscriptions.push(
@@ -96,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
             ),
             vscode.languages.registerDefinitionProvider(
                 { language },
-                new GherkinDefinitionProvider()
+                new GherkinDefinitionProvider(symbolCache)
             )
         );
     });

@@ -1,12 +1,15 @@
 <!-- markdownlint-disable MD024 -->
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the "vscode-gherkin-beautifier" extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+- **Symbol Cache**: Dramatically improved the performance of the "Go To Definition" feature in large projects. The extension now builds an in-memory index of all Python step definitions upon activation and dynamically updates it when files are modified, reducing lookup times to 0 milliseconds and eliminating continuous disk I/O.
 
 ### Security
 - **Dependency Override**: Forced `serialize-javascript` to version `^7.0.5` via npm `overrides` to mitigate a critical Remote Code Execution (RCE) vulnerability (CVE-2020-7660 incomplete fix) caused by unescaped RegExp flags and Date properties. This secures the test framework (`mocha`) without requiring a major framework downgrade.
