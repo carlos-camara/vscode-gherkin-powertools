@@ -48,6 +48,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Packaging**: Highly optimized `.vscodeignore` to exclude heavy `docs/` and `assets/` folders, dropping the `.vsix` payload size from 18 MB to 408 KB while maintaining functional URLs in the Marketplace.
 - **Testing**: Upgraded integration tests to run on Node 22 via `@vscode/test-electron@3.0.0`.
 
+### Fixed
+- **Packaging**: Removed `node_modules/**` from `.vscodeignore` so the AST parser runtime dependencies are correctly bundled in the VSIX.
+- **Go To Definition**: Fixed greedy Regex matching that consumed entire lines in Behave steps.
+- **Go To Definition**: Added support for Python string literal prefixes (`r`, `u`, `f`, `b`) in `@given`, `@when`, `@then` decorators.
+- **Go To Definition**: Fixed escaping of `*` in the Regex generator to prevent ReDoS and matching failures.
+
 ## [1.5.0] - 2026-06-25
 ### Added
 - **Multi-language Support (i18n)**: Formatter now fully supports formatting, indenting, and Auto-Casing for English, Spanish, French, and German Gherkin keywords.
