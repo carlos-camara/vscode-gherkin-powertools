@@ -22,10 +22,15 @@ The provider recognizes all standard Behave/Cucumber Python decorators:
 
 ```python
 @given('I login')
-@when('I click the button')
-@then('I should see the dashboard')
-@step('I perform an action')
+@when(r'I click the button "(?P<button_name>[^"]*)"')
+@then(f'I should see the dashboard')
+@step(u'I perform an action')
 ```
+
+The definition provider also handles:
+- Behave named regex groups: `(?P<variable>...)`
+- Behave bracket variables: `{variable}`
+- Python string literal prefixes: `r`, `u`, `f`, `b`
 
 > [!WARNING]
 > **Requirements**

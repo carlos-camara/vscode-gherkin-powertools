@@ -4,7 +4,7 @@
   "description": "A highly professional, native formatting extension for Visual Studio Code, meticulously designed to format and align Gherkin (.feature) files.",
   "version": "1.6.0",
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.93.0"
   },
   "categories": [
     "Formatters",
@@ -116,7 +116,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "^26.0.1",
-    "@types/vscode": "^1.80.0",
+    "@types/vscode": "^1.93.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^3.0.0",
     "c8": "^11.0.0",
@@ -127,7 +127,7 @@
     "serialize-javascript": "^7.0.5"
   },
   "dependencies": {
-    "@cucumber/gherkin": "^26.2.0",
-    "@cucumber/messages": "^22.0.0"
+    "@cucumber/gherkin": "^41.0.0",
+    "@cucumber/messages": "^33.0.4"
   }
 }
