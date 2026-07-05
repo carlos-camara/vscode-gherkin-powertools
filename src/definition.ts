@@ -43,10 +43,10 @@ export class GherkinDefinitionProvider implements vscode.DefinitionProvider {
                     // Replace {variable} or (?P<variable>...) with .*
                     let regexPattern = patternText
                         .replace(/\{[^}]*\}/g, '.*')
-                        .replace(/\(\?P<[^>]+>.*\)/g, '.*');
+                        .replace(/\(\?P<[^>]+>.*?\)/g, '.*');
 
                     // Escape special regex characters except .*
-                    regexPattern = regexPattern.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&').replace(/\\\.\\\*/g, '.*');
+                    regexPattern = regexPattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\\\.\\\*/g, '.*');
 
                     // Prevent exponential backtracking (ReDoS) by collapsing consecutive .*
                     regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');
