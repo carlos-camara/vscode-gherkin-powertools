@@ -8,14 +8,14 @@ const defaultOptions: FormatterOptions = {
     emptyLinesBetweenScenarios: 1
 };
 
-function runFormat(formatter: GherkinFormattingEditProvider, unformatted: string[]): string[] {
+async function runFormat(formatter: GherkinFormattingEditProvider, unformatted: string[]): Promise<string[]> {
     const text = unformatted.join('\n');
-    const formattedText = formatter.formatGherkin(text, defaultOptions);
+    const formattedText = await formatter.formatGherkin(text, defaultOptions);
     return formattedText ? formattedText.split('\n') : [];
 }
 
 suite('Formatter Test Suite', () => {
-    test('Format simple feature and scenario with proper spacing', () => {
+    test('Format simple feature and scenario with proper spacing', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: Login',
@@ -27,7 +27,7 @@ suite('Formatter Test Suite', () => {
             'Given I enter wrong credentials'
         ];
 
-        const formatted = runFormat(formatter, unformatted);
+        const formatted = await runFormat(formatter, unformatted);
 
         assert.strictEqual(formatted[0], 'Feature: Login');
         assert.strictEqual(formatted[1], '');
@@ -40,7 +40,7 @@ suite('Formatter Test Suite', () => {
         assert.strictEqual(formatted.length, 8);
     });
 
-    test('Align tables dynamically to preceding step indentation', () => {
+    test('Align tables dynamically to preceding step indentation', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: Tables',
@@ -51,7 +51,7 @@ suite('Formatter Test Suite', () => {
             '|admin_user|extremely_long_password|'
         ];
 
-        const formatted = runFormat(formatter, unformatted);
+        const formatted = await runFormat(formatter, unformatted);
 
         assert.strictEqual(formatted[3], '    Given the following users:');
         assert.strictEqual(formatted[4], '          | username   | password                |');
@@ -59,17 +59,15 @@ suite('Formatter Test Suite', () => {
         assert.strictEqual(formatted[6], '          | admin_user | extremely_long_password |');
     });
 
-    test('Auto-corrects keyword casing', () => {
-        // ...
+    test('Auto-corrects keyword casing', async () => {
         assert.ok(true);
     });
 
-    test('Sorts and wraps long tag lists', () => {
-        // ...
+    test('Sorts and wraps long tag lists', async () => {
         assert.ok(true);
     });
 
-    test('Collapses multiple empty lines and trims whitespace', () => {
+    test('Collapses multiple empty lines and trims whitespace', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: Empty lines   ',
@@ -82,7 +80,7 @@ suite('Formatter Test Suite', () => {
             'Given a step'
         ];
 
-        const formatted = runFormat(formatter, unformatted);
+        const formatted = await runFormat(formatter, unformatted);
         assert.strictEqual(formatted[0], 'Feature: Empty lines');
         assert.strictEqual(formatted[1], '');
         assert.strictEqual(formatted[2], '  Scenario: Has spaces');
@@ -90,7 +88,7 @@ suite('Formatter Test Suite', () => {
         assert.strictEqual(formatted[4], '    Given a step');
     });
 
-    test('Formats docstrings and standalone comments correctly', () => {
+    test('Formats docstrings and standalone comments correctly', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: Docs',
@@ -105,7 +103,7 @@ suite('Formatter Test Suite', () => {
             'Then success'
         ];
 
-        const formatted = runFormat(formatter, unformatted);
+        const formatted = await runFormat(formatter, unformatted);
         assert.strictEqual(formatted[2], '  Scenario: Docstrings');
         assert.strictEqual(formatted[3], '    Given a docstring:');
         assert.strictEqual(formatted[4], '      """');
@@ -117,7 +115,7 @@ suite('Formatter Test Suite', () => {
         assert.strictEqual(formatted[10], '    Then success');
     });
 
-    test('Formats Rules, Backgrounds, and Examples', () => {
+    test('Formats Rules, Backgrounds, and Examples', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: complex',
@@ -132,7 +130,7 @@ suite('Formatter Test Suite', () => {
             '|val|'
         ];
 
-        const formatted = runFormat(formatter, unformatted);
+        const formatted = await runFormat(formatter, unformatted);
         assert.strictEqual(formatted[0], 'Feature: complex');
         assert.strictEqual(formatted[2], '  Rule: This is a rule');
         assert.strictEqual(formatted[4], '    Background: setup');
@@ -145,7 +143,7 @@ suite('Formatter Test Suite', () => {
         assert.strictEqual(formatted[12], '      | val   |');
     });
 
-    test('Preserves unmapped descriptions and removes trailing empty lines', () => {
+    test('Preserves unmapped descriptions and removes trailing empty lines', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: desc',
@@ -157,28 +155,28 @@ suite('Formatter Test Suite', () => {
             ''
         ];
 
-        const formatted = runFormat(formatter, unformatted);
+        const formatted = await runFormat(formatter, unformatted);
         assert.strictEqual(formatted[0], 'Feature: desc');
         assert.strictEqual(formatted[1], '  this is an unmapped description line');
         assert.strictEqual(formatted[3], '  Scenario: scenario');
         assert.strictEqual(formatted[4], '    Given step');
-        assert.strictEqual(formatted.length, 5); // Trailing lines removed
+        assert.strictEqual(formatted.length, 5);
     });
 
-    test('Refuses to format on invalid syntax', () => {
+    test('Refuses to format on invalid syntax', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'BlahBlahBlah: test',
             'This is not valid Gherkin at all'
         ];
 
-        const formatted = runFormat(formatter, unformatted);
-        assert.strictEqual(formatted.length, 0); // Should return null/empty
+        const formatted = await runFormat(formatter, unformatted);
+        assert.strictEqual(formatted.length, 0);
     });
 });
 
 suite('Formatter VS Code API Wrapper Tests', () => {
-    test('provideDocumentFormattingEdits formats the entire document', () => {
+    test('provideDocumentFormattingEdits formats the entire document', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const mockDocument = {
             getText: () => 'Feature: Login\nScenario: Success\nGiven I am on the login page',
@@ -186,7 +184,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
             lineAt: (line: number) => ({ text: 'Given I am on the login page' })
         } as any;
         
-        const edits = formatter.provideDocumentFormattingEdits(mockDocument, {} as any, {} as any);
+        const edits = await formatter.provideDocumentFormattingEdits(mockDocument, {} as any, {} as any);
         assert.strictEqual(edits.length, 1);
         const formattedText = edits[0].newText;
         assert.ok(formattedText.includes('Feature: Login'));
@@ -205,7 +203,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         
         const range = new vscode.Range(new vscode.Position(2, 0), new vscode.Position(3, 23));
         
-        const edits = formatter.provideDocumentRangeFormattingEdits(mockDocument, range, {} as any, {} as any);
+        const edits = await formatter.provideDocumentRangeFormattingEdits(mockDocument, range, {} as any, {} as any);
         assert.strictEqual(edits.length, 1);
         
         const formattedText = edits[0].newText;
@@ -215,13 +213,13 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         assert.strictEqual(lines[1], '    Given I am on the login page');
     });
 
-    test('returns empty array when formatting invalid document via API', () => {
+    test('returns empty array when formatting invalid document via API', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const mockDocument = {
             getText: () => 'BlahBlah: invalid'
         } as any;
         
-        const edits = formatter.provideDocumentFormattingEdits(mockDocument, {} as any, {} as any);
+        const edits = await formatter.provideDocumentFormattingEdits(mockDocument, {} as any, {} as any);
         assert.strictEqual(edits.length, 0);
     });
 });

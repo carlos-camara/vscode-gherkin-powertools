@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import { AstBuilder, GherkinClassicTokenMatcher, Parser } from '@cucumber/gherkin';
-import { IdGenerator } from '@cucumber/messages';
-
 export interface FormatterOptions {
     stepIndentation: number;
     alignTableToKeyword: boolean;
@@ -21,15 +18,15 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         };
     }
 
-    public provideDocumentFormattingEdits(
+    public async provideDocumentFormattingEdits(
         document: vscode.TextDocument,
         _options: vscode.FormattingOptions,
         _token: vscode.CancellationToken
-    ): vscode.TextEdit[] {
+    ): Promise<vscode.TextEdit[]> {
         const formatOptions = this.getOptions();
         const text = document.getText();
         
-        const formattedText = this.formatGherkin(text, formatOptions);
+        const formattedText = await this.formatGherkin(text, formatOptions);
         if (!formattedText) return [];
 
         const start = new vscode.Position(0, 0);
@@ -39,18 +36,18 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         return [vscode.TextEdit.replace(range, formattedText + '\n')];
     }
 
-    public provideDocumentRangeFormattingEdits(
+    public async provideDocumentRangeFormattingEdits(
         document: vscode.TextDocument,
         range: vscode.Range,
         _options: vscode.FormattingOptions,
         _token: vscode.CancellationToken
-    ): vscode.TextEdit[] {
+    ): Promise<vscode.TextEdit[]> {
         // Range formatting is tricky with AST since AST requires a full valid document.
         // We will format the whole document and then only extract the requested range.
         const formatOptions = this.getOptions();
         const text = document.getText();
         
-        const formattedText = this.formatGherkin(text, formatOptions);
+        const formattedText = await this.formatGherkin(text, formatOptions);
         if (!formattedText) return [];
 
         const formattedLines = formattedText.split('\n');
@@ -68,7 +65,11 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         return [vscode.TextEdit.replace(formatRange, linesInRange.join('\n'))];
     }
 
-    public formatGherkin(text: string, options: FormatterOptions): string | null {
+    public async formatGherkin(text: string, options: FormatterOptions): Promise<string | null> {
+        const dynamicImport = new Function('specifier', 'return import(specifier)');
+        const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
+        const { IdGenerator } = await dynamicImport('@cucumber/messages');
+
         const uuidFn = IdGenerator.uuid();
         const builder = new AstBuilder(uuidFn);
         const matcher = new GherkinClassicTokenMatcher();
