@@ -4,7 +4,7 @@ Writing Gherkin should be error-free before you even run the tests.
 
 ## How It Works
 
-The built-in linter monitors your `.feature` files **in real-time** as you type. If you mistype a keyword or use invalid syntax, the editor immediately underlines the error in red and provides an explanation in the Problems panel.
+The built-in linter monitors your `.feature` files **in real-time** as you type, using the official `@cucumber/gherkin` AST Parser. If you mistype a keyword or use invalid syntax, the editor immediately underlines the exact offending token in red and provides an explanation in the Problems panel.
 
 ## What It Detects
 

@@ -34,13 +34,14 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 
 | | Feature | Description |
 |:---:|---------|-------------|
-| 🎨 | **Formatter** | Auto-indent, table alignment, auto-casing, tag wrapping |
-| 🔍 | **Live Linter** | Real-time syntax errors before you run a single test |
+| 🧠 | **AST Parser Engine** | Built on official `@cucumber/gherkin` for flawless, mathematically precise code analysis |
+| 🎨 | **Formatter** | Auto-indent, table alignment, auto-casing, tag wrapping based on AST localization |
+| 🔍 | **Live Linter** | Real-time syntax errors instantly mapped to VS Code diagnostics |
 | 🧭 | **Go To Definition** | Jump from `.feature` steps to Python implementations |
 | 📊 | **Stats Dashboard** | Beautiful HTML metrics for your entire BDD workspace |
 | 💡 | **Syntax Highlighting** | Curated VS Code color palette for dark themes |
 | 📝 | **Snippets** | Instant scaffolding for `feature`, `scenario`, `outline`, `rule` |
-| 🌐 | **i18n** | Format keywords in English, Spanish, French & German |
+| 🌐 | **i18n** | Format keywords in English, Spanish, French & German natively |
 
 ---
 

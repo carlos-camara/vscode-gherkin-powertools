@@ -1,6 +1,6 @@
 # 🌳 Outline Provider
 
-Navigate massive `.feature` files with ease using VS Code's native Outline panel.
+Navigate massive `.feature` files with ease using VS Code's native Outline panel. Powered by the `@cucumber/gherkin` AST Parser, the Outline faithfully represents the exact structure of your Gherkin document without getting confused by keywords inside comments or docstrings.
 
 > [!TIP]
 > **How to Use**
