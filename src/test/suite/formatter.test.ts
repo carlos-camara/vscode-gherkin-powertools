@@ -176,3 +176,52 @@ suite('Formatter Test Suite', () => {
         assert.strictEqual(formatted.length, 0); // Should return null/empty
     });
 });
+
+suite('Formatter VS Code API Wrapper Tests', () => {
+    test('provideDocumentFormattingEdits formats the entire document', () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const mockDocument = {
+            getText: () => 'Feature: Login\nScenario: Success\nGiven I am on the login page',
+            lineCount: 3,
+            lineAt: (line: number) => ({ text: 'Given I am on the login page' })
+        } as any;
+        
+        const edits = formatter.provideDocumentFormattingEdits(mockDocument, {} as any, {} as any);
+        assert.strictEqual(edits.length, 1);
+        const formattedText = edits[0].newText;
+        assert.ok(formattedText.includes('Feature: Login'));
+        assert.ok(formattedText.includes('  Scenario: Success'));
+        assert.ok(formattedText.includes('    Given I am on the login page'));
+    });
+
+    test('provideDocumentRangeFormattingEdits formats only the requested range', async () => {
+        const vscode = await import('vscode');
+        const formatter = new GherkinFormattingEditProvider();
+        const mockDocument = {
+            getText: () => 'Feature: Login\nScenario: Success\nGiven I am on the login page\nAnd I enter my password',
+            lineCount: 4,
+            lineAt: (line: number) => ({ text: 'And I enter my password' })
+        } as any;
+        
+        const range = new vscode.Range(new vscode.Position(2, 0), new vscode.Position(3, 23));
+        
+        const edits = formatter.provideDocumentRangeFormattingEdits(mockDocument, range, {} as any, {} as any);
+        assert.strictEqual(edits.length, 1);
+        
+        const formattedText = edits[0].newText;
+        const lines = formattedText.split('\n');
+        assert.strictEqual(lines.length, 2);
+        assert.strictEqual(lines[0], '  Scenario: Success');
+        assert.strictEqual(lines[1], '    Given I am on the login page');
+    });
+
+    test('returns empty array when formatting invalid document via API', () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const mockDocument = {
+            getText: () => 'BlahBlah: invalid'
+        } as any;
+        
+        const edits = formatter.provideDocumentFormattingEdits(mockDocument, {} as any, {} as any);
+        assert.strictEqual(edits.length, 0);
+    });
+});
