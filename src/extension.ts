@@ -6,6 +6,7 @@ import { GherkinHighlighter } from './highlighter';
 import { showStatisticsDashboard } from './statistics';
 import { GherkinDefinitionProvider } from './definition';
 import { SymbolCache } from './cache';
+import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
@@ -45,8 +46,13 @@ export function activate(context: vscode.ExtensionContext) {
             showStatisticsDashboard(context);
         })
     );
+
+    // Register the custom command for creating step definitions
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinBeautifier.createStepDefinition', createStepDefinition)
+    );
     
-    const linter = new GherkinLinter();
+    const linter = new GherkinLinter(symbolCache);
     context.subscriptions.push(linter);
 
     const highlighter = new GherkinHighlighter();
@@ -109,6 +115,13 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.languages.registerDefinitionProvider(
                 { language },
                 new GherkinDefinitionProvider(symbolCache)
+            ),
+            vscode.languages.registerCodeActionsProvider(
+                { language },
+                new GherkinCodeActionProvider(),
+                {
+                    providedCodeActionKinds: GherkinCodeActionProvider.providedCodeActionKinds
+                }
             )
         );
     });

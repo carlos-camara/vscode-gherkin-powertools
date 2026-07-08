@@ -13,6 +13,14 @@ The built-in linter monitors your `.feature` files **in real-time** as you type,
 | Missing colon | Block keywords must end with `:` | `Scenario` → ❌ should be `Scenario:` |
 | Invalid keywords | Detects misspelled Gherkin keywords | `Givn I login` → ❌ |
 | Structural errors | Validates proper nesting | Steps outside a Scenario → ❌ |
+| Undefined Steps | Integrates with SymbolCache to flag missing steps | `Given I do magic` → ⚠️ |
+
+## 💡 Quick Fixes (Code Actions)
+
+The Linter integrates with VS Code's **Quick Fix** system (the yellow lightbulb 💡) to help you solve issues instantly:
+
+- **Arreglar formato (Format Document)**: When a syntax error is detected, click the lightbulb and select "Format document" to auto-correct indentation and keyword casing.
+- **Crear definición vacía en Python (Create empty step definition)**: When an undefined step is detected (⚠️), click the lightbulb and select "Create empty step definition". The extension will automatically generate a Python stub and insert it into your `steps/` folder, creating the file if necessary or letting you choose if multiple exist.
 
 > [!TIP]
 > **Integration**
@@ -20,6 +28,6 @@ The built-in linter monitors your `.feature` files **in real-time** as you type,
 > Diagnostics appear in:
 > - **Editor gutter** — Red underlines on the offending line
 > - **Problems panel** — `Ctrl+Shift+M` / `Cmd+Shift+M`
-> - **Minimap** — Red highlights for quick scanning
+> - **Minimap** — Highlights for quick scanning
 
 ![Linter Demonstration](../assets/linter.webp)
