@@ -26,11 +26,21 @@ export function activate(context: vscode.ExtensionContext) {
     const symbolCache = new SymbolCache();
     symbolCache.initialize();
 
+    const linter = new GherkinLinter(symbolCache);
+
+    const reLintOpenFiles = () => {
+        vscode.workspace.textDocuments.forEach(doc => {
+            if (GHERKIN_LANGUAGES.includes(doc.languageId)) {
+                linter.lint(doc);
+            }
+        });
+    };
+
     // Watch for changes in Python step files
     const watcher = vscode.workspace.createFileSystemWatcher('**/steps/**/*.py');
-    watcher.onDidCreate(uri => symbolCache.updateFile(uri));
-    watcher.onDidChange(uri => symbolCache.updateFile(uri));
-    watcher.onDidDelete(uri => symbolCache.removeFile(uri));
+    watcher.onDidCreate(uri => { symbolCache.updateFile(uri); reLintOpenFiles(); });
+    watcher.onDidChange(uri => { symbolCache.updateFile(uri); reLintOpenFiles(); });
+    watcher.onDidDelete(uri => { symbolCache.removeFile(uri); reLintOpenFiles(); });
     context.subscriptions.push(watcher);
     
     // Register the context menu command to format the document
@@ -52,7 +62,6 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('gherkinBeautifier.createStepDefinition', createStepDefinition)
     );
     
-    const linter = new GherkinLinter(symbolCache);
     context.subscriptions.push(linter);
 
     const highlighter = new GherkinHighlighter();

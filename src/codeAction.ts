@@ -11,16 +11,8 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
         const actions: vscode.CodeAction[] = [];
 
         for (const diagnostic of context.diagnostics) {
-            if (diagnostic.code === 'SYNTAX_ERROR') {
-                const action = new vscode.CodeAction('Format document', vscode.CodeActionKind.QuickFix);
-                action.command = {
-                    command: 'editor.action.formatDocument',
-                    title: 'Format document'
-                };
-                action.diagnostics = [diagnostic];
-                action.isPreferred = true;
-                actions.push(action);
-            } else if (diagnostic.code === 'UNDEFINED_STEP') {
+            // We removed SYNTAX_ERROR because a document with invalid syntax cannot be formatted.
+            if (diagnostic.code === 'UNDEFINED_STEP') {
                 const action = new vscode.CodeAction('Create empty step definition', vscode.CodeActionKind.QuickFix);
                 
                 // Retrieve the keyword from relatedInformation
@@ -113,19 +105,25 @@ export async function createStepDefinition(stepText: string, keyword: string) {
     }
 
     if (targetUri) {
-        // Append snippet to file
-        const content = fs.readFileSync(targetUri.fsPath, 'utf8');
-        const separator = content.endsWith('\n') ? '' : '\n';
-        fs.appendFileSync(targetUri.fsPath, separator + snippet);
-
-        // Open the document and move cursor to the end
         const document = await vscode.workspace.openTextDocument(targetUri);
-        const editor = await vscode.window.showTextDocument(document);
         
-        // Move cursor to the end
-        const lastLine = document.lineCount - 1;
-        const endPos = new vscode.Position(lastLine, document.lineAt(lastLine).text.length);
-        editor.selection = new vscode.Selection(endPos, endPos);
-        editor.revealRange(new vscode.Range(endPos, endPos));
+        // Use WorkspaceEdit instead of fs to update the file within VS Code's editor state
+        const edit = new vscode.WorkspaceEdit();
+        const lastLine = document.lineCount > 0 ? document.lineCount - 1 : 0;
+        const lastLineLength = document.lineCount > 0 ? document.lineAt(lastLine).text.length : 0;
+        const endPos = new vscode.Position(lastLine, lastLineLength);
+        
+        const fileContent = document.getText();
+        const separator = fileContent.length === 0 || fileContent.endsWith('\n') ? '' : '\n';
+        
+        edit.insert(targetUri, endPos, separator + snippet);
+        await vscode.workspace.applyEdit(edit);
+        await document.save(); // Automatically save the document
+
+        // Show the document
+        const editor = await vscode.window.showTextDocument(document);
+        const newEndPos = new vscode.Position(editor.document.lineCount - 1, editor.document.lineAt(editor.document.lineCount - 1).text.length);
+        editor.selection = new vscode.Selection(newEndPos, newEndPos);
+        editor.revealRange(new vscode.Range(newEndPos, newEndPos));
     }
 }
