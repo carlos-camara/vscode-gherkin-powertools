@@ -88,21 +88,35 @@ export class GherkinLinter {
                             endChar = startChar + startsWithBlockKeyword.length;
                         } else {
                             const firstWord = gotText.split(/\s+/)[0];
-                            const misspelledMap: { [key: string]: string } = {
-                                'Givn': 'Given', 'Gven': 'Given', 'Give': 'Given',
-                                'Whn': 'When', 'Wehn': 'When', 'Wen': 'When',
-                                'Thn': 'Then', 'Tehn': 'Then', 'Ten': 'Then',
-                                'Adn': 'And', 'An': 'And',
-                                'Btu': 'But', 'Bt': 'But',
-                                'Fature': 'Feature', 'Featur': 'Feature', 'Fetaure': 'Feature',
-                                'Scenari': 'Scenario', 'Scanario': 'Scenario', 'Scenaro': 'Scenario'
-                            };
+                            const validKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples', 'Given', 'When', 'Then', 'And', 'But'];
                             
-                            if (misspelledMap[firstWord]) {
+                            let bestMatch = '';
+                            let lowestDistance = 999;
+                            const normalizedFirst = firstWord.toLowerCase();
+
+                            for (const kw of validKeywords) {
+                                const normalizedKw = kw.toLowerCase();
+                                
+                                // Direct prefix match (e.g. 'whe' -> 'When', 'give' -> 'Given')
+                                if (normalizedFirst.length >= 2 && normalizedKw.startsWith(normalizedFirst)) {
+                                    bestMatch = kw;
+                                    break;
+                                }
+
+                                // Typo match (e.g. 'Givn' -> 'Given')
+                                const dist = getLevenshteinDistance(normalizedFirst, normalizedKw);
+                                // Allow up to 2 typos for longer words, 1 typo for short words
+                                const threshold = normalizedKw.length <= 4 ? 1 : 2;
+                                if (dist < lowestDistance && dist <= threshold) {
+                                    lowestDistance = dist;
+                                    bestMatch = kw;
+                                }
+                            }
+                            
+                            if (bestMatch) {
                                 code = 'MISSPELLED_KEYWORD';
-                                const correctKeyword = misspelledMap[firstWord];
-                                message = `Misspelled keyword: '${firstWord}'. Did you mean '${correctKeyword}'?`;
-                                suggestedEdit = correctKeyword;
+                                message = `Misspelled or incomplete keyword: '${firstWord}'. Did you mean '${bestMatch}'?`;
+                                suggestedEdit = bestMatch;
                                 endChar = startChar + firstWord.length;
                             } else {
                                 if (message.includes('expected:')) {
@@ -253,4 +267,20 @@ export class GherkinLinter {
     public dispose() {
         this.diagnosticCollection.dispose();
     }
+}
+
+function getLevenshteinDistance(a: string, b: string): number {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+    for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+            }
+        }
+    }
+    return matrix[b.length][a.length];
 }
