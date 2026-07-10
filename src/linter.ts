@@ -236,9 +236,55 @@ export class GherkinLinter {
                     }
                 }
             }
+        } else {
+            // If the document failed to parse (e.g. because of a syntax error like 'Whe'),
+            // the AST is null and we can't detect SCENARIO_WITH_EXAMPLES via AST.
+            // Let's do a fallback text scan just for this specific semantic error.
+            this.fallbackCheckScenarioExamples(document, diagnostics);
         }
 
         this.diagnosticCollection.set(document.uri, diagnostics);
+    }
+
+    private fallbackCheckScenarioExamples(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[]) {
+        let currentScenarioLine = -1;
+        let currentScenarioStartChar = -1;
+        
+        for (let i = 0; i < document.lineCount; i++) {
+            const line = document.lineAt(i).text;
+            const trimmed = line.trim();
+            
+            if (trimmed.startsWith('#')) continue;
+            
+            // Match exactly "Scenario:"
+            if (trimmed.startsWith('Scenario:')) {
+                currentScenarioLine = i;
+                currentScenarioStartChar = line.indexOf('Scenario:');
+            } else if (trimmed.startsWith('Scenario Outline:') || trimmed.startsWith('Scenario Template:')) {
+                currentScenarioLine = -1; 
+            } else if (trimmed.startsWith('Background:') || trimmed.startsWith('Rule:') || trimmed.startsWith('Feature:')) {
+                currentScenarioLine = -1;
+            } else if (trimmed.startsWith('Examples:') || trimmed.startsWith('Scenarios:')) {
+                if (currentScenarioLine !== -1) {
+                    const range = new vscode.Range(
+                        currentScenarioLine,
+                        currentScenarioStartChar,
+                        currentScenarioLine,
+                        currentScenarioStartChar + 'Scenario'.length
+                    );
+                    const diagnostic = new vscode.Diagnostic(
+                        range,
+                        "A 'Scenario' cannot have 'Examples'. Use 'Scenario Outline' instead.",
+                        vscode.DiagnosticSeverity.Error
+                    );
+                    diagnostic.source = 'Gherkin Semantic';
+                    diagnostic.code = 'SCENARIO_WITH_EXAMPLES';
+                    diagnostics.push(diagnostic);
+                    
+                    currentScenarioLine = -1;
+                }
+            }
+        }
     }
 
     private checkDescription(node: any, diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
