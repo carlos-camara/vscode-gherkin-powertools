@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### ✨ Features
+- **Smart Autocompletion Provider (IntelliSense)**:
+  - Dynamically extracts string patterns from Python step definitions (`@given`, `@when`, etc.).
+  - Instantly offers intelligent auto-complete suggestions the moment a user types a keyword.
+  - Automatically transforms `Behave` parameters (`{var}`) and regex groups into VS Code interactive Snippet variables (`${1:var}`) for fast tabbing.
+  - Smoothly overwrites typed text after the keyword instead of duplicating.
 
 ### Added
 - **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes (💡) for Gherkin files.

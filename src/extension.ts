@@ -7,6 +7,7 @@ import { showStatisticsDashboard } from './statistics';
 import { GherkinDefinitionProvider } from './definition';
 import { SymbolCache } from './cache';
 import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
+import { GherkinCompletionProvider } from './completion';
 
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
@@ -63,6 +64,15 @@ export function activate(context: vscode.ExtensionContext) {
     );
     
     context.subscriptions.push(linter);
+
+    const completionProvider = new GherkinCompletionProvider(symbolCache);
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(
+            GHERKIN_LANGUAGES,
+            completionProvider,
+            ' ' // Trigger completion when user types space (e.g. "Given ")
+        )
+    );
 
     const highlighter = new GherkinHighlighter();
     context.subscriptions.push(highlighter);

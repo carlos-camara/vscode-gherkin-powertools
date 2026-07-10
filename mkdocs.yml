@@ -66,7 +66,7 @@ nav:
       - Outline Provider: features/outline.md
       - Statistics Dashboard: features/statistics.md
       - Syntax Highlighting: features/highlighting.md
-      - Snippets: features/snippets.md
+      - Autocomplete & Snippets: features/snippets.md
   - Architecture: ARCHITECTURE.md
   - Community:
       - Contributing: contributing.md
