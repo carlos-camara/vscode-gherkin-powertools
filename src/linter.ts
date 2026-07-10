@@ -66,19 +66,61 @@ export class GherkinLinter {
                     
                     // Try to highlight the word at the error column, or just the rest of the line
                     const matchRest = lineText.substring(startChar).match(/\S+/);
-                    const endChar = matchRest ? startChar + matchRest[0].length : lineText.length;
-
-                    const range = new vscode.Range(lineIndex, startChar, lineIndex, Math.max(startChar + 1, endChar));
+                    let endChar = matchRest ? startChar + matchRest[0].length : lineText.length;
                     
                     // Format the error message cleanly
                     let message = error.message;
-                    if (message.includes('expected:')) {
-                        // Simplify the technical cucumber token names for the user
-                        message = 'Invalid Gherkin syntax. Expected a valid keyword (Feature, Scenario, Given, When, Then, etc.)';
+                    let code = 'SYNTAX_ERROR';
+                    let suggestedEdit = '';
+
+                    const gotMatch = message.match(/got '(.*?)'/);
+                    if (gotMatch) {
+                        const gotText = gotMatch[1];
+                        
+                        const blockKeywords = ['Feature', 'Rule', 'Background', 'Scenario Outline', 'Scenario Template', 'Scenario', 'Examples', 'Scenarios'];
+                        const startsWithBlockKeyword = blockKeywords.find(k => gotText.startsWith(k));
+                        
+                        if (startsWithBlockKeyword && !gotText.startsWith(startsWithBlockKeyword + ':')) {
+                            code = 'MISSING_COLON';
+                            message = `Missing colon (':') after ${startsWithBlockKeyword}`;
+                            suggestedEdit = startsWithBlockKeyword + ':';
+                            // Adjust endChar to cover the full keyword
+                            endChar = startChar + startsWithBlockKeyword.length;
+                        } else {
+                            const firstWord = gotText.split(/\s+/)[0];
+                            const misspelledMap: { [key: string]: string } = {
+                                'Givn': 'Given', 'Gven': 'Given', 'Give': 'Given',
+                                'Whn': 'When', 'Wehn': 'When', 'Wen': 'When',
+                                'Thn': 'Then', 'Tehn': 'Then', 'Ten': 'Then',
+                                'Adn': 'And', 'An': 'And',
+                                'Btu': 'But', 'Bt': 'But',
+                                'Fature': 'Feature', 'Featur': 'Feature', 'Fetaure': 'Feature',
+                                'Scenari': 'Scenario', 'Scanario': 'Scenario', 'Scenaro': 'Scenario'
+                            };
+                            
+                            if (misspelledMap[firstWord]) {
+                                code = 'MISSPELLED_KEYWORD';
+                                const correctKeyword = misspelledMap[firstWord];
+                                message = `Misspelled keyword: '${firstWord}'. Did you mean '${correctKeyword}'?`;
+                                suggestedEdit = correctKeyword;
+                                endChar = startChar + firstWord.length;
+                            } else {
+                                if (message.includes('expected:')) {
+                                    message = 'Invalid Gherkin syntax. Expected a valid keyword (Feature, Scenario, Given, When, Then, etc.)';
+                                } else {
+                                    message = message.replace(/^(\d+:\d+):\s*/, '');
+                                }
+                            }
+                        }
                     } else {
-                        // Strip the (line:col): prefix from the error message if present
-                        message = message.replace(/^(\d+:\d+):\s*/, '');
+                        if (message.includes('expected:')) {
+                            message = 'Invalid Gherkin syntax. Expected a valid keyword (Feature, Scenario, Given, When, Then, etc.)';
+                        } else {
+                            message = message.replace(/^(\d+:\d+):\s*/, '');
+                        }
                     }
+
+                    const range = new vscode.Range(lineIndex, startChar, lineIndex, Math.max(startChar + 1, endChar));
 
                     const diagnostic = new vscode.Diagnostic(
                         range,
@@ -86,7 +128,17 @@ export class GherkinLinter {
                         vscode.DiagnosticSeverity.Error
                     );
                     diagnostic.source = 'Gherkin Parser';
-                    diagnostic.code = 'SYNTAX_ERROR';
+                    diagnostic.code = code;
+                    
+                    if (suggestedEdit) {
+                        diagnostic.relatedInformation = [
+                            new vscode.DiagnosticRelatedInformation(
+                                new vscode.Location(document.uri, range),
+                                suggestedEdit
+                            )
+                        ];
+                    }
+                    
                     diagnostics.push(diagnostic);
                 }
             }

@@ -11,8 +11,27 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
         const actions: vscode.CodeAction[] = [];
 
         for (const diagnostic of context.diagnostics) {
-            // We removed SYNTAX_ERROR because a document with invalid syntax cannot be formatted.
-            if (diagnostic.code === 'UNDEFINED_STEP') {
+            if (diagnostic.code === 'MISSING_COLON') {
+                const action = new vscode.CodeAction('Add missing colon', vscode.CodeActionKind.QuickFix);
+                action.edit = new vscode.WorkspaceEdit();
+                const replacement = diagnostic.relatedInformation?.[0]?.message || '';
+                if (replacement) {
+                    action.edit.replace(document.uri, diagnostic.range, replacement);
+                    action.diagnostics = [diagnostic];
+                    action.isPreferred = true;
+                    actions.push(action);
+                }
+            } else if (diagnostic.code === 'MISSPELLED_KEYWORD') {
+                const replacement = diagnostic.relatedInformation?.[0]?.message || '';
+                if (replacement) {
+                    const action = new vscode.CodeAction(`Change to '${replacement}'`, vscode.CodeActionKind.QuickFix);
+                    action.edit = new vscode.WorkspaceEdit();
+                    action.edit.replace(document.uri, diagnostic.range, replacement);
+                    action.diagnostics = [diagnostic];
+                    action.isPreferred = true;
+                    actions.push(action);
+                }
+            } else if (diagnostic.code === 'UNDEFINED_STEP') {
                 const action = new vscode.CodeAction('Create empty step definition', vscode.CodeActionKind.QuickFix);
                 
                 // Retrieve the keyword from relatedInformation

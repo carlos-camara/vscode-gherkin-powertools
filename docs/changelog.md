@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes (💡) for Gherkin files.
   - **Undefined Steps**: Integrates with the Symbol Cache. If a step is not found in Python, a Quick Fix lets you automatically generate an empty Python step definition in your `steps/` directory.
+  - **Syntax Error Auto-Corrections**: If you miss a colon on a block keyword (`Feature`, `Scenario`) or misspell a step keyword (`Givn`), Quick Fixes will offer to instantly auto-correct them.
 - **Project Analytics V4 (Ultimate Squeeze)**: Completely redesigned the `Gherkin: Show Project Statistics` dashboard with a premium glassmorphism interface and animated dynamic numbers.
 - **Gherkin Quality Score (GQS)**: Added a proprietary algorithm to evaluate code quality based on Reusability (Backgrounds), Parametrization (Examples), Documentation (Comments), and Complexity (Avg Steps per Scenario).
 - **Automation ROI Tracking**: Added a new metric to calculate the estimated manual hours saved by your automated tests, using the exact number of executable permutations.
