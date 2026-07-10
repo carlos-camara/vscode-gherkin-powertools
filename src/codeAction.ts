@@ -12,7 +12,7 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
 
         for (const diagnostic of context.diagnostics) {
             if (diagnostic.code === 'MISSING_COLON') {
-                const action = new vscode.CodeAction('Add missing colon', vscode.CodeActionKind.QuickFix);
+                const action = new vscode.CodeAction("Insert missing ':'", vscode.CodeActionKind.QuickFix);
                 action.edit = new vscode.WorkspaceEdit();
                 const replacement = diagnostic.relatedInformation?.[0]?.message || '';
                 if (replacement) {
@@ -24,7 +24,7 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
             } else if (diagnostic.code === 'MISSPELLED_KEYWORD') {
                 const replacement = diagnostic.relatedInformation?.[0]?.message || '';
                 if (replacement) {
-                    const action = new vscode.CodeAction(`Change to '${replacement}'`, vscode.CodeActionKind.QuickFix);
+                    const action = new vscode.CodeAction(`Replace with '${replacement}'`, vscode.CodeActionKind.QuickFix);
                     action.edit = new vscode.WorkspaceEdit();
                     action.edit.replace(document.uri, diagnostic.range, replacement);
                     action.diagnostics = [diagnostic];
