@@ -13,12 +13,12 @@ The built-in linter monitors your `.feature` files **in real-time** using the of
 | **Missing Colon** | Block keywords must end with `:` | `Scenario` → ❌ should be `Scenario:` |
 | **Invalid Keyword** | Detects misspelled Gherkin keywords | `Givn I login` → ❌ should be `Given` |
 | **Semantic Error** | Validates proper structural nesting | A `Scenario` containing an `Examples:` block → ⚠️ |
-| **Table Inconsistency** | Verifies data table integrity | Forgetting a closing `|` in a table row → ❌ |
+| **Table Inconsistency** | Verifies data table integrity | Forgetting a closing `&#124;` in a table row → ❌ |
 | **Undefined Step** | Cross-references the Symbol Cache | `Given I do magic` (no Python match) → ⚠️ |
 
 ## 🛡️ Fault-Tolerant Hybrid Parsing
 
-Gherkin parsers are notoriously strict and often crash completely (failing to return an Abstract Syntax Tree) if they encounter severe typos or structural malformations. 
+Gherkin parsers are notoriously strict and often crash completely (failing to return an Abstract Syntax Tree) if they encounter severe typos or structural malformations.
 
 To guarantee that you always receive accurate diagnostics regardless of how "broken" the file is, our Linter employs a **Multi-Pass Hybrid Parsing Strategy**:
 1. **Primary AST Pass**: Uses the official `@cucumber/gherkin` parser to validate strict structural and semantic rules.
@@ -29,7 +29,7 @@ To guarantee that you always receive accurate diagnostics regardless of how "bro
 
 ## 💡 Intelligent Code Actions (Quick Fixes)
 
-The Linter integrates deeply with VS Code's **Quick Fix** system (the yellow lightbulb 💡). Instead of just pointing out errors, the extension actively offers to fix them for you. 
+The Linter integrates deeply with VS Code's **Quick Fix** system (the yellow lightbulb 💡). Instead of just pointing out errors, the extension actively offers to fix them for you.
 
 When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+.` (Windows/Linux) to trigger an auto-correction:
 

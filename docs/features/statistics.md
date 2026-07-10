@@ -37,7 +37,7 @@ Stop guessing the value of your automated tests. The dashboard now calculates:
 
 ## ⚙️ Architecture
 
-The dashboard is rendered as an interactive, fully responsive **HTML Webview** inside VS Code. It features a premium glassmorphism UI built with raw HTML and CSS animations. 
+The dashboard is rendered as an interactive, fully responsive **HTML Webview** inside VS Code. It features a premium glassmorphism UI built with raw HTML and CSS animations.
 
 When triggered, the extension deeply parses all `.feature` files in the workspace (including unsaved buffers) through the `@cucumber/gherkin` AST, aggregates the data in memory, and paints the dashboard without any external dependencies or telemetry.
 
