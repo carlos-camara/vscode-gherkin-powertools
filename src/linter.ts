@@ -234,24 +234,64 @@ export class GherkinLinter {
                 }
 
                 if (bestMatch) {
-                    // It looks like a misspelled step/keyword inside the description!
                     const documentLineText = document.lineAt(currentLineIdx).text;
                     const firstNonWhitespace = documentLineText.search(/\S/);
                     const startChar = firstNonWhitespace !== -1 ? firstNonWhitespace : 0;
                     const endChar = startChar + firstWord.length;
-
                     const range = new vscode.Range(currentLineIdx, startChar, currentLineIdx, endChar);
+
+                    const blockKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples'];
+                    const isBlockKeyword = blockKeywords.includes(bestMatch);
+                    
+                    let code = '';
+                    let message = '';
+                    let suggestedEdit = '';
+
+                    if (normalizedFirst === bestMatch.toLowerCase()) {
+                        // Exact match (case insensitive)
+                        if (isBlockKeyword) {
+                            // They spelled it perfectly but it's in the description. They forgot the colon!
+                            code = 'MISSING_COLON';
+                            message = `Missing colon (':') after ${bestMatch}`;
+                            suggestedEdit = bestMatch + ':';
+                        } else {
+                            // Step keyword.
+                            if (firstWord === bestMatch) {
+                                // Exactly correctly cased. It's just out of place (likely due to structural error above). Do not flag.
+                                currentLineIdx++;
+                                continue;
+                            } else {
+                                // e.g., 'given' instead of 'Given'. Offer to fix casing.
+                                code = 'MISSPELLED_KEYWORD';
+                                message = `Incorrect casing: '${firstWord}'. Did you mean '${bestMatch}'?`;
+                                suggestedEdit = bestMatch;
+                            }
+                        }
+                    } else {
+                        // Typo or prefix
+                        if (isBlockKeyword) {
+                            // Since it's in the description and a block keyword, it's missing a colon too!
+                            code = 'MISSPELLED_KEYWORD';
+                            message = `Misspelled or incomplete block keyword: '${firstWord}'. Did you mean '${bestMatch}:'?`;
+                            suggestedEdit = bestMatch + ':';
+                        } else {
+                            code = 'MISSPELLED_KEYWORD';
+                            message = `Misspelled or incomplete keyword: '${firstWord}'. Did you mean '${bestMatch}'?`;
+                            suggestedEdit = bestMatch;
+                        }
+                    }
+
                     const diagnostic = new vscode.Diagnostic(
                         range,
-                        `Misspelled or incomplete keyword in description: '${firstWord}'. Did you mean '${bestMatch}'?`,
+                        message,
                         vscode.DiagnosticSeverity.Error
                     );
                     diagnostic.source = 'Gherkin Semantic';
-                    diagnostic.code = 'MISSPELLED_KEYWORD';
+                    diagnostic.code = code;
                     diagnostic.relatedInformation = [
                         new vscode.DiagnosticRelatedInformation(
                             new vscode.Location(document.uri, range),
-                            bestMatch
+                            suggestedEdit
                         )
                     ];
                     diagnostics.push(diagnostic);
