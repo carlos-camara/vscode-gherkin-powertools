@@ -137,12 +137,12 @@ export function activate(context: vscode.ExtensionContext) {
                 new GherkinDefinitionProvider(symbolCache)
             ),
             vscode.languages.registerCompletionItemProvider(
-                language,
+                { language },
                 new GherkinCompletionProvider(symbolCache),
                 ' ' // trigger on space
             ),
             vscode.languages.registerHoverProvider(
-                language,
+                { language },
                 new GherkinHoverProvider(symbolCache)
             ),
             vscode.languages.registerCodeActionsProvider(

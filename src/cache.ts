@@ -63,12 +63,21 @@ export class SymbolCache {
                         const aheadLine = lines[j].trim();
                         if (!functionSignature && aheadLine.startsWith('def ')) {
                             functionSignature = aheadLine;
+                            let currentLineIdx = j;
+                            
+                            // If it doesn't end with a colon, it might be a multiline signature
+                            while (!functionSignature.endsWith(':') && currentLineIdx + 1 < lines.length) {
+                                currentLineIdx++;
+                                const nextLine = lines[currentLineIdx].trim();
+                                functionSignature += ' ' + nextLine;
+                            }
+
                             if (functionSignature.endsWith(':')) {
                                 functionSignature = functionSignature.slice(0, -1);
                             }
                             
                             // Now look for docstring directly after def
-                            for (let k = j + 1; k < Math.min(j + 10, lines.length); k++) {
+                            for (let k = currentLineIdx + 1; k < Math.min(currentLineIdx + 10, lines.length); k++) {
                                 const docLine = lines[k].trim();
                                 if (docLine.startsWith('"""') || docLine.startsWith("'''")) {
                                     const quote = docLine.substring(0, 3);

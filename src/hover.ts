@@ -38,7 +38,9 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
         
         // Add the python function signature
         if (stepDef.functionSignature) {
-            hoverContent.appendCodeblock(stepDef.functionSignature, 'python');
+            // Ensure the signature ends with a colon for correct python syntax rendering
+            const sig = stepDef.functionSignature.endsWith(':') ? stepDef.functionSignature : stepDef.functionSignature + ':';
+            hoverContent.appendCodeblock(sig, 'python');
         } else {
             // Fallback if we couldn't parse the signature
             hoverContent.appendCodeblock(`@${stepKeyword.toLowerCase()}('${stepDef.patternText}')\ndef step_impl(context, ...):`, 'python');
