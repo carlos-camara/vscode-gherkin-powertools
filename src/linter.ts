@@ -112,6 +112,16 @@ export class GherkinLinter {
                                 }
                             }
                         }
+                    } else if (message.includes('inconsistent cell count')) {
+                        code = 'INCONSISTENT_CELL_COUNT';
+                        message = 'Inconsistent cell count in table row.';
+                        // Check if the line is missing a closing pipe
+                        if (!lineText.trim().endsWith('|')) {
+                            message = 'Inconsistent cell count. Missing closing pipe?';
+                            startChar = lineText.length;
+                            endChar = lineText.length;
+                            suggestedEdit = ' |';
+                        }
                     } else {
                         if (message.includes('expected:')) {
                             message = 'Invalid Gherkin syntax. Expected a valid keyword (Feature, Scenario, Given, When, Then, etc.)';
@@ -120,7 +130,7 @@ export class GherkinLinter {
                         }
                     }
 
-                    const range = new vscode.Range(lineIndex, startChar, lineIndex, Math.max(startChar + 1, endChar));
+                    const range = new vscode.Range(lineIndex, startChar, lineIndex, Math.max(startChar, endChar));
 
                     const diagnostic = new vscode.Diagnostic(
                         range,
@@ -144,22 +154,46 @@ export class GherkinLinter {
             }
         }
 
-        // If parsed successfully, check for undefined steps
+        // If parsed successfully, check for undefined steps and semantic issues
         if (gherkinDocument && gherkinDocument.feature && gherkinDocument.feature.children) {
             for (const child of gherkinDocument.feature.children) {
                 if (child.rule && child.rule.children) {
                     for (const ruleChild of child.rule.children) {
-                        this.checkSteps(ruleChild.background?.steps || [], diagnostics, document);
-                        this.checkSteps(ruleChild.scenario?.steps || [], diagnostics, document);
+                        const ruleScenario = ruleChild.scenario || ruleChild.background;
+                        if (ruleScenario) {
+                            this.checkSteps(ruleScenario.steps || [], diagnostics, document);
+                            this.checkScenarioExamples(ruleChild.scenario, diagnostics);
+                        }
                     }
                 } else {
-                    this.checkSteps(child.background?.steps || [], diagnostics, document);
-                    this.checkSteps(child.scenario?.steps || [], diagnostics, document);
+                    const scenario = child.scenario || child.background;
+                    if (scenario) {
+                        this.checkSteps(scenario.steps || [], diagnostics, document);
+                        this.checkScenarioExamples(child.scenario, diagnostics);
+                    }
                 }
             }
         }
 
         this.diagnosticCollection.set(document.uri, diagnostics);
+    }
+
+    private checkScenarioExamples(scenario: any, diagnostics: vscode.Diagnostic[]) {
+        if (scenario && scenario.keyword && scenario.keyword.trim() === 'Scenario' && scenario.examples && scenario.examples.length > 0) {
+            const lineIndex = Math.max(0, scenario.location.line - 1);
+            const startChar = Math.max(0, scenario.location.column - 1);
+            const endChar = startChar + scenario.keyword.length;
+            
+            const range = new vscode.Range(lineIndex, startChar, lineIndex, endChar);
+            const diagnostic = new vscode.Diagnostic(
+                range,
+                "A 'Scenario' cannot have 'Examples'. Use 'Scenario Outline' instead.",
+                vscode.DiagnosticSeverity.Warning
+            );
+            diagnostic.source = 'Gherkin Semantic';
+            diagnostic.code = 'SCENARIO_WITH_EXAMPLES';
+            diagnostics.push(diagnostic);
+        }
     }
 
     private checkSteps(steps: any[], diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {

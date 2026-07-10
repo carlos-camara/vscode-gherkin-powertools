@@ -31,6 +31,23 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
                     action.isPreferred = true;
                     actions.push(action);
                 }
+            } else if (diagnostic.code === 'SCENARIO_WITH_EXAMPLES') {
+                const action = new vscode.CodeAction("Convert to 'Scenario Outline'", vscode.CodeActionKind.QuickFix);
+                action.edit = new vscode.WorkspaceEdit();
+                action.edit.replace(document.uri, diagnostic.range, 'Scenario Outline');
+                action.diagnostics = [diagnostic];
+                action.isPreferred = true;
+                actions.push(action);
+            } else if (diagnostic.code === 'INCONSISTENT_CELL_COUNT') {
+                const replacement = diagnostic.relatedInformation?.[0]?.message || '';
+                if (replacement) {
+                    const action = new vscode.CodeAction("Close table row (append '|')", vscode.CodeActionKind.QuickFix);
+                    action.edit = new vscode.WorkspaceEdit();
+                    action.edit.replace(document.uri, diagnostic.range, replacement);
+                    action.diagnostics = [diagnostic];
+                    action.isPreferred = true;
+                    actions.push(action);
+                }
             } else if (diagnostic.code === 'UNDEFINED_STEP') {
                 const action = new vscode.CodeAction('Create empty step definition', vscode.CodeActionKind.QuickFix);
                 
