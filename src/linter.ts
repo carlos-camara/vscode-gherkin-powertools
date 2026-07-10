@@ -291,12 +291,24 @@ export class GherkinLinter {
         if (!node || !node.description) return;
         
         const descLines = node.description.split('\n');
-        // node.location.line is 1-indexed. The description usually starts on the next line.
+        // node.location.line is 1-indexed. The description usually starts on the next line (0-indexed).
         let currentLineIdx = node.location.line; 
         
         for (const line of descLines) {
             const trimmed = line.trim();
             if (trimmed) {
+                // Find the actual line in the document that matches this line
+                while (currentLineIdx < document.lineCount) {
+                    if (document.lineAt(currentLineIdx).text.includes(trimmed)) {
+                        break;
+                    }
+                    currentLineIdx++;
+                }
+                
+                if (currentLineIdx >= document.lineCount) {
+                    break; // Failsafe
+                }
+
                 const firstWord = trimmed.split(/\s+/)[0];
                 const validKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples', 'Given', 'When', 'Then', 'And', 'But'];
                 
