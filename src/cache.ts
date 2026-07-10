@@ -5,6 +5,8 @@ export interface StepDefinition {
     regex: RegExp;
     location: vscode.Location;
     patternText: string;
+    functionSignature?: string;
+    documentation?: string;
 }
 
 export class SymbolCache {
@@ -53,6 +55,59 @@ export class SymbolCache {
                     // Prevent exponential backtracking (ReDoS) by collapsing consecutive .*
                     regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');
 
+                    let functionSignature: string | undefined;
+                    let documentation: string | undefined;
+
+                    // Look ahead for function signature and docstring (up to 15 lines)
+                    for (let j = i + 1; j < Math.min(i + 15, lines.length); j++) {
+                        const aheadLine = lines[j].trim();
+                        if (!functionSignature && aheadLine.startsWith('def ')) {
+                            functionSignature = aheadLine;
+                            let currentLineIdx = j;
+                            
+                            // If it doesn't end with a colon, it might be a multiline signature
+                            while (!functionSignature.endsWith(':') && currentLineIdx + 1 < lines.length) {
+                                currentLineIdx++;
+                                const nextLine = lines[currentLineIdx].trim();
+                                functionSignature += ' ' + nextLine;
+                            }
+
+                            if (functionSignature.endsWith(':')) {
+                                functionSignature = functionSignature.slice(0, -1);
+                            }
+                            
+                            // Now look for docstring directly after def
+                            for (let k = currentLineIdx + 1; k < Math.min(currentLineIdx + 10, lines.length); k++) {
+                                const docLine = lines[k].trim();
+                                if (docLine.startsWith('"""') || docLine.startsWith("'''")) {
+                                    const quote = docLine.substring(0, 3);
+                                    let doc = docLine.substring(3);
+                                    if (doc.endsWith(quote) && docLine.length > 3) {
+                                        documentation = doc.slice(0, -3).trim();
+                                        break; // single line docstring
+                                    } else {
+                                        // multi-line docstring
+                                        let fullDoc = doc + '\n';
+                                        for (let m = k + 1; m < lines.length; m++) {
+                                            const mLine = lines[m];
+                                            const mTrimmed = mLine.trim();
+                                            if (mTrimmed.endsWith(quote)) {
+                                                fullDoc += mLine.substring(0, mLine.lastIndexOf(quote));
+                                                break;
+                                            }
+                                            fullDoc += mLine + '\n';
+                                        }
+                                        documentation = fullDoc.trim();
+                                        break;
+                                    }
+                                } else if (docLine !== '') {
+                                    break; // not a docstring if it's some other code
+                                }
+                            }
+                            break;
+                        }
+                    }
+
                     try {
                         const regex = new RegExp('^' + regexPattern + '$', 'i');
                         definitions.push({
@@ -61,7 +116,9 @@ export class SymbolCache {
                                 uri,
                                 new vscode.Position(i, pyLine.indexOf(decoratorMatch[1]) - 1)
                             ),
-                            patternText
+                            patternText,
+                            functionSignature,
+                            documentation
                         });
                     } catch (e) {
                         // Ignore invalid regex generated from python string
@@ -80,15 +137,20 @@ export class SymbolCache {
         this.cache.delete(uri.toString());
     }
 
-    public findDefinition(stepText: string): vscode.Location | null {
+    public getStepDefinition(stepText: string): StepDefinition | null {
         for (const [_, definitions] of this.cache) {
             for (const def of definitions) {
                 if (def.regex.test(stepText)) {
-                    return def.location;
+                    return def;
                 }
             }
         }
         return null;
+    }
+
+    public findDefinition(stepText: string): vscode.Location | null {
+        const def = this.getStepDefinition(stepText);
+        return def ? def.location : null;
     }
 
     public getAllStepPatterns(): string[] {

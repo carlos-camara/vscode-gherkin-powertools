@@ -2,7 +2,7 @@
   "name": "vscode-gherkin-beautifier",
   "displayName": "Gherkin Beautifier",
   "description": "A highly professional, native formatting extension for Visual Studio Code, meticulously designed to format and align Gherkin (.feature) files.",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "engines": {
     "vscode": "^1.93.0"
   },
