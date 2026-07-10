@@ -118,9 +118,11 @@ export class GherkinLinter {
                         // Check if the line is missing a closing pipe
                         if (!lineText.trim().endsWith('|')) {
                             message = 'Inconsistent cell count. Missing closing pipe?';
-                            startChar = lineText.length;
+                            const firstNonWhitespace = lineText.search(/\S/);
+                            startChar = firstNonWhitespace !== -1 ? firstNonWhitespace : 0;
                             endChar = lineText.length;
-                            suggestedEdit = ' |';
+                            // Replace the entire text of the line (from startChar to endChar) with the line itself + ' |'
+                            suggestedEdit = lineText.substring(startChar) + ' |';
                         }
                     } else {
                         if (message.includes('expected:')) {
@@ -188,7 +190,7 @@ export class GherkinLinter {
             const diagnostic = new vscode.Diagnostic(
                 range,
                 "A 'Scenario' cannot have 'Examples'. Use 'Scenario Outline' instead.",
-                vscode.DiagnosticSeverity.Warning
+                vscode.DiagnosticSeverity.Error
             );
             diagnostic.source = 'Gherkin Semantic';
             diagnostic.code = 'SCENARIO_WITH_EXAMPLES';
