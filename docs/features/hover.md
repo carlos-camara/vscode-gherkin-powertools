@@ -34,7 +34,7 @@ When you hover over `Given the user enters valid credentials` in your `.feature`
 
 > [!NOTE]
 > **def step_when_user_enters_credentials(context, username, password):**
-> 
+>
 > ---
 > Simulates a user typing their credentials into the login form.
 > It automatically bypasses CAPTCHA in the test environment.
