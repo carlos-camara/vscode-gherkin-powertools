@@ -1,36 +1,42 @@
 # 🎨 Intelligent Formatter
 
-The core feature of Gherkin Beautifier. Powered by the official `@cucumber/gherkin` Abstract Syntax Tree (AST) parser, the robust formatting engine analyzes your Gherkin syntax with mathematical precision and aligns it automatically.
+The core feature of Gherkin Beautifier. Powered by the official `@cucumber/gherkin` Abstract Syntax Tree (AST) parser, the robust formatting engine analyzes your Gherkin syntax with mathematical precision and aligns it automatically. It transforms messy, unreadable tests into a pristine, standardized format instantly.
 
 > [!TIP]
-> **How to Use**
+> **How to Trigger Formatting**
 >
-> - **Full Document**: `Shift+Alt+F` or right-click → "Format Gherkin Document"
-> - **Selection Only**: Highlight text → `Cmd+K Cmd+F` / `Ctrl+K Ctrl+F`
-> - **On Save**: Enable `editor.formatOnSave` (see [Configuration](../configuration.md))
+> - **Full Document**: `Shift+Alt+F` (Windows/Linux) or `⇧⌥F` (macOS).
+> - **Selection Only**: Highlight text → `Cmd+K Cmd+F` / `Ctrl+K Ctrl+F`.
+> - **On Save**: Enable `editor.formatOnSave` in your `settings.json` (see [Configuration](../readme.md#%EF%B8%8F-configuration)).
 
-## Capabilities
+---
+
+## ✨ Formatting Capabilities
 
 ### AST-Powered Flat Indentation
-Enforces consistent alignment where all steps (`Given`, `When`, `Then`, `And`) share the exact same starting column. Since it uses an AST, it correctly ignores keywords hidden inside DocStrings or Comments.
+Enforces a consistent alignment strategy where all operational steps (`Given`, `When`, `Then`, `And`, `But`) share the exact same starting column. Because it operates on an AST rather than simple Regex, it flawlessly ignores keywords hidden inside DocStrings or comments.
 
-### Smart Table Alignment
-Data tables (pipes `|`) dynamically pad themselves to align perfectly with the keyword of the preceding step.
+### Dynamic Table Alignment
+Data tables and `Examples` blocks (using pipes `|`) are dynamically padded. The formatter calculates the maximum column width and aligns the entire table perfectly to the preceding step keyword.
 
 ```gherkin
     Given I have a database
-          | id | name  |
-          | 1  | admin |
+          | id | username | role  |
+          | 1  | admin    | super |
+          | 2  | test     | read  |
 ```
 
-### Auto-Casing
-Automatically capitalizes Gherkin keywords (`given` → `Given`) while supporting multiple languages.
+### Auto-Casing & Keyword Normalization
+Automatically capitalizes Gherkin keywords (`given` → `Given`, `scenario outline` → `Scenario Outline`) to enforce strict standardization across your suite.
 
-### Tag Wrapping
-Keeps your files clean by intelligently wrapping long `@tags` lists that exceed 80 characters.
+### Intelligent Tag Wrapping
+Keeps your files clean by intelligently wrapping long lists of `@tags` that exceed 80 characters. It respects logical grouping and indents them correctly above the Scenario or Feature block.
+
+### Unmapped Descriptions & DocStrings
+Preserves multi-line descriptions directly beneath `Feature` and `Scenario` blocks without corrupting their indentation. Flawlessly formats `"""` DocStrings relative to their parent step.
 
 ### Multi-language Support (i18n)
-Fully supports formatting in **English**, **Spanish**, **French**, and **German**:
+Fully supports formatting in **English**, **Spanish**, **French**, and **German**. It detects the `# language: <lang>` header and applies the correct localized casing rules:
 
 | English | Spanish | French | German |
 |---------|---------|--------|--------|

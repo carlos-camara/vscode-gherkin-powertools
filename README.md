@@ -3,7 +3,7 @@
 <div align="center">
   <img src="assets/logo.png" alt="Gherkin Beautifier Logo" width="100" /><br/><br/>
 
-  <p><em>The professional formatting & productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
+  <p><em>The ultimate professional formatting and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
 
   <p>
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-beautifier">
@@ -24,36 +24,37 @@
 
 ---
 
-**Gherkin Beautifier** transforms chaotic, hand-edited `.feature` files into perfectly aligned, professionally formatted BDD specifications — in milliseconds. Built natively for VS Code, it integrates directly with the editor's formatting API, linter, and navigation system.
+**Gherkin Beautifier** transforms chaotic, hand-edited `.feature` files into perfectly aligned, professionally formatted BDD specifications — in milliseconds. Built natively for VS Code, it integrates directly with the editor's formatting API, live diagnostic linter, and navigation system to supercharge your behavior-driven development workflow.
 
 Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** · **SpecFlow** · **Karate** · **pytest-bdd**
 
 ---
 
-## ✨ What's Inside
+## ✨ Core Capabilities
 
 | | Feature | Description |
 |:---:|---------|-------------|
-| 🧠 | **AST Parser Engine** | Built on official `@cucumber/gherkin` for flawless, mathematically precise code analysis |
-| 🎨 | **Formatter** | Auto-indent, table alignment, auto-casing, tag wrapping based on AST localization |
-| 🔍 | **Live Linter** | Real-time syntax errors instantly mapped to VS Code diagnostics |
-| 🧭 | **Go To Definition** | Jump from `.feature` steps to Python implementations |
-| 📊 | **Stats Dashboard** | Beautiful HTML metrics for your entire BDD workspace |
-| 💡 | **Syntax Highlighting** | Curated VS Code color palette for dark themes |
-| 📝 | **Snippets** | Instant scaffolding for `feature`, `scenario`, `outline`, `rule` |
-| 🌐 | **i18n** | Format keywords in English, Spanish, French & German natively |
+| 🧠 | **AST Parser Engine** | Built on the official `@cucumber/gherkin` package for flawless, mathematically precise code analysis. |
+| 🎨 | **Intelligent Formatter** | Auto-indentation, dynamic table alignment, auto-casing, and tag wrapping based on AST localization. |
+| 🔍 | **Live Diagnostics Linter** | Real-time syntax error detection instantly mapped to VS Code diagnostics. |
+| 💡 | **Code Actions (Quick Fixes)** | Instantly auto-correct syntax errors, missing colons, misspelled keywords, and generate missing step definitions. |
+| 🧭 | **Go To Definition** | Instantly jump from `.feature` steps to their underlying Python implementations with a single click. |
+| 📊 | **Project Analytics V4** | Beautiful HTML glassmorphism dashboard providing comprehensive metrics for your entire BDD workspace. |
+| 🌈 | **Syntax Highlighting** | Curated VS Code color palette tailored specifically for dark themes. |
+| 📝 | **Intelligent Snippets** | Instant scaffolding for `Feature`, `Scenario`, `Scenario Outline`, and `Rule` blocks. |
+| 🌐 | **i18n Support** | Format keywords in English, Spanish, French, and German natively. |
 
 ---
 
 ## 📚 In-Depth Documentation
 
-Want to master the extension? Read the dedicated documentation for each feature:
+Want to master the extension? Read the dedicated documentation for each feature in our comprehensive guides:
 
 - [**🎨 Formatter Guide**](docs/features/formatter.md)
-- [**🔍 Live Linter Guide**](docs/features/linter.md)
+- [**🔍 Live Linter & Quick Fixes Guide**](docs/features/linter.md)
 - [**🧭 Go To Definition Guide**](docs/features/definition.md)
 - [**📊 Statistics Dashboard Guide**](docs/features/statistics.md)
-- [**💡 Syntax Highlighting Guide**](docs/features/highlighting.md)
+- [**🌈 Syntax Highlighting Guide**](docs/features/highlighting.md)
 - [**🌳 Outline Provider Guide**](docs/features/outline.md)
 - [**📝 Snippets Guide**](docs/features/snippets.md)
 
@@ -109,14 +110,24 @@ Feature: User Authentication
 
 ---
 
-## 🔍 Live Linter
+## 🔍 Live Diagnostics & Quick Fixes
 
-Catch mistakes the moment you type them — no test run required.
+Catch mistakes the moment you type them — no test run required. The integrated linter monitors your `.feature` files in real-time and provides intelligent **Quick Fixes (💡)** to resolve issues instantly.
 
-- **Missing colons** → `Scenario` flagged, `Scenario:` accepted
-- **Invalid keywords** → typos like `Givne` or `Wen` highlighted immediately
-- **Problems panel** integration → `Ctrl+Shift+M` / `Cmd+Shift+M`
-- **Gutter indicators** → red marks in the scroll bar for quick scanning
+### Real-Time Detection
+- **Missing Colons**: Forgetting the colon after a block keyword (e.g., `Scenario`) is instantly flagged.
+- **Syntax Typos**: Invalid or misspelled keywords like `Givne` or `Wen` are highlighted immediately.
+- **Structural Integrity**: Adding `Examples:` to a standard `Scenario` throws a semantic warning.
+- **Data Table Consistency**: Missing a closing pipe `|` in a table row triggers a structural alert.
+- **Undefined Steps**: Integrates with the Symbol Cache to flag steps (⚠️) that don't have a Python implementation.
+
+### Intelligent Code Actions
+Click the yellow lightbulb (💡) or press `Cmd+.` / `Ctrl+.` to trigger auto-corrections:
+- **Auto-Correct Typos**: Select "Replace with 'Given'" to instantly fix `Givn`.
+- **Insert Colons**: Automatically append missing colons to block keywords.
+- **Convert Structures**: Instantly convert an invalid `Scenario` to a `Scenario Outline`.
+- **Close Tables**: Automatically append the missing closing pipe `|` to a data row.
+- **Generate Step Definitions**: Instantly scaffold an empty Python step implementation in your `steps/` directory.
 
 ![Linter Demonstration](assets/linter.webp)
 
