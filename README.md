@@ -129,6 +129,8 @@ Click the yellow lightbulb (💡) or press `Cmd+.` / `Ctrl+.` to trigger auto-co
 - **Insert Colons**: Automatically append missing colons to block keywords.
 - **Convert Structures**: Instantly convert an invalid `Scenario` to a `Scenario Outline`.
 - **Intelligent Table Row Closure**: Actively scans upwards and downwards through Data Tables or Examples to locate the exact row missing a closing pipe `|` and appends it.
+- **Fault-Tolerant Hybrid Parsing**: If syntax errors crash the standard AST parser, the Linter seamlessly falls back to a custom text-based scanner to ensure structural diagnostics (like detecting `Examples` inside a standard `Scenario`) are still enforced.
+- **Precise Error Mapping**: Dynamically maps AST logic back to the exact physical lines in VS Code, bypassing parser quirks (like silently stripping empty lines) to ensure pixel-perfect accuracy for every red underline.
 - **Generate Step Definitions**: Instantly scaffold an empty Python step implementation in your `steps/` directory.
 
 ![Linter Demonstration](assets/linter.webp)

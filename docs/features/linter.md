@@ -16,6 +16,15 @@ The built-in linter monitors your `.feature` files **in real-time** using the of
 | **Table Inconsistency** | Verifies data table integrity | Forgetting a closing `|` in a table row → ❌ |
 | **Undefined Step** | Cross-references the Symbol Cache | `Given I do magic` (no Python match) → ⚠️ |
 
+## 🛡️ Fault-Tolerant Hybrid Parsing
+
+Gherkin parsers are notoriously strict and often crash completely (failing to return an Abstract Syntax Tree) if they encounter severe typos or structural malformations. 
+
+To guarantee that you always receive accurate diagnostics regardless of how "broken" the file is, our Linter employs a **Multi-Pass Hybrid Parsing Strategy**:
+1. **Primary AST Pass**: Uses the official `@cucumber/gherkin` parser to validate strict structural and semantic rules.
+2. **Custom Heuristic Fallback**: If the official parser crashes due to a syntax error (e.g., typing `Whe` instead of `When`), our custom engine kicks in. It scans the document via text-based heuristics to ensure structural rules (like forbidding an `Examples` table under a standard `Scenario`) are still enforced.
+3. **Dynamic Line Mapping**: Parsers often silently strip blank lines from descriptions, causing error diagnostics to point to the wrong physical lines in your editor. Our engine dynamically maps AST logic back to the exact physical lines in VS Code, ensuring pixel-perfect accuracy for every red underline.
+
 ---
 
 ## 💡 Intelligent Code Actions (Quick Fixes)

@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Syntax Error Auto-Corrections**: If you miss a colon on a block keyword (`Feature`, `Scenario`) or misspell a step keyword (`Givn`), Quick Fixes will offer to instantly auto-correct them.
   - **Structure Auto-Corrections**: If you add `Examples:` under a standard `Scenario`, a Quick Fix will offer to convert it to a `Scenario Outline`.
   - **Table Auto-Corrections**: If you forget to close a data table row with a pipe (`|`), a Quick Fix will offer to append it for you.
+- **Fault-Tolerant Linter Engine**: 
+  - **Syntax Crash Resilience**: The Linter now employs a multi-pass hybrid parsing strategy. If severe syntax errors (like typos) crash the official AST parser, the Linter seamlessly falls back to a custom text-based scanner to continue providing structural diagnostics (like detecting `Examples` inside a standard `Scenario`).
+  - **Precise Error Mapping**: Solved an issue where the AST parser would strip empty lines from description blocks, causing diagnostics (like missing colons) to point to the wrong lines. The extension now uses dynamic text-mapping to anchor errors to their exact physical line in your document.
 - **Project Analytics V4 (Ultimate Squeeze)**: Completely redesigned the `Gherkin: Show Project Statistics` dashboard with a premium glassmorphism interface and animated dynamic numbers.
 - **Gherkin Quality Score (GQS)**: Added a proprietary algorithm to evaluate code quality based on Reusability (Backgrounds), Parametrization (Examples), Documentation (Comments), and Complexity (Avg Steps per Scenario).
 - **Automation ROI Tracking**: Added a new metric to calculate the estimated manual hours saved by your automated tests, using the exact number of executable permutations.
