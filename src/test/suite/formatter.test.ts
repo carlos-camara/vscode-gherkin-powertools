@@ -181,7 +181,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         const mockDocument = {
             getText: () => 'Feature: Login\nScenario: Success\nGiven I am on the login page',
             lineCount: 3,
-            lineAt: (line: number) => ({ text: 'Given I am on the login page' })
+            lineAt: (_line: number) => ({ text: 'Given I am on the login page' })
         } as any;
         
         const edits = await formatter.provideDocumentFormattingEdits(mockDocument, {} as any, {} as any);
@@ -198,7 +198,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         const mockDocument = {
             getText: () => 'Feature: Login\nScenario: Success\nGiven I am on the login page\nAnd I enter my password',
             lineCount: 4,
-            lineAt: (line: number) => ({ text: 'And I enter my password' })
+            lineAt: (_line: number) => ({ text: 'And I enter my password' })
         } as any;
         
         const range = new vscode.Range(new vscode.Position(2, 0), new vscode.Position(3, 23));

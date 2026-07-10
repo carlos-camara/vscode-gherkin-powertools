@@ -367,7 +367,6 @@ export class GherkinLinter {
                 const lineText = document.lineAt(lineIndex).text;
                 
                 // Highlight just the step text (after the keyword)
-                const keywordLength = step.keyword ? step.keyword.length : 0;
                 let startChar = step.location.column ? Math.max(0, step.location.column - 1) : 0;
                 
                 // Adjust start character to skip keyword and following space if possible
