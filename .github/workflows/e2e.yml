@@ -45,3 +45,4 @@ jobs:
           files: "test-results/e2e-test-results.xml"
           check_name: "E2E Test Results"
           comment_title: "🎭 End-to-End Test Execution Results"
+          check_run: false

@@ -62,3 +62,4 @@ jobs:
           files: "test-results/unit-test-results.xml"
           check_name: "Unit Test Results"
           comment_title: "🧪 Unit Test Execution Results"
+          check_run: false
