@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### ✨ Features
-- **Smart Autocompletion Provider (IntelliSense)**: 
+- **Smart Autocompletion Provider (IntelliSense)**:
   - Dynamically extracts string patterns from Python step definitions (`@given`, `@when`, etc.).
   - Instantly offers intelligent auto-complete suggestions the moment a user types a keyword.
   - Automatically transforms `Behave` parameters (`{var}`) and regex groups into VS Code interactive Snippet variables (`${1:var}`) for fast tabbing.

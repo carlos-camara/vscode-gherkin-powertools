@@ -7,8 +7,8 @@ The Gherkin Beautifier supercharges your typing speed using two core mechanisms:
 Tired of memorizing the exact wording of your Python step definitions? The extension automatically parses all `@given`, `@when`, and `@then` functions in your workspace and offers them as intelligent suggestions.
 
 ### How it Works
-1. **Instant Trigger**: The moment you type a Gherkin keyword followed by a space (e.g. `Given `), the IntelliSense menu appears.
-2. **Interactive Variables**: If your Python step uses variables (like `{username}` or `(?P<role>.*)`), they are instantly transformed into VS Code **Snippet Variables**. 
+1. **Instant Trigger**: The moment you type a Gherkin keyword followed by a space (e.g. `Given`), the IntelliSense menu appears.
+2. **Interactive Variables**: If your Python step uses variables (like `{username}` or `(?P<role>.*)`), they are instantly transformed into VS Code **Snippet Variables**.
 3. **Tab-to-Fill**: Select the suggestion, and your cursor will automatically land on the first variable. Fill it in, hit <kbd>Tab</kbd>, and jump straight to the next one!
 
 ---
