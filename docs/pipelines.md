@@ -13,7 +13,7 @@ Here is a detailed breakdown of all the active pipelines in this project:
 ## 2. 🎭 End-to-End (E2E) UI Tests (`e2e.yml`)
 **Triggers:** Push to `main`, Pull Requests
 - **VS Code Bootstrapping:** Uses `@vscode/test-electron` to download, install, and execute a real VS Code instance within a virtual Linux framebuffer (`xvfb`).
-- **Simulated GUI Workflows:** Validates core extension functionalities by acting exactly as a user would: 
+- **Simulated GUI Workflows:** Validates core extension functionalities by acting exactly as a user would:
   - Opening documents and dynamically assigning them the `feature` language ID.
   - Automatically injecting faulty or unformatted Gherkin texts.
   - Using `vscode.commands.executeCommand('editor.action.formatDocument')` to invoke the native formatter.

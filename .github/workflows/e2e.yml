@@ -34,7 +34,8 @@ jobs:
         run: npm run compile
 
       - name: 🎭 Run End-to-End Tests
-        # xvfb-run creates a virtual X server display, required for VS Code UI tests on Linux runners
+        # xvfb-run creates a virtual X server display, required
+        # for VS Code UI tests on Linux runners
         run: xvfb-run -a npm run test:e2e
 
       - name: 📝 Publish E2E Test Results

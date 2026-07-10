@@ -53,7 +53,10 @@ jobs:
           pr-number: ${{ github.event.pull_request.number }}
 
       - name: 📝 Publish Unit Test Results
-        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'Linux' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: "test-results/unit-test-results.xml"

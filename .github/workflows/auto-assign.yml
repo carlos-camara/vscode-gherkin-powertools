@@ -19,4 +19,6 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           ACTOR: ${{ github.actor }}
         run: |
-          gh pr edit "$PR_NUMBER" --add-assignee "$ACTOR" --repo "${{ github.repository }}"
+          gh pr edit "$PR_NUMBER" \
+            --add-assignee "$ACTOR" \
+            --repo "${{ github.repository }}"
