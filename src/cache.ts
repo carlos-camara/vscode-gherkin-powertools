@@ -4,6 +4,7 @@ import * as fs from 'fs';
 export interface StepDefinition {
     regex: RegExp;
     location: vscode.Location;
+    patternText: string;
 }
 
 export class SymbolCache {
@@ -59,7 +60,8 @@ export class SymbolCache {
                             location: new vscode.Location(
                                 uri,
                                 new vscode.Position(i, pyLine.indexOf(decoratorMatch[1]) - 1)
-                            )
+                            ),
+                            patternText
                         });
                     } catch (e) {
                         // Ignore invalid regex generated from python string
@@ -87,5 +89,15 @@ export class SymbolCache {
             }
         }
         return null;
+    }
+
+    public getAllStepPatterns(): string[] {
+        const patterns = new Set<string>();
+        for (const [_, definitions] of this.cache) {
+            for (const def of definitions) {
+                patterns.add(def.patternText);
+            }
+        }
+        return Array.from(patterns).sort();
     }
 }
