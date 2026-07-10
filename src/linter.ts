@@ -171,27 +171,94 @@ export class GherkinLinter {
         }
 
         // If parsed successfully, check for undefined steps and semantic issues
-        if (gherkinDocument && gherkinDocument.feature && gherkinDocument.feature.children) {
-            for (const child of gherkinDocument.feature.children) {
-                if (child.rule && child.rule.children) {
-                    for (const ruleChild of child.rule.children) {
-                        const ruleScenario = ruleChild.scenario || ruleChild.background;
-                        if (ruleScenario) {
-                            this.checkSteps(ruleScenario.steps || [], diagnostics, document);
-                            this.checkScenarioExamples(ruleChild.scenario, diagnostics);
+        if (gherkinDocument && gherkinDocument.feature) {
+            this.checkDescription(gherkinDocument.feature, diagnostics, document);
+            if (gherkinDocument.feature.children) {
+                for (const child of gherkinDocument.feature.children) {
+                    if (child.rule) {
+                        this.checkDescription(child.rule, diagnostics, document);
+                        if (child.rule.children) {
+                            for (const ruleChild of child.rule.children) {
+                                const ruleScenario = ruleChild.scenario || ruleChild.background;
+                                if (ruleScenario) {
+                                    this.checkSteps(ruleScenario.steps || [], diagnostics, document);
+                                    this.checkScenarioExamples(ruleChild.scenario, diagnostics);
+                                    this.checkDescription(ruleScenario, diagnostics, document);
+                                }
+                            }
                         }
-                    }
-                } else {
-                    const scenario = child.scenario || child.background;
-                    if (scenario) {
-                        this.checkSteps(scenario.steps || [], diagnostics, document);
-                        this.checkScenarioExamples(child.scenario, diagnostics);
+                    } else {
+                        const scenario = child.scenario || child.background;
+                        if (scenario) {
+                            this.checkSteps(scenario.steps || [], diagnostics, document);
+                            this.checkScenarioExamples(child.scenario, diagnostics);
+                            this.checkDescription(scenario, diagnostics, document);
+                        }
                     }
                 }
             }
         }
 
         this.diagnosticCollection.set(document.uri, diagnostics);
+    }
+
+    private checkDescription(node: any, diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
+        if (!node || !node.description) return;
+        
+        const descLines = node.description.split('\n');
+        // node.location.line is 1-indexed. The description usually starts on the next line.
+        let currentLineIdx = node.location.line; 
+        
+        for (const line of descLines) {
+            const trimmed = line.trim();
+            if (trimmed) {
+                const firstWord = trimmed.split(/\s+/)[0];
+                const validKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples', 'Given', 'When', 'Then', 'And', 'But'];
+                
+                let bestMatch = '';
+                let lowestDistance = 999;
+                const normalizedFirst = firstWord.toLowerCase();
+
+                for (const kw of validKeywords) {
+                    const normalizedKw = kw.toLowerCase();
+                    if (normalizedFirst.length >= 2 && normalizedKw.startsWith(normalizedFirst)) {
+                        bestMatch = kw;
+                        break;
+                    }
+                    const dist = getLevenshteinDistance(normalizedFirst, normalizedKw);
+                    const threshold = normalizedKw.length <= 4 ? 1 : 2;
+                    if (dist < lowestDistance && dist <= threshold) {
+                        lowestDistance = dist;
+                        bestMatch = kw;
+                    }
+                }
+
+                if (bestMatch) {
+                    // It looks like a misspelled step/keyword inside the description!
+                    const documentLineText = document.lineAt(currentLineIdx).text;
+                    const firstNonWhitespace = documentLineText.search(/\S/);
+                    const startChar = firstNonWhitespace !== -1 ? firstNonWhitespace : 0;
+                    const endChar = startChar + firstWord.length;
+
+                    const range = new vscode.Range(currentLineIdx, startChar, currentLineIdx, endChar);
+                    const diagnostic = new vscode.Diagnostic(
+                        range,
+                        `Misspelled or incomplete keyword in description: '${firstWord}'. Did you mean '${bestMatch}'?`,
+                        vscode.DiagnosticSeverity.Error
+                    );
+                    diagnostic.source = 'Gherkin Semantic';
+                    diagnostic.code = 'MISSPELLED_KEYWORD';
+                    diagnostic.relatedInformation = [
+                        new vscode.DiagnosticRelatedInformation(
+                            new vscode.Location(document.uri, range),
+                            bestMatch
+                        )
+                    ];
+                    diagnostics.push(diagnostic);
+                }
+            }
+            currentLineIdx++;
+        }
     }
 
     private checkScenarioExamples(scenario: any, diagnostics: vscode.Diagnostic[]) {
