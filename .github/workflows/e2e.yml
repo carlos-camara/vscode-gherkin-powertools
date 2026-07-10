@@ -38,6 +38,18 @@ jobs:
         # for VS Code UI tests on Linux runners
         run: xvfb-run -a npm run test:e2e
 
+      - name: 🧹 Delete Old PR Comments (Push to Bottom)
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          COMMENT_IDS=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            --jq '.[] | select(.user.type == "Bot") | select(.body | contains("Test Execution Results")) | .id')
+          for ID in $COMMENT_IDS; do
+            gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$ID"
+          done || true
+
       - name: 📝 Publish E2E Test Results
         if: always() && github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
