@@ -29,7 +29,7 @@ When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+
 - **Advanced Typo Correction (Levenshtein Distance)**: If you misspell a keyword with mixed letters (e.g., `Givn`, `Wehn`, `Fature`), our built-in Levenshtein distance algorithm automatically calculates the closest valid Gherkin keyword and offers a one-click fix to replace it.
 - **Hidden Typo Detection**: Gherkin parsers often ignore misspelled keywords by silently treating them as string descriptions. Our linter actively scans all free-text descriptions under scenarios and features to hunt down hidden typos and flag them for correction.
 - **Convert to 'Scenario Outline'**: A standard `Scenario` cannot contain an `Examples:` block. If you accidentally add one, this action instantly converts the block to a `Scenario Outline`.
-- **Close table row (append '\|')**: If you forget to add the closing pipe `|` at the end of a Data Table or Examples row, this action detects the inconsistent cell count and appends the pipe for you.
+- **Intelligent Table Row Closure**: Gherkin parsers often assign cell inconsistency errors to the wrong row if a header is missing a closing pipe `|`. The extension actively scans the entire table upwards and downwards to pinpoint the exact unclosed row, and appends the pipe `|` for you.
 - **Create empty step definition**: When an undefined step is detected (⚠️), this action automatically generates a Python stub (`@given(...)`) and inserts it into your `steps/` folder, creating the file if necessary or letting you choose if multiple exist.
 
 > [!TIP]
