@@ -7,7 +7,7 @@ The core feature of Gherkin Beautifier. Powered by the official `@cucumber/gherk
 >
 > - **Full Document**: `Shift+Alt+F` (Windows/Linux) or `⇧⌥F` (macOS).
 > - **Selection Only**: Highlight text → `Cmd+K Cmd+F` / `Ctrl+K Ctrl+F`.
-> - **On Save**: Enable `editor.formatOnSave` in your `settings.json` (see [Configuration](../readme.md#%EF%B8%8F-configuration)).
+> - **On Save**: Enable `editor.formatOnSave` in your `settings.json` (see [Configuration](../configuration.md)).
 
 ---
 
