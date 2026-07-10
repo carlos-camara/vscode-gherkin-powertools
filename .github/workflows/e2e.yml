@@ -9,6 +9,9 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
+  issues: read
+  checks: write
 
 jobs:
   e2e:
@@ -33,3 +36,11 @@ jobs:
       - name: 🎭 Run End-to-End Tests
         # xvfb-run creates a virtual X server display, required for VS Code UI tests on Linux runners
         run: xvfb-run -a npm run test:e2e
+
+      - name: 📝 Publish E2E Test Results
+        if: always() && github.event_name == 'pull_request'
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: "test-results/e2e-test-results.xml"
+          check_name: "E2E Test Results"
+          comment_title: "🎭 End-to-End Test Execution Results"
