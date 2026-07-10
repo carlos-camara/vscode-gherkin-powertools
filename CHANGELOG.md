@@ -6,10 +6,28 @@ All notable changes to the "vscode-gherkin-beautifier" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.7.0] - 2026-07-10
+
+### ✨ Features
+- **Hover Provider (Documentation Preview)**:
+  - Displays the Python function signature and docstring in a rich tooltip when hovering over a Gherkin step.
+  - Automatically parses multiline function definitions and docstrings in Python to provide accurate context without switching files.
+- **Smart Autocompletion Provider (IntelliSense)**:
+  - Dynamically extracts string patterns from Python step definitions (`@given`, `@when`, etc.).
+  - Instantly offers intelligent auto-complete suggestions the moment a user types a keyword.
+  - Automatically transforms `Behave` parameters (`{var}`) and regex groups into VS Code interactive Snippet variables (`${1:var}`) for fast tabbing.
+  - Smoothly overwrites typed text after the keyword instead of duplicating.
 
 ### Added
 - **Symbol Cache**: Dramatically improved the performance of the "Go To Definition" feature in large projects. The extension now builds an in-memory index of all Python step definitions upon activation and dynamically updates it when files are modified, reducing lookup times to 0 milliseconds and eliminating continuous disk I/O.
+- **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes (💡) for Gherkin files.
+  - **Undefined Steps**: Integrates with the Symbol Cache. If a step is not found in Python, a Quick Fix lets you automatically generate an empty Python step definition in your `steps/` directory.
+  - **Syntax Error Auto-Corrections**: If you miss a colon on a block keyword (`Feature`, `Scenario`) or misspell a step keyword (`Givn`), Quick Fixes will offer to instantly auto-correct them.
+  - **Structure Auto-Corrections**: If you add `Examples:` under a standard `Scenario`, a Quick Fix will offer to convert it to a `Scenario Outline`.
+  - **Table Auto-Corrections**: If you forget to close a data table row with a pipe (`|`), a Quick Fix will offer to append it for you.
+- **Fault-Tolerant Linter Engine**:
+  - **Syntax Crash Resilience**: The Linter now employs a multi-pass hybrid parsing strategy. If severe syntax errors (like typos) crash the official AST parser, the Linter seamlessly falls back to a custom text-based scanner to continue providing structural diagnostics (like detecting `Examples` inside a standard `Scenario`).
+  - **Precise Error Mapping**: Solved an issue where the AST parser would strip empty lines from description blocks, causing diagnostics (like missing colons) to point to the wrong lines. The extension now uses dynamic text-mapping to anchor errors to their exact physical line in your document.
 
 ### Security
 - **Dependency Override**: Forced `serialize-javascript` to version `^7.0.5` via npm `overrides` to mitigate a critical Remote Code Execution (RCE) vulnerability (CVE-2020-7660 incomplete fix) caused by unescaped RegExp flags and Date properties. This secures the test framework (`mocha`) without requiring a major framework downgrade.
