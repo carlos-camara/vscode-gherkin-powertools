@@ -8,6 +8,7 @@ import { GherkinDefinitionProvider } from './definition';
 import { SymbolCache } from './cache';
 import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 import { GherkinCompletionProvider } from './completion';
+import { GherkinHoverProvider } from './hover';
 
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
@@ -134,6 +135,15 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.languages.registerDefinitionProvider(
                 { language },
                 new GherkinDefinitionProvider(symbolCache)
+            ),
+            vscode.languages.registerCompletionItemProvider(
+                language,
+                new GherkinCompletionProvider(symbolCache),
+                ' ' // trigger on space
+            ),
+            vscode.languages.registerHoverProvider(
+                language,
+                new GherkinHoverProvider(symbolCache)
             ),
             vscode.languages.registerCodeActionsProvider(
                 { language },
