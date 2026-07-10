@@ -123,10 +123,12 @@ Catch mistakes the moment you type them — no test run required. The integrated
 
 ### Intelligent Code Actions
 Click the yellow lightbulb (💡) or press `Cmd+.` / `Ctrl+.` to trigger auto-corrections:
-- **Auto-Correct Typos**: Select "Replace with 'Given'" to instantly fix `Givn`.
+- **Advanced Typo Correction**: Uses a Levenshtein distance algorithm to fix mixed-letter typos (e.g., `Givn` -> `Given`).
+- **Dynamic Keyword Auto-Complete**: Start typing a keyword (e.g., `whe`) and instantly auto-complete it via prefix-matching.
+- **Hidden Typo Detection**: Scans free-text descriptions to flag and fix misspelled keywords that the parser ignores.
 - **Insert Colons**: Automatically append missing colons to block keywords.
 - **Convert Structures**: Instantly convert an invalid `Scenario` to a `Scenario Outline`.
-- **Close Tables**: Automatically append the missing closing pipe `|` to a data row.
+- **Intelligent Table Row Closure**: Actively scans upwards and downwards through Data Tables or Examples to locate the exact row missing a closing pipe `|` and appends it.
 - **Generate Step Definitions**: Instantly scaffold an empty Python step implementation in your `steps/` directory.
 
 ![Linter Demonstration](assets/linter.webp)
