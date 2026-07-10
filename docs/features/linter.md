@@ -25,7 +25,9 @@ The Linter integrates deeply with VS Code's **Quick Fix** system (the yellow lig
 When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+.` (Windows/Linux) to trigger an auto-correction:
 
 - **Insert missing ':'**: When a block keyword (`Feature`, `Scenario`, etc.) is missing a colon, this action instantly appends it.
-- **Replace with '{Keyword}'**: When you mistype a keyword (e.g., `Givn`), this action intelligently suggests the closest valid keyword and fixes the typo instantly.
+- **Dynamic Keyword Auto-Complete**: Start typing a keyword (e.g., `whe`, `give`, `scen`) and the extension uses prefix-matching to suggest the full keyword (`When`, `Given`, `Scenario`) instantly.
+- **Advanced Typo Correction (Levenshtein Distance)**: If you misspell a keyword with mixed letters (e.g., `Givn`, `Wehn`, `Fature`), our built-in Levenshtein distance algorithm automatically calculates the closest valid Gherkin keyword and offers a one-click fix to replace it.
+- **Hidden Typo Detection**: Gherkin parsers often ignore misspelled keywords by silently treating them as string descriptions. Our linter actively scans all free-text descriptions under scenarios and features to hunt down hidden typos and flag them for correction.
 - **Convert to 'Scenario Outline'**: A standard `Scenario` cannot contain an `Examples:` block. If you accidentally add one, this action instantly converts the block to a `Scenario Outline`.
 - **Close table row (append '\|')**: If you forget to add the closing pipe `|` at the end of a Data Table or Examples row, this action detects the inconsistent cell count and appends the pipe for you.
 - **Create empty step definition**: When an undefined step is detected (⚠️), this action automatically generates a Python stub (`@given(...)`) and inserts it into your `steps/` folder, creating the file if necessary or letting you choose if multiple exist.
