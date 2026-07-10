@@ -16,3 +16,8 @@ jobs:
         uses: carlos-camara/qa-hub-actions/pr-labeler@main
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📏 PR Size Labeler
+        uses: carlos-camara/qa-hub-actions/pr-size-labeler@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
