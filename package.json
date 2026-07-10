@@ -110,8 +110,9 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "vscode-test",
-    "coverage": "vscode-test --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=json-summary"
+    "test": "vscode-test --label unitTests",
+    "test:e2e": "vscode-test --label e2eTests",
+    "coverage": "vscode-test --label unitTests --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=json-summary"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
