@@ -33,11 +33,76 @@ suite('E2E UI Test Suite', () => {
 
         // 3. Verify that OUR extension reacted to the UI and formatted the text
         const newText = document.getText();
-        console.log('--- NEW TEXT ---');
-        console.log(newText);
-        console.log('----------------');
         
         assert.ok(newText !== 'Feature: Test\nScenario: Foo\ngiven improperly formatted step', 'Formatter did not modify the text');
         assert.ok(newText.includes('  given improperly formatted step'), 'Step was not indented properly');
+    });
+
+    test('Simulate Outline/DocumentSymbols generation', async () => {
+        const uri = vscode.Uri.parse('untitled:outline_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(
+                new vscode.Position(0, 0),
+                'Feature: Authentication\n  Scenario: Login Success\n    Given I am on the login page'
+            );
+        });
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        
+        // Allow time for the parser to load dynamically
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Execute Document Symbol Provider command
+        const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+            'vscode.executeDocumentSymbolProvider',
+            document.uri
+        );
+
+        assert.ok(symbols, 'Symbols array is undefined');
+        assert.strictEqual(symbols.length, 1, 'Should have exactly one root symbol (Feature)');
+        assert.strictEqual(symbols[0].name, 'Feature: Authentication', 'Feature symbol name mismatch');
+        assert.strictEqual(symbols[0].children.length, 1, 'Feature should have one child (Scenario)');
+        assert.strictEqual(symbols[0].children[0].name, 'Scenario: Login Success', 'Scenario symbol name mismatch');
+    });
+
+    test('Simulate Linter diagnostics on bad Gherkin', async () => {
+        const uri = vscode.Uri.parse('untitled:linter_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        const diagnosticsPromise = new Promise<vscode.Diagnostic[]>(resolve => {
+            const disposable = vscode.languages.onDidChangeDiagnostics(e => {
+                if (e.uris.some(u => u.toString() === document.uri.toString())) {
+                    const diags = vscode.languages.getDiagnostics(document.uri);
+                    if (diags.length > 0) {
+                        disposable.dispose();
+                        resolve(diags);
+                    }
+                }
+            });
+            // timeout fallback
+            setTimeout(() => {
+                disposable.dispose();
+                resolve(vscode.languages.getDiagnostics(document.uri));
+            }, 3000);
+        });
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(
+                new vscode.Position(0, 0),
+                'Given a step without a feature\n'
+            );
+        });
+
+        const diagnostics = await diagnosticsPromise;
+        
+        
+        assert.ok(diagnostics.length > 0, 'Linter failed to generate diagnostics for bad syntax');
+        const hasSyntaxError = diagnostics.some(d => d.message.includes('Expected') || d.message.includes('EOF') || d.message.includes('Misspelled'));
+        assert.ok(hasSyntaxError, 'Linter did not detect the syntax error');
     });
 });
