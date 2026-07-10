@@ -8,7 +8,7 @@ Here is a detailed breakdown of all the active pipelines in this project:
 **Triggers:** Push to `main`, Pull Requests
 - **Matrix Strategy:** Runs concurrently across three operating systems (`ubuntu-latest`, `macos-latest`, `windows-latest`) to ensure full cross-platform compatibility of the VS Code extension.
 - **Node.js:** Compiles the TypeScript codebase using strict typing.
-- **Coverage:** On Linux, it generates an LCOV coverage report using `xvfb` (virtual display for VS Code API testing) and automatically posts a coverage comment on the Pull Request.
+- **Reporting & Coverage:** On Linux, it generates an LCOV coverage report and a JUnit XML test report. It uses GitHub Actions to automatically post beautiful, formatted PR comments with test execution results and coverage data, cleaning up previous comments to ensure the latest report is always at the bottom of the discussion thread.
 
 ## 2. 🎭 End-to-End (E2E) UI Tests (`e2e.yml`)
 **Triggers:** Push to `main`, Pull Requests
@@ -19,6 +19,7 @@ Here is a detailed breakdown of all the active pipelines in this project:
   - Using `vscode.commands.executeCommand('editor.action.formatDocument')` to invoke the native formatter.
   - Querying native `vscode.executeDocumentSymbolProvider` commands to assert the Outline tree generates correctly.
   - Asserting the `Linter` creates real-time `Diagnostic` instances in response to active text modifications.
+- **Reporting:** Automatically generates JUnit XML test results and posts a formatted summary as a Pull Request comment. Identical to the unit tests, it cleans up previous E2E reports to ensure feedback remains tidy and visible.
 
 ## 3. 🛡️ Security Audit (`security-audit.yml`)
 **Triggers:** Push to `main`, Pull Requests (on package changes), Daily Schedule (03:00 AM)
