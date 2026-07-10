@@ -127,16 +127,55 @@ export class GherkinLinter {
                             }
                         }
                     } else if (message.includes('inconsistent cell count')) {
-                        code = 'INCONSISTENT_CELL_COUNT';
-                        message = 'Inconsistent cell count in table row.';
-                        // Check if the line is missing a closing pipe
-                        if (!lineText.trim().endsWith('|')) {
-                            message = 'Inconsistent cell count. Missing closing pipe?';
-                            const firstNonWhitespace = lineText.search(/\S/);
-                            startChar = firstNonWhitespace !== -1 ? firstNonWhitespace : 0;
-                            endChar = lineText.length;
-                            // Replace the entire text of the line (from startChar to endChar) with the line itself + ' |'
-                            suggestedEdit = lineText.substring(startChar) + ' |';
+                        // The parser reports the error on the first row that diffs from the previous rows.
+                        // However, the missing pipe could be on the header row or a previous row.
+                        // We will scan up and down to find the row(s) missing a pipe.
+                        let foundMissingPipe = false;
+                        
+                        // Find start of table
+                        let tableStart = lineIndex;
+                        while (tableStart > 0 && document.lineAt(tableStart - 1).text.trim().startsWith('|')) {
+                            tableStart--;
+                        }
+                        
+                        // Find end of table
+                        let tableEnd = lineIndex;
+                        while (tableEnd < document.lineCount - 1 && document.lineAt(tableEnd + 1).text.trim().startsWith('|')) {
+                            tableEnd++;
+                        }
+
+                        for (let i = tableStart; i <= tableEnd; i++) {
+                            const tLine = document.lineAt(i).text;
+                            if (tLine.trim().startsWith('|') && !tLine.trim().endsWith('|')) {
+                                foundMissingPipe = true;
+                                const firstNonWhitespace = tLine.search(/\S/);
+                                const tStartChar = firstNonWhitespace !== -1 ? firstNonWhitespace : 0;
+                                const tEndChar = tLine.length;
+                                
+                                const range = new vscode.Range(i, tStartChar, i, tEndChar);
+                                const diagnostic = new vscode.Diagnostic(
+                                    range,
+                                    'Inconsistent cell count. Missing closing pipe?',
+                                    vscode.DiagnosticSeverity.Error
+                                );
+                                diagnostic.source = 'Gherkin Parser';
+                                diagnostic.code = 'INCONSISTENT_CELL_COUNT';
+                                diagnostic.relatedInformation = [
+                                    new vscode.DiagnosticRelatedInformation(
+                                        new vscode.Location(document.uri, range),
+                                        tLine.substring(tStartChar) + ' |'
+                                    )
+                                ];
+                                diagnostics.push(diagnostic);
+                            }
+                        }
+
+                        if (foundMissingPipe) {
+                            // We already added specific diagnostics for the bad rows, so we can skip adding a generic one.
+                            continue;
+                        } else {
+                            code = 'INCONSISTENT_CELL_COUNT';
+                            message = 'Inconsistent cell count in table row.';
                         }
                     } else {
                         if (message.includes('expected:')) {
