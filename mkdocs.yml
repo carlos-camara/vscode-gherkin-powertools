@@ -67,6 +67,7 @@ nav:
       - Statistics Dashboard: features/statistics.md
       - Syntax Highlighting: features/highlighting.md
       - Autocomplete & Snippets: features/snippets.md
+      - Hover Preview: features/hover.md
   - Architecture: ARCHITECTURE.md
   - Community:
       - Contributing: contributing.md

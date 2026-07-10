@@ -6,8 +6,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.7.0] - 2026-07-10
 ### ✨ Features
+- **Hover Provider (Documentation Preview)**:
+  - Displays the Python function signature and docstring in a rich tooltip when hovering over a Gherkin step.
+  - Automatically parses multiline function definitions and docstrings in Python to provide accurate context without switching files.
 - **Smart Autocompletion Provider (IntelliSense)**:
   - Dynamically extracts string patterns from Python step definitions (`@given`, `@when`, etc.).
   - Instantly offers intelligent auto-complete suggestions the moment a user types a keyword.

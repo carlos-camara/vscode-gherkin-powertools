@@ -66,6 +66,9 @@ Want to master the extension? Read the dedicated documentation for each feature 
 Typing Gherkin steps has never been faster. Our **Smart Autocompletion Provider** dynamically reads all your Python step definitions (`@given`, `@when`, `@then`) and offers them as intelligent suggestions the moment you type a keyword (e.g. `Given`).
 - **Snippet Variables**: Automatically converts Behave placeholders (like `{username}`) into VS Code tab-stops, allowing you to instantly type and <kbd>Tab</kbd> through the variables of your step!
 
+### 🖱️ Hover Documentation Preview
+Stop switching files to remember what a step does! Simply hover your mouse over any step in your `.feature` file to view a rich tooltip containing the underlying **Python function signature** and its **Docstring**.
+
 ### 🎨 Formatter
 
 Press `Shift+Alt+F` — your messy feature file becomes clean and professional instantly.
