@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`.editorconfig`**: Added EditorConfig with rules for TypeScript (4 spaces), JSON/YAML (2 spaces), and `.feature` files (2 spaces).
 
 ### Added — CI/CD Pipelines
+- **End-to-End (E2E) UI Tests** (`e2e.yml`): Validates core extension functionalities including Formatter, Outline, and Linter by bootstrapping a real VS Code instance via `@vscode/test-electron` on a virtual framebuffer (`xvfb`).
 - **PR Labeler** (`labeler.yml`): Auto-labels PRs based on changed file paths (core, documentation, testing, dependencies, DevOps, configuration, assets).
 - **PR Hygiene & Intelligence Gate** (`gate-check.yml`): Validates PR title/description and generates AI-powered summaries on every PR.
 - **Release** (`release.yml`): Automatically compiles TypeScript, packages `.vsix` with `@vscode/vsce`, and creates a GitHub Release on `v*` tags.

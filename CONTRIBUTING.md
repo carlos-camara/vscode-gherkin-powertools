@@ -11,9 +11,9 @@ The extension is written in **TypeScript** and uses the native **VS Code Extensi
 Here is a breakdown of the core modules located in the `src/` directory:
 
 - **`extension.ts`**: The entry point. Registers all commands, providers (Formatter, Definition, Outline), and initializes the diagnostics.
-- **`formatter.ts`**: The core AST-based formatter. It handles indentation, table alignment, auto-casing, and tag wrapping.
+- **`formatter.ts`**: The core AST-based formatter. It handles indentation, table alignment, auto-casing, and tag wrapping based on `@cucumber/gherkin` parses.
 - **`highlighter.ts`**: Implements custom semantic syntax highlighting via VS Code's `createTextEditorDecorationType` API.
-- **`linter.ts`**: Uses Regex to perform real-time syntax checking. Generates `vscode.Diagnostic` warnings to underline mistakes in the editor.
+- **`linter.ts`**: Uses the official `@cucumber/gherkin` AST parser to perform real-time syntax checking. Generates `vscode.Diagnostic` warnings to underline mistakes in the editor.
 - **`definition.ts`**: The Go-To-Definition provider. Reads `.feature` steps and recursively searches the `steps/` folder for Python (`.py`) files with matching `@given`, `@when`, `@then` decorators.
 - **`outline.ts`**: Constructs the hierarchical tree of `Feature > Rule > Scenario` for the VS Code Outline panel.
 - **`statistics.ts`**: Generates the interactive HTML Webview dashboard by parsing workspace files to count BDD metrics.
@@ -44,16 +44,23 @@ Here is a breakdown of the core modules located in the `src/` directory:
 
 ## 🧪 Testing
 
-We use the official `@vscode/test-electron` framework coupled with Mocha to run integration tests against the formatter.
+We use the official `@vscode/test-electron` framework coupled with Mocha to run tests. Our tests are split into two categories to maximize efficiency and reliability:
 
-To run the test suite:
+### Unit Tests
+To run ultra-fast unit tests that validate the AST processor and algorithms:
 ```bash
-npm test
+npm run test
 ```
 
-To run the tests and generate a coverage report (requires VS Code to be downloaded internally):
+To run the unit tests and generate an LCOV coverage report:
 ```bash
 npm run coverage
+```
+
+### End-to-End (E2E) UI Tests
+To run native UI integration tests that launch a real VS Code instance and test features like formatting, outline generation, and linting directly via the VS Code Extension APIs:
+```bash
+npm run test:e2e
 ```
 
 > [!IMPORTANT]

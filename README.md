@@ -43,6 +43,7 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 | 🌈 | **Syntax Highlighting** | Curated VS Code color palette tailored specifically for dark themes. |
 | 📝 | **Intelligent Snippets** | Instant scaffolding for `Feature`, `Scenario`, `Scenario Outline`, and `Rule` blocks. |
 | 🌐 | **i18n Support** | Format keywords in English, Spanish, French, and German natively. |
+| 🛡️ | **Enterprise CI/CD & E2E** | Rigorous automated Native UI E2E Testing, Security Audits, and Cross-Platform Unit Coverage. |
 
 ---
 
@@ -57,8 +58,18 @@ Want to master the extension? Read the dedicated documentation for each feature 
 - [**🌈 Syntax Highlighting Guide**](docs/features/highlighting.md)
 - [**🌳 Outline Provider Guide**](docs/features/outline.md)
 - [**📝 Snippets Guide**](docs/features/snippets.md)
+- [**⚙️ CI/CD Pipelines Architecture**](docs/pipelines.md)
 
 ---
+
+## 🛡️ Enterprise-Grade Quality
+
+We treat extension stability seriously. Our architecture incorporates an extensive, fully automated quality assurance pipeline powered by GitHub Actions:
+
+- **End-to-End Native UI Tests:** We use `@vscode/test-electron` to boot a real VS Code instance in a virtual buffer (`xvfb`). It dynamically opens Gherkin files, triggers real formatting commands (`editor.action.formatDocument`), checks real Document Symbols, and validates live Diagnostics generation directly from the GUI.
+- **Cross-Platform Unit Testing:** Instantaneous Mocha test suites ensure AST processing and configuration algorithms are rock solid across `ubuntu-latest`, `macos-latest`, and `windows-latest`.
+- **Automated Security Gating:** Nightly `npm audit` pipelines instantly block PRs introducing vulnerable dependencies.
+- **Strict Linting & Metrics:** Complete coverage tracking and codebase linting ensures the highest engineering standards are maintained before any release reaches the Marketplace.
 
 ## ✨ Features
 
