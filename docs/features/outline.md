@@ -1,17 +1,21 @@
 # 🌳 Outline Provider
 
-Navigate massive `.feature` files with ease using VS Code's native Outline panel. Powered by the `@cucumber/gherkin` AST Parser, the Outline faithfully represents the exact structure of your Gherkin document without getting confused by keywords inside comments or docstrings.
+Navigate massive `.feature` files with ease using VS Code's native **Outline** panel. Powered by the `@cucumber/gherkin` AST Parser, the Outline faithfully represents the exact semantic structure of your Gherkin document.
+
+Unlike regex-based parsers, our AST implementation guarantees it will never get confused by keywords hidden inside comments, docstrings, or data tables.
 
 > [!TIP]
-> **How to Use**
+> **How to Access**
 >
-> 1. Open any `.feature` file
-> 2. Open the **Outline** panel (sidebar or `Cmd+Shift+O` / `Ctrl+Shift+O`)
-> 3. Click any item to jump directly to it
+> 1. Open any `.feature` file in your workspace.
+> 2. Open the **Outline** panel (in the left Explorer sidebar) or press `Cmd+Shift+O` / `Ctrl+Shift+O`.
+> 3. Click any item in the tree to jump directly to it.
 
-## Hierarchy
+---
 
-The Outline panel displays a hierarchical tree:
+## 🗺️ Hierarchical Structure
+
+The Outline panel displays a perfectly nested hierarchical tree mirroring your BDD specifications:
 
 ```text
 📁 Feature: User Authentication
@@ -22,8 +26,8 @@ The Outline panel displays a hierarchical tree:
     📄 Scenario Outline: New user signup
 ```
 
-## Benefits
+## 🚀 Workflow Benefits
 
-- **Quick Navigation**: Jump between scenarios without scrolling
-- **File Overview**: See the full structure at a glance
-- **Breadcrumbs**: The hierarchy also appears in VS Code's breadcrumb bar at the top of the editor
+- **Rapid Navigation**: Instantly jump between scenarios and rules without mindless scrolling.
+- **Structural Overview**: Get a bird's-eye view of your feature's complexity and coverage at a glance.
+- **Breadcrumb Integration**: The semantic hierarchy is automatically injected into VS Code's breadcrumb navigation bar at the top of the editor, keeping you oriented in large files.

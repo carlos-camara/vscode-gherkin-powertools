@@ -1,25 +1,52 @@
-# 🔍 Live Diagnostics (Linter)
+# 🔍 Live Diagnostics & Quick Fixes
 
-Writing Gherkin should be error-free before you even run the tests.
+Writing Gherkin should be error-free before you even execute your test suite. The **Gherkin Beautifier** integrates a real-time semantic and syntactic linter directly into VS Code to catch mistakes the moment you type them.
 
-## How It Works
+## ⚙️ How It Works
 
-The built-in linter monitors your `.feature` files **in real-time** as you type, using the official `@cucumber/gherkin` AST Parser. If you mistype a keyword or use invalid syntax, the editor immediately underlines the exact offending token in red and provides an explanation in the Problems panel.
+The built-in linter monitors your `.feature` files **in real-time** using the official `@cucumber/gherkin` AST Parser. If you mistype a keyword, use invalid syntax, or violate Gherkin semantics, the editor immediately underlines the exact offending token and provides an explanation in the Problems panel.
 
-## What It Detects
+## 🛡️ What It Detects
 
-| Rule | Description | Example |
-|------|-------------|---------|
-| Missing colon | Block keywords must end with `:` | `Scenario` → ❌ should be `Scenario:` |
-| Invalid keywords | Detects misspelled Gherkin keywords | `Givn I login` → ❌ |
-| Structural errors | Validates proper nesting | Steps outside a Scenario → ❌ |
+| Diagnostic | Rule Description | Example |
+|------------|------------------|---------|
+| **Missing Colon** | Block keywords must end with `:` | `Scenario` → ❌ should be `Scenario:` |
+| **Invalid Keyword** | Detects misspelled Gherkin keywords | `Givn I login` → ❌ should be `Given` |
+| **Semantic Error** | Validates proper structural nesting | A `Scenario` containing an `Examples:` block → ⚠️ |
+| **Table Inconsistency** | Verifies data table integrity | Forgetting a closing `&#124;` in a table row → ❌ |
+| **Undefined Step** | Cross-references the Symbol Cache | `Given I do magic` (no Python match) → ⚠️ |
+
+## 🛡️ Fault-Tolerant Hybrid Parsing
+
+Gherkin parsers are notoriously strict and often crash completely (failing to return an Abstract Syntax Tree) if they encounter severe typos or structural malformations.
+
+To guarantee that you always receive accurate diagnostics regardless of how "broken" the file is, our Linter employs a **Multi-Pass Hybrid Parsing Strategy**:
+1. **Primary AST Pass**: Uses the official `@cucumber/gherkin` parser to validate strict structural and semantic rules.
+2. **Custom Heuristic Fallback**: If the official parser crashes due to a syntax error (e.g., typing `Whe` instead of `When`), our custom engine kicks in. It scans the document via text-based heuristics to ensure structural rules (like forbidding an `Examples` table under a standard `Scenario`) are still enforced.
+3. **Dynamic Line Mapping**: Parsers often silently strip blank lines from descriptions, causing error diagnostics to point to the wrong physical lines in your editor. Our engine dynamically maps AST logic back to the exact physical lines in VS Code, ensuring pixel-perfect accuracy for every red underline.
+
+---
+
+## 💡 Intelligent Code Actions (Quick Fixes)
+
+The Linter integrates deeply with VS Code's **Quick Fix** system (the yellow lightbulb 💡). Instead of just pointing out errors, the extension actively offers to fix them for you.
+
+When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+.` (Windows/Linux) to trigger an auto-correction:
+
+- **Insert missing ':'**: When a block keyword (`Feature`, `Scenario`, etc.) is missing a colon, this action instantly appends it.
+- **Dynamic Keyword Auto-Complete**: Start typing a keyword (e.g., `whe`, `give`, `scen`) and the extension uses prefix-matching to suggest the full keyword (`When`, `Given`, `Scenario`) instantly.
+- **Advanced Typo Correction (Levenshtein Distance)**: If you misspell a keyword with mixed letters (e.g., `Givn`, `Wehn`, `Fature`), our built-in Levenshtein distance algorithm automatically calculates the closest valid Gherkin keyword and offers a one-click fix to replace it.
+- **Hidden Typo Detection**: Gherkin parsers often ignore misspelled keywords by silently treating them as string descriptions. Our linter actively scans all free-text descriptions under scenarios and features to hunt down hidden typos and flag them for correction.
+- **Convert to 'Scenario Outline'**: A standard `Scenario` cannot contain an `Examples:` block. If you accidentally add one, this action instantly converts the block to a `Scenario Outline`.
+- **Intelligent Table Row Closure**: Gherkin parsers often assign cell inconsistency errors to the wrong row if a header is missing a closing pipe `|`. The extension actively scans the entire table upwards and downwards to pinpoint the exact unclosed row, and appends the pipe `|` for you.
+- **Create empty step definition**: When an undefined step is detected (⚠️), this action automatically generates a Python stub (`@given(...)`) and inserts it into your `steps/` folder, creating the file if necessary or letting you choose if multiple exist.
 
 > [!TIP]
-> **Integration**
+> **Integration Ecosystem**
 >
-> Diagnostics appear in:
-> - **Editor gutter** — Red underlines on the offending line
-> - **Problems panel** — `Ctrl+Shift+M` / `Cmd+Shift+M`
-> - **Minimap** — Red highlights for quick scanning
+> Diagnostics appear natively in:
+> - **Editor Gutter** — Red and yellow underlines on the offending lines.
+> - **Problems Panel** — Accessible via `Ctrl+Shift+M` / `Cmd+Shift+M`.
+> - **Minimap** — Color-coded highlights in the scroll bar for rapid scanning.
 
 ![Linter Demonstration](../assets/linter.webp)

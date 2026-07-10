@@ -115,7 +115,7 @@ export class GherkinDocumentSymbolProvider implements vscode.DocumentSymbolProvi
         return new vscode.DocumentSymbol(name.trim() || 'Unnamed', detail.trim(), kind, range, selectionRange);
     }
 
-    private getRange(location: { line: number; column?: number }, document: vscode.TextDocument, text: string, isSelection: boolean = false): vscode.Range {
+    private getRange(location: { line: number; column?: number }, document: vscode.TextDocument, _text: string, isSelection: boolean = false): vscode.Range {
         const line = Math.max(0, location.line - 1);
         const col = location.column ? Math.max(0, location.column - 1) : 0;
         

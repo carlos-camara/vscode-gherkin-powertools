@@ -1,26 +1,28 @@
-# 📝 Snippets
+# 📝 Intelligent Snippets
 
-Built-in autocompletion snippets for common Gherkin blocks.
+Eliminate boilerplate typing with our built-in autocompletion snippets for common Gherkin blocks.
 
-## Available Snippets
+## ⚡ Available Snippets
 
-| Prefix | Description | Generates |
+| Prefix | Description | Generated Structure |
 |--------|-------------|-----------|
-| `feature` | Feature block | Full Feature with Background and Scenario |
-| `scenario` | Scenario block | Scenario with Given/When/Then |
-| `outline` | Scenario Outline | Outline with Examples table |
-| `rule` | Rule block | Rule with nested Scenario |
+| `feature` | Standard Feature block | Scaffolds a full `Feature:` with a `Background:` and a `Scenario:` |
+| `scenario` | Standard Scenario block | Scaffolds a `Scenario:` with `Given`, `When`, and `Then` steps |
+| `outline` | Scenario Outline | Scaffolds a `Scenario Outline:` with an `Examples:` table structure |
+| `rule` | Rule block | Scaffolds a `Rule:` with a nested `Scenario:` |
 
 > [!TIP]
-> **How to Use**
+> **How to Trigger**
 >
-> 1. Open a `.feature` file
-> 2. Type a snippet prefix (e.g., `scenario`)
-> 3. Press **Tab** to expand
+> 1. Open a `.feature` file.
+> 2. Type a snippet prefix (e.g., `scenario`).
+> 3. Press **`Tab`** or **`Enter`** to expand the block instantly.
 
-## Example
+---
 
-Typing `scenario` + `Tab` generates:
+## 🛠️ Example Expansion
+
+Typing `scenario` + `Tab` generates the following scaffolding, automatically placing your cursor at the first variable placeholder:
 
 ```gherkin
 Scenario: Scenario name
@@ -29,8 +31,8 @@ Scenario: Scenario name
     Then expected result
 ```
 
-> [!TIP]
-> **Custom Snippets**
+> [!NOTE]
+> **Extensibility**
 >
-> You can extend the built-in snippets by creating your own in `.vscode/gherkin.code-snippets`.
+> You can easily extend the built-in snippets by creating your own custom workspace snippets in `.vscode/gherkin.code-snippets`.
 

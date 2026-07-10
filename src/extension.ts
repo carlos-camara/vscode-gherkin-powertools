@@ -6,6 +6,7 @@ import { GherkinHighlighter } from './highlighter';
 import { showStatisticsDashboard } from './statistics';
 import { GherkinDefinitionProvider } from './definition';
 import { SymbolCache } from './cache';
+import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
@@ -25,11 +26,21 @@ export function activate(context: vscode.ExtensionContext) {
     const symbolCache = new SymbolCache();
     symbolCache.initialize();
 
+    const linter = new GherkinLinter(symbolCache);
+
+    const reLintOpenFiles = () => {
+        vscode.workspace.textDocuments.forEach(doc => {
+            if (GHERKIN_LANGUAGES.includes(doc.languageId)) {
+                linter.lint(doc);
+            }
+        });
+    };
+
     // Watch for changes in Python step files
     const watcher = vscode.workspace.createFileSystemWatcher('**/steps/**/*.py');
-    watcher.onDidCreate(uri => symbolCache.updateFile(uri));
-    watcher.onDidChange(uri => symbolCache.updateFile(uri));
-    watcher.onDidDelete(uri => symbolCache.removeFile(uri));
+    watcher.onDidCreate(uri => { symbolCache.updateFile(uri); reLintOpenFiles(); });
+    watcher.onDidChange(uri => { symbolCache.updateFile(uri); reLintOpenFiles(); });
+    watcher.onDidDelete(uri => { symbolCache.removeFile(uri); reLintOpenFiles(); });
     context.subscriptions.push(watcher);
     
     // Register the context menu command to format the document
@@ -45,8 +56,12 @@ export function activate(context: vscode.ExtensionContext) {
             showStatisticsDashboard(context);
         })
     );
+
+    // Register the custom command for creating step definitions
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinBeautifier.createStepDefinition', createStepDefinition)
+    );
     
-    const linter = new GherkinLinter();
     context.subscriptions.push(linter);
 
     const highlighter = new GherkinHighlighter();
@@ -109,6 +124,13 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.languages.registerDefinitionProvider(
                 { language },
                 new GherkinDefinitionProvider(symbolCache)
+            ),
+            vscode.languages.registerCodeActionsProvider(
+                { language },
+                new GherkinCodeActionProvider(),
+                {
+                    providedCodeActionKinds: GherkinCodeActionProvider.providedCodeActionKinds
+                }
             )
         );
     });

@@ -243,22 +243,13 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
 
     // V5 Logic
     const reusabilityIndex = stats.uniqueStepsCount > 0 ? (stats.totalSteps / stats.uniqueStepsCount).toFixed(1) : "0";
-    let actionRatioText = "Healthy";
-    let actionRatioColor = "#4EC9B0";
-    if (stats.totalThen > 0) {
-        const ratio = stats.totalWhen / stats.totalThen;
-        if (ratio > 2) { actionRatioText = "Action-Heavy (Low assertions)"; actionRatioColor = "#F44336"; }
-        else if (ratio < 0.5) { actionRatioText = "Assertion-Heavy"; actionRatioColor = "#DCDCAA"; }
-    } else if (stats.totalWhen > 0) {
-        actionRatioText = "No assertions found!"; actionRatioColor = "#F44336";
-    }
 
     const totalArchetypeSteps = stats.uiSteps + stats.apiSteps + stats.dbSteps;
     const uiPct = totalArchetypeSteps > 0 ? (stats.uiSteps / totalArchetypeSteps) * 100 : 0;
     const apiPct = totalArchetypeSteps > 0 ? (stats.apiSteps / totalArchetypeSteps) * 100 : 0;
     const dbPct = totalArchetypeSteps > 0 ? (stats.dbSteps / totalArchetypeSteps) * 100 : 0;
 
-    let tagsHtml = stats.tagFrequencies.map((tag, index) => 
+    let tagsHtml = stats.tagFrequencies.map((tag) => 
         `<div class="tag-row">
             <div class="tag-name" onclick="this.classList.toggle('expanded')" title="Click to expand/collapse">${tag[0]}</div>
             <span class="tag-count counter" data-target="${tag[1]}">0</span>

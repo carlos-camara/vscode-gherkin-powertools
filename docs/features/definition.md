@@ -1,45 +1,58 @@
 # 🧭 Go To Definition
 
-Instantly jump from a `.feature` file to the exact Python step definition.
+Stop searching for step implementations manually. Gherkin Beautifier allows you to instantly jump from any `.feature` file step directly to its underlying Python execution code.
 
-## How to Use
+## ⚡ How to Trigger
 
-- **Cmd + Click** (macOS) or **Ctrl + Click** (Windows/Linux) on any step
-- Or press **F12** with the cursor on a step
+- **Mouse**: `Cmd + Click` (macOS) or `Ctrl + Click` (Windows/Linux) on any step.
+- **Keyboard**: Place your cursor on a step and press **`F12`**.
+- **Context Menu**: Right-click on a step → **"Go to Definition"**.
 
-## How It Works
+---
 
-When you open your workspace, the extension builds an ultra-fast **In-Memory Symbol Cache** by scanning your `.py` files.
+## 🧠 How It Works (The Symbol Cache)
 
-When you click on a step like `Given I login`:
+When you open a workspace containing Gherkin files, the extension intelligently builds an ultra-fast **In-Memory Symbol Cache** by scanning your `.py` files in the background.
 
-1. Extracts the step text (e.g., `I login`)
-2. Instantly queries the Symbol Cache in RAM (0ms latency).
-3. Finds the matching Python decorator (`@given('I login')`)
-4. Opens the `.py` file at the exact line
+When you request a definition (e.g., clicking on `Given I login as "admin"`):
 
-The cache automatically updates in the background when you create, modify, or delete Python files.
+1. **Extraction**: The extension extracts the semantic step text (`I login as "admin"`).
+2. **Evaluation**: It strips dynamic Gherkin data variables and normalizes the string.
+3. **Lookup**: It queries the Symbol Cache in RAM (averaging 0-2ms latency).
+4. **Navigation**: It locates the matching Python decorator and instantly opens the file directly at that exact line.
 
-## Supported Decorators
+> [!NOTE]
+> **Dynamic Updates**
+> The cache is fully reactive. It automatically updates in the background whenever you create, modify, or delete Python files, ensuring your definitions are always perfectly in sync.
 
-The provider recognizes all standard Behave/Cucumber Python decorators:
+---
+
+## 🐍 Supported Python Decorators
+
+The definition provider is natively compatible with standard `behave` and `pytest-bdd` Python decorators. It supports complex regex matching, f-strings, and raw strings.
 
 ```python
+# Standard Exact Match
 @given('I login')
+def step_login(context): ...
+
+# Regex with Named Groups
 @when(r'I click the button "(?P<button_name>[^"]*)"')
-@then(f'I should see the dashboard')
+def step_click(context, button_name): ...
+
+# Formatted F-Strings & Bracket Variables
+@then(f'I should see the {dashboard}')
+def step_see(context, dashboard): ...
+
+# Unicode/Byte prefixes and @step alias
 @step(u'I perform an action')
+def step_action(context): ...
 ```
 
-The definition provider also handles:
-- Behave named regex groups: `(?P<variable>...)`
-- Behave bracket variables: `{variable}`
-- Python string literal prefixes: `r`, `u`, `f`, `b`
-
 > [!WARNING]
-> **Requirements**
+> **Workspace Requirements**
 >
-> - Python step files must be in a `steps/` directory (any depth)
-> - Decorators must use `@given`, `@when`, `@then`, or `@step`
+> - Python step implementation files must be located inside a directory named `steps/` (at any nesting depth).
+> - Python functions must be decorated with `@given`, `@when`, `@then`, or `@step`.
 
-![Go To Definition](../assets/definition.webp)
+![Go To Definition Demonstration](../assets/definition.webp)
