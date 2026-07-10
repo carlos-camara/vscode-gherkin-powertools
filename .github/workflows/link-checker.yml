@@ -1,0 +1,35 @@
+---
+name: 🔗 Link Checker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+  schedule:
+    - cron: '0 2 * * *' # Run at 02:00 AM every day
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-links:
+    name: Check Broken Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔍 Checkout Code
+        uses: actions/checkout@v7
+
+      - name: 🔗 Check Links
+        uses: carlos-camara/qa-hub-actions/link-checker@main
+        with:
+          search-path: '**/*.md'
+          fail-on-error: 'true'
