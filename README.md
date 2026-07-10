@@ -60,7 +60,13 @@ Want to master the extension? Read the dedicated documentation for each feature 
 
 ---
 
-## 🎨 Formatter
+## ✨ Features
+
+### 🧠 Smart Autocomplete (IntelliSense)
+Typing Gherkin steps has never been faster. Our **Smart Autocompletion Provider** dynamically reads all your Python step definitions (`@given`, `@when`, `@then`) and offers them as intelligent suggestions the moment you type a keyword (e.g. `Given `).
+- **Snippet Variables**: Automatically converts Behave placeholders (like `{username}`) into VS Code tab-stops, allowing you to instantly type and <kbd>Tab</kbd> through the variables of your step!
+
+### 🎨 Formatter
 
 Press `Shift+Alt+F` — your messy feature file becomes clean and professional instantly.
 
