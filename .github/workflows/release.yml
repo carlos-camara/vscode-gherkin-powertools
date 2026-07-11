@@ -34,20 +34,9 @@ jobs:
             echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: 🟢 Setup Node.js
+      - name: ⚙️ Setup and Build
         if: steps.tag_check.outputs.is_new_version == 'true'
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: 📦 Install Dependencies
-        if: steps.tag_check.outputs.is_new_version == 'true'
-        run: npm ci
-
-      - name: 🔨 Compile TypeScript
-        if: steps.tag_check.outputs.is_new_version == 'true'
-        run: npm run compile
+        uses: ./.github/actions/setup-build
 
       - name: 📦 Package VSIX
         if: steps.tag_check.outputs.is_new_version == 'true'
