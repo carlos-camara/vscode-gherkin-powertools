@@ -1,7 +1,7 @@
 # Gherkin Beautifier
 
 <div align="center">
-  <img src="assets/logo.png" alt="Gherkin Beautifier Logo" width="100" /><br/><br/>
+  <img src="assets/logo.png" alt="Gherkin Beautifier Logo" width="250" /><br/><br/>
 
   <p><em>The ultimate professional formatting and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
 
@@ -51,14 +51,15 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 
 Want to master the extension? Read the dedicated documentation for each feature in our comprehensive guides:
 
-- [**🎨 Formatter Guide**](docs/features/formatter.md)
-- [**🔍 Live Linter & Quick Fixes Guide**](docs/features/linter.md)
-- [**🧭 Go To Definition Guide**](docs/features/definition.md)
-- [**📊 Statistics Dashboard Guide**](docs/features/statistics.md)
-- [**🌈 Syntax Highlighting Guide**](docs/features/highlighting.md)
-- [**🌳 Outline Provider Guide**](docs/features/outline.md)
-- [**📝 Snippets Guide**](docs/features/snippets.md)
-- [**⚙️ CI/CD Pipelines Architecture**](docs/pipelines.md)
+- [**🎨 Formatter Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/formatter.md)
+- [**🔍 Live Linter & Quick Fixes Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/linter.md)
+- [**🧭 Go To Definition Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/definition.md)
+- [**📊 Statistics Dashboard Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/statistics.md)
+- [**🌈 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/highlighting.md)
+- [**🌳 Outline Provider Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/outline.md)
+- [**📝 Snippets & Autocomplete Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/snippets.md)
+- [**🖱️ Hover Documentation Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/hover.md)
+- [**⚙️ CI/CD Pipelines Architecture**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/pipelines.md)
 
 ---
 
@@ -283,8 +284,8 @@ code --install-extension vscode-gherkin-beautifier-1.6.0.vsix
 | ✅ | Statistics Dashboard | HTML Webview |
 | ✅ | Syntax Highlighting | Dark theme palette |
 | 🔜 | **Test Explorer** | ▶ Run scenarios from the editor gutter |
-| 🔜 | **IntelliSense** | Step autocomplete as you type |
-| 🔜 | **Quick Fixes** | Auto-generate missing Python step stubs |
+| ✅ | **IntelliSense** | Step autocomplete as you type |
+| ✅ | **Quick Fixes** | Auto-generate missing Python step stubs |
 
 ---
 

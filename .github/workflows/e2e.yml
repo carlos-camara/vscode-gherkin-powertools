@@ -13,6 +13,10 @@ permissions:
   issues: read
   checks: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   e2e:
     name: Run E2E UI Tests
@@ -21,17 +25,14 @@ jobs:
       - name: 🔍 Checkout Code
         uses: actions/checkout@v7
 
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v6
+      - name: ⚙️ Setup and Build
+        uses: ./.github/actions/setup-build
+
+      - name: 💾 Cache VS Code Test Binaries
+        uses: actions/cache@v4
         with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: 📦 Install Dependencies
-        run: npm ci
-
-      - name: 🔨 Compile TypeScript
-        run: npm run compile
+          path: .vscode-test
+          key: ${{ runner.os }}-vscode-test-${{ hashFiles('package-lock.json') }}
 
       - name: 🎭 Run End-to-End Tests
         # xvfb-run creates a virtual X server display, required

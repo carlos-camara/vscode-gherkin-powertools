@@ -66,14 +66,6 @@ export function activate(context: vscode.ExtensionContext) {
     
     context.subscriptions.push(linter);
 
-    const completionProvider = new GherkinCompletionProvider(symbolCache);
-    context.subscriptions.push(
-        vscode.languages.registerCompletionItemProvider(
-            GHERKIN_LANGUAGES,
-            completionProvider,
-            ' ' // Trigger completion when user types space (e.g. "Given ")
-        )
-    );
 
     const highlighter = new GherkinHighlighter();
     context.subscriptions.push(highlighter);
