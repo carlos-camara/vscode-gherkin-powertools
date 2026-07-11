@@ -10,11 +10,17 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: read
+  checks: write
 
 jobs:
   test:
-    name: Run Tests
-    runs-on: ubuntu-latest
+    name: Run Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: 🔍 Checkout Code
         uses: actions/checkout@v7
@@ -31,11 +37,41 @@ jobs:
       - name: 🔨 Compile TypeScript
         run: npm run compile
 
-      - name: 🧪 Run Tests & Generate Coverage
+      - name: 🧪 Run Tests & Generate Coverage (Linux)
+        if: runner.os == 'Linux'
         run: xvfb-run -a npm run coverage
 
+      - name: 🧪 Run Tests & Generate Coverage (macOS / Windows)
+        if: runner.os != 'Linux'
+        run: npm run coverage
+
+      - name: 🧹 Delete Old PR Comments (Push to Bottom)
+        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          COMMENT_IDS=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            --jq '.[] | select(.user.type == "Bot") | select(.body | contains("Coverage") or contains("Test Execution Results")) | .id')
+          for ID in $COMMENT_IDS; do
+            gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$ID"
+          done || true
+
       - name: 📊 Report Coverage to PR
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
         uses: carlos-camara/qa-hub-actions/report-coverage@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-number: ${{ github.event.pull_request.number }}
+
+      - name: 📝 Publish Unit Test Results
+        if: >
+          always() &&
+          runner.os == 'Linux' &&
+          github.event_name == 'pull_request'
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: "test-results/unit-test-results.xml"
+          check_name: "Unit Test Results"
+          comment_title: "🧪 Unit Test Execution Results"
+          check_run: false

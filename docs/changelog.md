@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatically transforms `Behave` parameters (`{var}`) and regex groups into VS Code interactive Snippet variables (`${1:var}`) for fast tabbing.
   - Smoothly overwrites typed text after the keyword instead of duplicating.
 
+### Added — CI/CD & DevOps
+- **Automated PR Test Reporting**: Integrated `EnricoMi/publish-unit-test-result-action` into the pipeline. JUnit XML results from both Unit and E2E testing suites are parsed and published as beautiful markdown summaries directly in PR comments.
+- **Dynamic Comment Cleanup**: Added an automated GitHub API script that deletes old, outdated bot comments (Coverage and Test Results) upon new commits, ensuring the latest QA feedback is always prominently displayed at the bottom of the PR thread.
+- **Auto-Assign Fixes**: Upgraded the Auto-Assign workflow to use the `pull_request` event and granted explicit `issues: write` permissions, ensuring authors are immediately assigned when opening a PR.
+
 ### Added
 - **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes (💡) for Gherkin files.
   - **Undefined Steps**: Integrates with the Symbol Cache. If a step is not found in Python, a Quick Fix lets you automatically generate an empty Python step definition in your `steps/` directory.
@@ -43,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`.editorconfig`**: Added EditorConfig with rules for TypeScript (4 spaces), JSON/YAML (2 spaces), and `.feature` files (2 spaces).
 
 ### Added — CI/CD Pipelines
+- **End-to-End (E2E) UI Tests** (`e2e.yml`): Validates core extension functionalities including Formatter, Outline, and Linter by bootstrapping a real VS Code instance via `@vscode/test-electron` on a virtual framebuffer (`xvfb`).
 - **PR Labeler** (`labeler.yml`): Auto-labels PRs based on changed file paths (core, documentation, testing, dependencies, DevOps, configuration, assets).
 - **PR Hygiene & Intelligence Gate** (`gate-check.yml`): Validates PR title/description and generates AI-powered summaries on every PR.
 - **Release** (`release.yml`): Automatically compiles TypeScript, packages `.vsix` with `@vscode/vsce`, and creates a GitHub Release on `v*` tags.
