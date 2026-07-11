@@ -13,6 +13,10 @@ permissions:
   issues: read
   checks: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   e2e:
     name: Run E2E UI Tests
