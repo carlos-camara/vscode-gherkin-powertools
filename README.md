@@ -1,7 +1,7 @@
 # Gherkin Beautifier
 
 <div align="center">
-  <img src="assets/logo.png" alt="Gherkin Beautifier Logo" width="100" /><br/><br/>
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/main/assets/logo.png" alt="Gherkin Beautifier Logo" width="100" /><br/><br/>
 
   <p><em>The ultimate professional formatting and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
 
@@ -51,14 +51,14 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 
 Want to master the extension? Read the dedicated documentation for each feature in our comprehensive guides:
 
-- [**🎨 Formatter Guide**](docs/features/formatter.md)
-- [**🔍 Live Linter & Quick Fixes Guide**](docs/features/linter.md)
-- [**🧭 Go To Definition Guide**](docs/features/definition.md)
-- [**📊 Statistics Dashboard Guide**](docs/features/statistics.md)
-- [**🌈 Syntax Highlighting Guide**](docs/features/highlighting.md)
-- [**🌳 Outline Provider Guide**](docs/features/outline.md)
-- [**📝 Snippets Guide**](docs/features/snippets.md)
-- [**⚙️ CI/CD Pipelines Architecture**](docs/pipelines.md)
+- [**🎨 Formatter Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/formatter.md)
+- [**🔍 Live Linter & Quick Fixes Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/linter.md)
+- [**🧭 Go To Definition Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/definition.md)
+- [**📊 Statistics Dashboard Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/statistics.md)
+- [**🌈 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/highlighting.md)
+- [**🌳 Outline Provider Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/outline.md)
+- [**📝 Snippets Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/snippets.md)
+- [**⚙️ CI/CD Pipelines Architecture**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/pipelines.md)
 
 ---
 
@@ -126,7 +126,7 @@ Feature: User Authentication
 
 </details>
 
-![Formatter Demonstration](assets/formatter.webp)
+![Formatter Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/main/assets/formatter.webp)
 
 ---
 
@@ -153,7 +153,7 @@ Click the yellow lightbulb (💡) or press `Cmd+.` / `Ctrl+.` to trigger auto-co
 - **Precise Error Mapping**: Dynamically maps AST logic back to the exact physical lines in VS Code, bypassing parser quirks (like silently stripping empty lines) to ensure pixel-perfect accuracy for every red underline.
 - **Generate Step Definitions**: Instantly scaffold an empty Python step implementation in your `steps/` directory.
 
-![Linter Demonstration](assets/linter.webp)
+![Linter Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/main/assets/linter.webp)
 
 ---
 
@@ -176,7 +176,7 @@ def step_login(context, user):
 > [!TIP]
 > Works with **Behave** step decorators (`@given`, `@when`, `@then`, `@step`) in any `steps/` subdirectory.
 
-![Go To Definition](assets/definition.webp)
+![Go To Definition](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/main/assets/definition.webp)
 
 ---
 
@@ -197,7 +197,7 @@ Get a live HTML report across your entire workspace:
 | 🏆 **Top Tags & Steps** | Expandable leaderboard of the most frequently used tags and steps |
 | 📦 **Code Density** | Empty lines vs code lines for formatting health |
 
-![Dashboard Demonstration](assets/dashboard.webp)
+![Dashboard Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/main/assets/dashboard.webp)
 
 ---
 
@@ -212,7 +212,7 @@ A hand-tuned color palette designed for VS Code dark themes. Every Gherkin token
 | `@smoke`, `@api`, `@wip` | Cyan `#4EC9B0` | Tags |
 | `"""` docstrings | Orange `#CE9178` | Strings |
 
-![Syntax Highlighting](assets/highlighting.webp)
+![Syntax Highlighting](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/main/assets/highlighting.webp)
 
 ---
 
