@@ -37,6 +37,12 @@ jobs:
       - name: 🔨 Compile TypeScript
         run: npm run compile
 
+      - name: 💾 Cache VS Code Test Binaries
+        uses: actions/cache@v4
+        with:
+          path: .vscode-test
+          key: ${{ runner.os }}-vscode-test-${{ hashFiles('package-lock.json') }}
+
       - name: 🎭 Run End-to-End Tests
         # xvfb-run creates a virtual X server display, required
         # for VS Code UI tests on Linux runners
