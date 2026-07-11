@@ -1,7 +1,7 @@
 # Gherkin Beautifier
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/docs/fix-marketplace-assets/assets/logo.png" alt="Gherkin Beautifier Logo" width="100" /><br/><br/>
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-beautifier/docs/fix-marketplace-assets/assets/logo.png" alt="Gherkin Beautifier Logo" width="250" /><br/><br/>
 
   <p><em>The ultimate professional formatting and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
 
