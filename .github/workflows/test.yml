@@ -3,7 +3,8 @@ name: 🧪 Run Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
 
 permissions:
@@ -36,19 +37,34 @@ jobs:
         if: runner.os == 'Linux'
         run: xvfb-run -a npm run coverage
 
-      - name: 🧪 Run Tests (macOS / Windows)
+      - name: 🧪 Run Tests & Generate Coverage (macOS / Windows)
         if: runner.os != 'Linux'
-        run: npm run test
+        run: npm run coverage
 
-      - name: 📤 Upload Coverage Artifact
+      - name: 🧹 Delete Old PR Comments (Push to Bottom)
+        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          COMMENT_IDS=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            --jq '.[] | select(.user.type == "Bot") | select(.body | contains("Coverage") or contains("Test Execution Results")) | .id')
+          for ID in $COMMENT_IDS; do
+            gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$ID"
+          done || true
+
+      - name: 📊 Report Coverage to PR
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: carlos-camara/qa-hub-actions/report-coverage@main
         with:
-          name: coverage-report
-          path: coverage/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-number: ${{ github.event.pull_request.number }}
 
       - name: 📝 Publish Unit Test Results
-        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'Linux' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: "test-results/unit-test-results.xml"
