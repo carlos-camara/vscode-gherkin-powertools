@@ -51,28 +51,48 @@ Feature: Test Feature
 
     test('Handles Rule and Background', async () => {
         const text = `
-Feature: Feature with Rule
-  Rule: A rule
-    Background:
-      Given a setup
-    Scenario: A scenario
-      Then it works
+Feature: Test
+  Background: Global Setup
+    Given a global step
+  Rule: Business Rule
+    Background: Rule Setup
+      Given a rule step
+    Scenario: Under rule
+      Then do something
         `.trim();
         const doc = createMockDocument(text);
-        const symbols = await provider.provideDocumentSymbols(doc, {} as vscode.CancellationToken);
-        
-        assert.ok(symbols);
-        assert.strictEqual(symbols[0].children.length, 1);
-        
-        const ruleSymbol = symbols[0].children[0];
-        assert.strictEqual(ruleSymbol.name, 'Rule: A rule');
-        assert.strictEqual(ruleSymbol.kind, vscode.SymbolKind.Namespace);
-        assert.strictEqual(ruleSymbol.children.length, 2);
+        const symbols = await provider.provideDocumentSymbols(doc, null as any);
 
-        const backgroundSymbol = ruleSymbol.children[0];
-        assert.strictEqual(backgroundSymbol.name, 'Background:');
+        assert.ok(symbols);
+        assert.strictEqual(symbols.length, 1);
         
-        const scenarioSymbol = ruleSymbol.children[1];
-        assert.strictEqual(scenarioSymbol.name, 'Scenario: A scenario');
+        const featureSymbol = symbols[0];
+        // Global background + Rule
+        assert.strictEqual(featureSymbol.children.length, 2);
+        
+        const globalBackground = featureSymbol.children[0];
+        assert.strictEqual(globalBackground.name, 'Background: Global Setup');
+        assert.strictEqual(globalBackground.kind, vscode.SymbolKind.Method);
+
+        const ruleSymbol = featureSymbol.children[1];
+        assert.strictEqual(ruleSymbol.name, 'Rule: Business Rule');
+        assert.strictEqual(ruleSymbol.kind, vscode.SymbolKind.Namespace);
+        
+        // Rule Background + Scenario
+        assert.strictEqual(ruleSymbol.children.length, 2);
+        assert.strictEqual(ruleSymbol.children[0].name, 'Background: Rule Setup');
+        assert.strictEqual(ruleSymbol.children[1].name, 'Scenario: Under rule');
+    });
+
+    test('Returns empty array on parsing failure', async () => {
+        const doc = createMockDocument('Invalid');
+        const symbols = await provider.provideDocumentSymbols(doc, null as any);
+        assert.deepStrictEqual(symbols, []);
+    });
+
+    test('Returns empty array if no feature is found', async () => {
+        const doc = createMockDocument('# Just a comment');
+        const symbols = await provider.provideDocumentSymbols(doc, null as any);
+        assert.deepStrictEqual(symbols, []);
     });
 });

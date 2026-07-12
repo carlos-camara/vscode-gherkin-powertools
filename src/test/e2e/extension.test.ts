@@ -171,4 +171,37 @@ suite('E2E UI Test Suite', () => {
         // It might be empty if the provider logic requires strict diagnostics to be present first,
         // but we verify it executes successfully.
     });
+
+    test('Simulate Autocompletion provider', async () => {
+        const uri = vscode.Uri.parse('untitled:completion_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Completions\n  Scenario: Test\n    Given ');
+        });
+
+        const position = new vscode.Position(2, 10); // After 'Given '
+        
+        const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            document.uri,
+            position
+        );
+
+        assert.ok(completions !== undefined, 'Completion provider should return a list (even if empty)');
+    });
+
+    test('Simulate Statistics Webview generation', async () => {
+        // Run the custom command registered by the extension
+        // Since we cannot assert the DOM of the Webview, we just assert the command runs without throwing
+        let errorThrown = false;
+        try {
+            await vscode.commands.executeCommand('gherkinPowerTools.showStatistics');
+        } catch (e) {
+            errorThrown = true;
+        }
+        assert.strictEqual(errorThrown, false, 'The Statistics Webview command threw an error');
+    });
 });
