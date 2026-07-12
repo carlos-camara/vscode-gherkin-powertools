@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,17 +17,19 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint Markdown & Workflows
+    name: Lint & Compile
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: 🔍 Checkout Code
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
-      - name: 📝 Lint Markdown
-        run: npx markdownlint-cli2 "**/*.md" "#node_modules"
+      - name: ⚙️ Setup and Build
+        uses: ./.github/actions/setup-build
 
-      - name: ⚙️ Lint GitHub Actions
-        run: |
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-          ./actionlint
+      - name: 🧹 Lint Codebase (Markdown, YAML, Actions)
+        uses: carlos-camara/qa-hub-actions/lint-codebase@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
