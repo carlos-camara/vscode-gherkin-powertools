@@ -41,6 +41,21 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 
 ---
 
+## 📑 Table of Contents
+
+- [Core Capabilities](#-core-capabilities)
+- [Official Documentation](#-official-documentation)
+- [Enterprise-Grade Quality](#️-enterprise-grade-quality)
+- [Features](#-features)
+- [Keyboard Shortcuts](#️-keyboard-shortcuts)
+- [Configuration](#️-configuration)
+- [Installation](#-installation)
+- [Roadmap](#️-roadmap)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
 ## ✨ Core Capabilities
 
 | | Feature | Description |
