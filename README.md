@@ -56,6 +56,7 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 - [Installation](#-installation)
 - [Roadmap](#️-roadmap)
 - [Contributing](#-contributing)
+- [Support & Sponsors](#-support--sponsors)
 - [License](#-license)
 
 ---
@@ -328,6 +329,26 @@ Read our detailed [CONTRIBUTING.md](./CONTRIBUTING.md) guide to get started.
     <img src="https://img.shields.io/github/stars/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" />
   </a>
 </div>
+
+---
+
+## 💖 Support & Sponsors
+
+Gherkin PowerTools is an independent open-source project created and maintained in my free time. If this extension has saved you hours of formatting headaches or improved your team's BDD workflow, please consider supporting its ongoing development!
+
+<br>
+<div align="center">
+  <a href="https://www.buymeacoffee.com/carloscamara">
+    <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/sponsors/carlos-camara">
+    <img src="https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" />
+  </a>
+</div>
+<br>
+
+---
 
 ## 📄 License
 
