@@ -1,7 +1,7 @@
 {
   "name": "vscode-gherkin-powertools",
   "displayName": "Gherkin PowerTools",
-  "description": "A highly professional, native formatting extension for Visual Studio Code, meticulously designed to format and align Gherkin (.feature) files.",
+  "description": "Format, lint, and navigate Gherkin (.feature) files in VS Code. Includes dynamic table alignment, real-time syntax checking, and Python/Behave step definition tooling.",
   "version": "1.7.0",
   "engines": {
     "vscode": "^1.93.0"
@@ -16,12 +16,12 @@
   "keywords": [
     "gherkin",
     "cucumber",
-    "bdd",
-    "feature",
+    "behave",
+    "specflow",
     "formatter",
-    "beautifier",
-    "alignment",
-    "carlos camara"
+    "linter",
+    "python",
+    "testing"
   ],
   "publisher": "carloscamara",
   "author": "Carlos Camara",
