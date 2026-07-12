@@ -1,6 +1,6 @@
-# Gherkin PowerTools
-
+<!-- markdownlint-disable-file MD041 -->
 <div align="center">
+  <h1>Gherkin PowerTools</h1>
   <img src="assets/logo.png" alt="Gherkin PowerTools Logo" width="250" /><br/><br/>
 
   <p><em>The ultimate professional formatting and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
