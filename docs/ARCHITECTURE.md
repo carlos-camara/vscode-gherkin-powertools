@@ -4,7 +4,7 @@ This document describes the internal architecture of the **Gherkin PowerTools** 
 
 ## High-Level Architecture
 
-The extension is designed around a fast, memory-efficient line-parsing engine that avoids building a full Abstract Syntax Tree (AST). Since formatting Gherkin mainly concerns indentation, block spacing, and table alignment, a streaming line parser is vastly more performant.
+The extension is built on a Hybrid Parsing Engine. While formatting is traditionally difficult for whitespace-sensitive languages, we use the official `@cucumber/gherkin` Abstract Syntax Tree (AST) to achieve mathematically precise structural analysis. If the AST fails due to catastrophic syntax errors (e.g., a user currently typing a malformed line), our Live Diagnostics Linter seamlessly falls back to a custom text-based scanner to ensure the extension never crashes.
 
 ### Module Map
 
@@ -16,19 +16,30 @@ graph LR
     A --> E[definition.ts]
     A --> F[outline.ts]
     A --> G[statistics.ts]
+    A --> H[codeAction.ts]
+    A --> I[completion.ts]
+    A --> J[cache.ts]
+    A --> K[logger.ts]
 ```
 
 | Module | Responsibility |
 |--------|---------------|
-| `extension.ts` | Entry point. Registers all commands, providers, and diagnostics |
+| `extension.ts` | Entry point. Bundled via **Esbuild** for 0ms activation. Registers all commands, providers, and diagnostics. |
 | `formatter.ts` | Core formatting engine: indentation, table alignment, auto-casing, tag wrapping |
 | `highlighter.ts` | Custom semantic syntax highlighting via `createTextEditorDecorationType` |
-| `linter.ts` | Real-time syntax checking via regex, generates `vscode.Diagnostic` warnings |
-| `definition.ts` | Go-To-Definition provider: searches `steps/` for Python decorators |
+| `linter.ts` | Real-time syntax checking via `@cucumber/gherkin` AST, with fallback text scanning. |
+| `definition.ts` | Go-To-Definition provider: accesses `cache.ts` for instant lookups |
 | `outline.ts` | Hierarchical tree of `Feature > Rule > Scenario` for the Outline panel |
-| `statistics.ts` | Interactive HTML Webview dashboard with BDD project metrics |
+| `statistics.ts` | Interactive HTML Webview dashboard with CSP-secured metrics |
+| `codeAction.ts`| Generates quick fixes (💡) for undefined steps or syntax typos |
+| `completion.ts`| Smart IntelliSense autocompletion parsing regex into Snippets |
+| `cache.ts`     | In-memory caching engine that indexes the workspace on startup |
+| `logger.ts`    | Native VS Code Output Channel for tracing |
+
 
 ## The Formatting Engine
+
+While parsing relies on the AST for semantic validation, the `formatter.ts` leverages regex-based token extraction combined with AST localization to perform block-spacing and table alignment flawlessly without destroying invalid lines.
 
 ```mermaid
 classDiagram
