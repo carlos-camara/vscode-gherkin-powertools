@@ -29,7 +29,7 @@ jobs:
         uses: ./.github/actions/setup-build
 
       - name: 💾 Cache VS Code Test Binaries
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .vscode-test
           key: ${{ runner.os }}-vscode-test-${{ hashFiles('package-lock.json') }}
