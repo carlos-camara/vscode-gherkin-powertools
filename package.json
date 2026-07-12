@@ -114,7 +114,7 @@
     "watch": "tsc -watch -p ./",
     "esbuild": "node esbuild.js",
     "esbuild-watch": "node esbuild.js --watch",
-    "pretest": "npm run compile",
+    "pretest": "npm run compile && npm run esbuild",
     "test": "vscode-test --label unitTests",
     "test:e2e": "vscode-test --label e2eTests",
     "coverage": "vscode-test --label unitTests --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=json-summary"
