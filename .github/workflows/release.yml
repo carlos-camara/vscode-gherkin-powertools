@@ -6,20 +6,26 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build & Release VSIX
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 15
     steps:
       - name: 🔍 Checkout Code
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: 🏷️ Check Version and Create Tag
-        id: tag_check
+      - name: 🏷️ Determine Version
+        id: version
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
@@ -27,33 +33,31 @@ jobs:
             echo "Tag $TAG already exists. Skipping release."
             echo "is_new_version=false" >> "$GITHUB_OUTPUT"
           else
-            echo "New version detected. Creating tag $TAG."
-            git tag "$TAG"
-            git push origin "$TAG"
+            echo "New version detected: $TAG."
             echo "is_new_version=true" >> "$GITHUB_OUTPUT"
             echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
           fi
 
       - name: ⚙️ Setup and Build
-        if: steps.tag_check.outputs.is_new_version == 'true'
+        if: steps.version.outputs.is_new_version == 'true'
         uses: ./.github/actions/setup-build
 
       - name: 📦 Package VSIX
-        if: steps.tag_check.outputs.is_new_version == 'true'
+        if: steps.version.outputs.is_new_version == 'true'
+        run: npx -y @vscode/vsce package --out "gherkin-powertools-${{ steps.version.outputs.tag_name }}.vsix"
+
+      - name: 🏷️ Create Tag
+        if: steps.version.outputs.is_new_version == 'true'
         run: |
-          npx -y @vscode/vsce package --out "gherkin-powertools-${{ steps.tag_check.outputs.tag_name }}.vsix"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.version.outputs.tag_name }}"
+          git push origin "${{ steps.version.outputs.tag_name }}"
 
       - name: 🚀 Create GitHub Release
-        if: steps.tag_check.outputs.is_new_version == 'true'
+        if: steps.version.outputs.is_new_version == 'true'
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ steps.tag_check.outputs.tag_name }}
+          tag_name: ${{ steps.version.outputs.tag_name }}
           files: gherkin-powertools-*.vsix
           generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#      - name: 🌐 Publish to VS Code Marketplace
-#        if: steps.tag_check.outputs.is_new_version == 'true'
-#        run: |
-#          npx -y @vscode/vsce publish -i "gherkin-powertools-${{ steps.tag_check.outputs.tag_name }}.vsix" -p ${{ secrets.VSCE_PAT }}
