@@ -13,13 +13,13 @@ import { GherkinHoverProvider } from './hover';
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
 /**
- * Activates the Gherkin Beautifier extension.
+ * Activates the Gherkin PowerTools extension.
  * This method is called when the extension is activated by VS Code.
  * 
  * @param context The extension context provided by VS Code.
  */
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Extension "vscode-gherkin-beautifier" is now active.');
+    console.log('Extension "vscode-gherkin-powertools" is now active.');
 
     const formatter = new GherkinFormattingEditProvider();
     const symbolProvider = new GherkinDocumentSymbolProvider();
@@ -47,21 +47,21 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Register the context menu command to format the document
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinBeautifier.format', () => {
+        vscode.commands.registerCommand('gherkinPowerTools.format', () => {
             vscode.commands.executeCommand('editor.action.formatDocument');
         })
     );
 
     // Register the statistics dashboard command
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinBeautifier.showStatistics', () => {
+        vscode.commands.registerCommand('gherkinPowerTools.showStatistics', () => {
             showStatisticsDashboard(context);
         })
     );
 
     // Register the custom command for creating step definitions
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinBeautifier.createStepDefinition', createStepDefinition)
+        vscode.commands.registerCommand('gherkinPowerTools.createStepDefinition', createStepDefinition)
     );
     
     context.subscriptions.push(linter);
@@ -149,7 +149,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * Deactivates the Gherkin Beautifier extension.
+ * Deactivates the Gherkin PowerTools extension.
  * This method is called when the extension is deactivated.
  */
 export function deactivate() {

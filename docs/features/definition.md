@@ -1,6 +1,6 @@
 # 🧭 Go To Definition
 
-Stop searching for step implementations manually. Gherkin Beautifier allows you to instantly jump from any `.feature` file step directly to its underlying Python execution code.
+Stop searching for step implementations manually. Gherkin PowerTools allows you to instantly jump from any `.feature` file step directly to its underlying Python execution code.
 
 ## ⚡ How to Trigger
 

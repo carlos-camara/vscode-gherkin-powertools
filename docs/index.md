@@ -1,17 +1,17 @@
-# Gherkin Beautifier
+# Gherkin PowerTools
 
 <div align="center">
-  <img src="assets/logo.png" alt="Gherkin Beautifier Logo" width="250" />
+  <img src="assets/logo.png" alt="Gherkin PowerTools Logo" width="250" />
   <p><em>The ultimate, professional formatting and productivity suite for Gherkin and BDD inside VS Code.</em></p>
 </div>
 
 ---
 
-## What is Gherkin Beautifier?
+## What is Gherkin PowerTools?
 
-**Gherkin Beautifier** is a meticulously crafted VS Code extension designed for teams using Behavior-Driven Development (BDD). It transforms chaotic `.feature` files into perfectly aligned, highly readable, and deeply integrated specifications.
+**Gherkin PowerTools** is a meticulously crafted VS Code extension designed for teams using Behavior-Driven Development (BDD). It transforms chaotic `.feature` files into perfectly aligned, highly readable, and deeply integrated specifications.
 
-Whether you're using **Cucumber**, **Behave**, or any other BDD framework, Gherkin Beautifier supercharges your workflow with:
+Whether you're using **Cucumber**, **Behave**, or any other BDD framework, Gherkin PowerTools supercharges your workflow with:
 
 - 🎨 **Intelligent Formatter** — Auto-indentation, table alignment, auto-casing
 - 🔍 **Live Diagnostics** — Real-time syntax validation as you type
@@ -23,10 +23,10 @@ Whether you're using **Cucumber**, **Behave**, or any other BDD framework, Gherk
 
 ```bash
 # Install from VS Code Marketplace
-ext install carloscamara.vscode-gherkin-beautifier
+ext install carloscamara.vscode-gherkin-powertools
 ```
 
-Or search **"Gherkin Beautifier"** in the Extensions view (`Ctrl+Shift+X`).
+Or search **"Gherkin PowerTools"** in the Extensions view (`Ctrl+Shift+X`).
 
 ## Ecosystem
 
