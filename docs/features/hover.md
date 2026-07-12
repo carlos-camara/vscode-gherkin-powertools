@@ -1,6 +1,6 @@
 # 🖱️ Hover Documentation Preview
 
-Context-switching between your `.feature` files and your Python codebase is a thing of the past. The Gherkin Beautifier includes a built-in **Hover Provider** that instantly gives you the underlying code context of any step.
+Context-switching between your `.feature` files and your Python codebase is a thing of the past. The Gherkin PowerTools includes a built-in **Hover Provider** that instantly gives you the underlying code context of any step.
 
 ## 🚀 How it Works
 

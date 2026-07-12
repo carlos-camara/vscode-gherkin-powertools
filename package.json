@@ -1,6 +1,6 @@
 {
-  "name": "vscode-gherkin-beautifier",
-  "displayName": "Gherkin Beautifier",
+  "name": "vscode-gherkin-powertools",
+  "displayName": "Gherkin PowerTools",
   "description": "A highly professional, native formatting extension for Visual Studio Code, meticulously designed to format and align Gherkin (.feature) files.",
   "version": "1.7.0",
   "engines": {
@@ -29,7 +29,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/carloscamara/vscode-gherkin-beautifier"
+    "url": "https://github.com/carlos-camara/vscode-gherkin-powertools"
   },
   "activationEvents": [
     "onLanguage:feature"
@@ -49,19 +49,19 @@
       }
     ],
     "configuration": {
-      "title": "Gherkin Beautifier",
+      "title": "Gherkin PowerTools",
       "properties": {
-        "gherkinBeautifier.indentation.steps": {
+        "gherkinPowerTools.indentation.steps": {
           "type": "number",
           "default": 4,
           "description": "Number of spaces to indent steps."
         },
-        "gherkinBeautifier.tables.alignToKeyword": {
+        "gherkinPowerTools.tables.alignToKeyword": {
           "type": "boolean",
           "default": true,
           "description": "If true, tables align dynamically to the start of the step text. If false, tables simply indent slightly more than the step keyword."
         },
-        "gherkinBeautifier.tags.format": {
+        "gherkinPowerTools.tags.format": {
           "type": "string",
           "enum": [
             "wrap",
@@ -70,7 +70,7 @@
           "default": "wrap",
           "description": "How to format long lists of tags. 'wrap' splits them across multiple lines (max 80 chars), 'singleLine' keeps them all on one line."
         },
-        "gherkinBeautifier.emptyLines.betweenScenarios": {
+        "gherkinPowerTools.emptyLines.betweenScenarios": {
           "type": "number",
           "default": 1,
           "description": "Number of empty lines to enforce between Scenario/Rule/Background blocks."
@@ -79,11 +79,11 @@
     },
     "commands": [
       {
-        "command": "gherkinBeautifier.format",
+        "command": "gherkinPowerTools.format",
         "title": "Format Gherkin Document"
       },
       {
-        "command": "gherkinBeautifier.showStatistics",
+        "command": "gherkinPowerTools.showStatistics",
         "title": "Gherkin: Show Project Statistics"
       }
     ],
@@ -91,12 +91,12 @@
       "editor/context": [
         {
           "when": "editorLangId == feature",
-          "command": "gherkinBeautifier.format",
+          "command": "gherkinPowerTools.format",
           "group": "1_modification"
         },
         {
           "when": "editorLangId == feature",
-          "command": "gherkinBeautifier.showStatistics",
+          "command": "gherkinPowerTools.showStatistics",
           "group": "1_modification"
         }
       ]
@@ -119,7 +119,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "@types/vscode": "^1.93.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
