@@ -25,7 +25,7 @@ Here is a breakdown of the core modules located in the `src/` directory:
 1. **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) (v16+) and [npm](https://www.npmjs.com/) installed.
 2. **Clone the repository**:
    ```bash
-   git clone https://github.com/carloscamara/vscode-gherkin-powertools.git
+   git clone https://github.com/carlos-camara/vscode-gherkin-powertools.git
    cd vscode-gherkin-powertools
    ```
 3. **Install dependencies**:
