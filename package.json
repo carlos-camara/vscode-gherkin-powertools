@@ -134,6 +134,6 @@
   },
   "dependencies": {
     "@cucumber/gherkin": "^41.0.0",
-    "@cucumber/messages": "^33.0.4"
+    "@cucumber/messages": "^34.0.1"
   }
 }
