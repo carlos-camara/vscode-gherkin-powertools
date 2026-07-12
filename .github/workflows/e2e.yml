@@ -23,13 +23,13 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: 🔍 Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: ⚙️ Setup and Build
         uses: ./.github/actions/setup-build
 
       - name: 💾 Cache VS Code Test Binaries
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .vscode-test
           key: ${{ runner.os }}-vscode-test-${{ hashFiles('package-lock.json') }}
