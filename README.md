@@ -1,22 +1,22 @@
-# Gherkin Beautifier
+# Gherkin PowerTools
 
 <div align="center">
-  <img src="assets/logo.png" alt="Gherkin Beautifier Logo" width="250" /><br/><br/>
+  <img src="assets/logo.png" alt="Gherkin PowerTools Logo" width="250" /><br/><br/>
 
   <p><em>The ultimate professional formatting and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
 
   <p>
-    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-beautifier">
-      <img src="https://img.shields.io/visual-studio-marketplace/v/carloscamara.vscode-gherkin-beautifier?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Marketplace&color=0078d7" alt="VS Code Marketplace" />
+    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
+      <img src="https://img.shields.io/visual-studio-marketplace/v/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Marketplace&color=0078d7" alt="VS Code Marketplace" />
     </a>
-    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-beautifier">
-      <img src="https://img.shields.io/visual-studio-marketplace/i/carloscamara.vscode-gherkin-beautifier?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Installs&color=blue" alt="Installs" />
+    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
+      <img src="https://img.shields.io/visual-studio-marketplace/i/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Installs&color=blue" alt="Installs" />
     </a>
-    <a href="https://github.com/carlos-camara/vscode-gherkin-beautifier/actions/workflows/lint.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-beautifier/lint.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Lint" alt="Lint" />
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/lint.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/lint.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Lint" alt="Lint" />
     </a>
     <a href="./LICENSE">
-      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-beautifier?style=for-the-badge&color=yellow" alt="License: MIT" />
+      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=yellow" alt="License: MIT" />
     </a>
   </p>
 
@@ -24,7 +24,7 @@
 
 ---
 
-**Gherkin Beautifier** transforms chaotic, hand-edited `.feature` files into perfectly aligned, professionally formatted BDD specifications — in milliseconds. Built natively for VS Code, it integrates directly with the editor's formatting API, live diagnostic linter, and navigation system to supercharge your behavior-driven development workflow.
+**Gherkin PowerTools** transforms chaotic, hand-edited `.feature` files into perfectly aligned, professionally formatted BDD specifications — in milliseconds. Built natively for VS Code, it integrates directly with the editor's formatting API, live diagnostic linter, and navigation system to supercharge your behavior-driven development workflow.
 
 Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** · **SpecFlow** · **Karate** · **pytest-bdd**
 
@@ -51,15 +51,15 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 
 Want to master the extension? Read the dedicated documentation for each feature in our comprehensive guides:
 
-- [**🎨 Formatter Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/formatter.md)
-- [**🔍 Live Linter & Quick Fixes Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/linter.md)
-- [**🧭 Go To Definition Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/definition.md)
-- [**📊 Statistics Dashboard Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/statistics.md)
-- [**🌈 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/highlighting.md)
-- [**🌳 Outline Provider Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/outline.md)
-- [**📝 Snippets & Autocomplete Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/snippets.md)
-- [**🖱️ Hover Documentation Guide**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/features/hover.md)
-- [**⚙️ CI/CD Pipelines Architecture**](https://github.com/carlos-camara/vscode-gherkin-beautifier/blob/main/docs/pipelines.md)
+- [**🎨 Formatter Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/formatter.md)
+- [**🔍 Live Linter & Quick Fixes Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/linter.md)
+- [**🧭 Go To Definition Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/definition.md)
+- [**📊 Statistics Dashboard Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/statistics.md)
+- [**🌈 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/highlighting.md)
+- [**🌳 Outline Provider Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/outline.md)
+- [**📝 Snippets & Autocomplete Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/snippets.md)
+- [**🖱️ Hover Documentation Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/hover.md)
+- [**⚙️ CI/CD Pipelines Architecture**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/pipelines.md)
 
 ---
 
@@ -234,10 +234,10 @@ Works perfectly out-of-the-box. Fine-tune via `settings.json`:
 
 | Setting | Default | Description |
 |---------|:-------:|-------------|
-| `gherkinBeautifier.indentation.steps` | `4` | Spaces to indent step lines |
-| `gherkinBeautifier.tables.alignToKeyword` | `true` | Align pipe tables to the preceding step column |
-| `gherkinBeautifier.emptyLines.betweenScenarios` | `1` | Blank lines between `Scenario` / `Rule` blocks |
-| `gherkinBeautifier.tags.format` | `"wrap"` | `"wrap"` splits at 80 chars · `"singleLine"` keeps on one line |
+| `gherkinPowerTools.indentation.steps` | `4` | Spaces to indent step lines |
+| `gherkinPowerTools.tables.alignToKeyword` | `true` | Align pipe tables to the preceding step column |
+| `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Blank lines between `Scenario` / `Rule` blocks |
+| `gherkinPowerTools.tags.format` | `"wrap"` | `"wrap"` splits at 80 chars · `"singleLine"` keeps on one line |
 
 **Enable Format on Save (recommended):**
 
@@ -245,7 +245,7 @@ Works perfectly out-of-the-box. Fine-tune via `settings.json`:
 // .vscode/settings.json
 {
   "[feature]": {
-    "editor.defaultFormatter": "carloscamara.vscode-gherkin-beautifier",
+    "editor.defaultFormatter": "carloscamara.vscode-gherkin-powertools",
     "editor.formatOnSave": true
   }
 }
@@ -258,18 +258,18 @@ Works perfectly out-of-the-box. Fine-tune via `settings.json`:
 **Via VS Code Marketplace** *(recommended)*
 
 1. Open VS Code → Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
-2. Search **"Gherkin Beautifier"** and click **Install**
+2. Search **"Gherkin PowerTools"** and click **Install**
 
 **Via CLI:**
 
 ```bash
-code --install-extension carloscamara.vscode-gherkin-beautifier
+code --install-extension carloscamara.vscode-gherkin-powertools
 ```
 
 **Via `.vsix` file:**
 
 ```bash
-code --install-extension vscode-gherkin-beautifier-1.6.0.vsix
+code --install-extension vscode-gherkin-powertools-1.7.0.vsix
 ```
 
 ---
