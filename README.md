@@ -58,19 +58,17 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 
 ---
 
-## 📚 In-Depth Documentation
+## 📚 Official Documentation
 
-Want to master the extension? Read the dedicated documentation for each feature in our comprehensive guides:
+Want to master the extension? Our comprehensive guides, architecture overviews, and feature deep-dives are hosted on our dedicated documentation website.
 
-- [**🎨 Formatter Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/formatter.md)
-- [**🔍 Live Linter & Quick Fixes Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/linter.md)
-- [**🧭 Go To Definition Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/definition.md)
-- [**📊 Statistics Dashboard Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/statistics.md)
-- [**🌙 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/highlighting.md)
-- [**🌳 Outline Provider Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/outline.md)
-- [**📝 Snippets & Autocomplete Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/snippets.md)
-- [**🖱️ Hover Documentation Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/hover.md)
-- [**⚙️ CI/CD Pipelines Architecture**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/pipelines.md)
+<br>
+<div align="center">
+  <a href="https://carlos-camara.github.io/vscode-gherkin-powertools/">
+    <img src="https://img.shields.io/badge/📖_Read_the_Official_Documentation-512BD4?style=for-the-badge" alt="Official Documentation" />
+  </a>
+</div>
+<br>
 
 ---
 
