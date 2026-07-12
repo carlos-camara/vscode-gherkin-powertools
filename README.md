@@ -29,9 +29,9 @@
 
 ## Why Gherkin PowerTools?
 
-The advanced Gherkin formatter and linter for VS Code, with deeper tooling for Python/Behave projects. 
+Writing Behavior-Driven Development (BDD) specifications often leads to misaligned tables, inconsistent indentation, and syntax typos caught only during test execution. 
 
-Writing Behavior-Driven Development (BDD) specifications often results in misaligned tables, inconsistent indentation, and syntax typos that are only caught during test execution. **Gherkin PowerTools** runs natively in VS Code to format your files, detect structural errors in real-time, and provide navigation capabilities directly to your code.
+This extension runs natively in VS Code to format your files, detect structural errors in real-time, and provide navigation capabilities directly to your code.
 
 ---
 
@@ -71,10 +71,10 @@ Feature: User Authentication
 
 ## 🤝 Compatibility
 
-The extension splits its functionality into two tiers to optimize performance:
+Features are divided into two tiers based on your project stack:
 
 ### Generic `.feature` files (Any Framework)
-Works immediately on any `.feature` file regardless of the underlying test runner (Cucumber, SpecFlow, Karate, Cypress, etc.).
+Works on any `.feature` file regardless of the test runner (Cucumber, SpecFlow, Karate, Cypress, etc.).
 - Formatter
 - Linter
 - Quick Fixes
@@ -82,7 +82,7 @@ Works immediately on any `.feature` file regardless of the underlying test runne
 - Syntax Highlighting
 
 ### Python / Behave Specific
-When working in a Python/Behave project, the extension automatically parses your `@given`, `@when`, and `@then` decorators to enable code-level features:
+When working in a Python/Behave project, the extension parses your `@given`, `@when`, and `@then` decorators to enable:
 - Go To Definition (`Cmd/Ctrl+Click`)
 - Autocomplete (Step suggestions based on Python definitions)
 - Hover (Displays the Python Docstring of the step)
@@ -91,15 +91,15 @@ When working in a Python/Behave project, the extension automatically parses your
 
 ## ⚖️ Gherkin PowerTools vs Official Cucumber Extension
 
-This extension is designed to address formatting and linting workflows, whereas the [Official Cucumber Extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) provides broader language support for code generation.
+This extension is built for formatting and linting workflows, whereas the [Official Cucumber Extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) focuses on broad language support and code generation.
 
 | Feature | Gherkin PowerTools | Official Cucumber Extension |
 |---------|--------------------|-----------------------------|
-| **Setup** | Does not require workspace configuration. | Requires `cucumber.features` & `cucumber.glue` globs in settings. |
-| **Formatter** | Configurable step indentation, dynamic table alignment relative to keyword, tag wrapping limit. | 2-space indentation, internal table cell alignment. |
-| **Linter / Diagnostics** | Flags syntax errors, missing colons, and structural warnings in real-time. | Does not provide syntax linting. |
-| **Code Actions** | Auto-corrects typos, inserts missing colons, closes data tables. | Generates undefined step snippets. |
-| **Navigation** | Parses Behave/Python decorators. | Parses multiple languages (Java, Ruby, JS, SpecFlow, etc.). |
+| **Setup** | Zero workspace configuration required. | Requires `cucumber.features` & `cucumber.glue` globs. |
+| **Formatter** | Configurable indentation, dynamic table alignment relative to keyword, tag wrapping. | 2-space indentation, internal table cell alignment. |
+| **Linter / Diagnostics** | Flags syntax errors, missing colons, and structural warnings. | Not included. |
+| **Code Actions** | Auto-corrects typos, inserts colons, closes data tables. | Generates undefined step snippets. |
+| **Navigation** | Supports Behave/Python decorators. | Supports multiple languages (Java, Ruby, JS, SpecFlow, etc.). |
 
 ---
 
@@ -109,29 +109,29 @@ This extension is designed to address formatting and linting workflows, whereas 
 Auto-indentation, dynamic data table alignment to the preceding step keyword, auto-casing for Gherkin keywords (`given` -> `Given`), and configurable tag wrapping.
 
 ### 2. Live Diagnostics Linter
-Real-time syntax error detection. It flags missing colons after block keywords, invalid structural nesting (e.g., `Examples` without `Scenario Outline`), and unclosed data tables.
+Real-time syntax error detection. Flags missing colons after block keywords, invalid structural nesting (e.g., `Examples` without `Scenario Outline`), and unclosed data tables.
 
 ### 3. Quick Fixes (Code Actions)
-Press `Cmd+.` / `Ctrl+.` over a diagnostic warning to apply auto-corrections:
-- Suggests corrections for misspelled keywords based on Levenshtein distance.
-- Automatically appends missing colons.
-- Converts `Scenario` to `Scenario Outline` when an `Examples` table is added.
-- Closes malformed data table rows.
+Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:
+- Correct misspelled keywords based on Levenshtein distance.
+- Append missing colons.
+- Convert `Scenario` to `Scenario Outline` when an `Examples` table is added.
+- Close malformed data table rows.
 
 ### 4. Behave Navigation (Go To Definition)
-`Cmd+Click` (macOS) or `Ctrl+Click` (Windows/Linux) on any step to jump directly to its Python `@given`, `@when`, or `@then` implementation.
+`Cmd/Ctrl+Click` on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
 
 ### 5. Autocomplete
-Provides intelligent suggestions for steps as you type, directly sourced from your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
+Suggests steps as you type based on your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
 
 ### 6. Hover
-Hover your cursor over any step in the `.feature` file to view the underlying Python function signature and its associated Docstring.
+Hover over any step to view the underlying Python function signature and its associated Docstring.
 
 ### 7. Dashboard
-An integrated HTML Webview displaying project metrics, including a Gherkin Quality Score (GQS), file complexity warnings, and tag distribution.
+An HTML Webview displaying project metrics, including a Gherkin Quality Score (GQS), file complexity warnings, and tag distribution.
 
 ### 8. Workspace Analytics
-Tracks the total number of executable permutations (factoring in `Scenario Outline` rows) and calculates an estimated ROI based on automation time versus manual execution.
+Tracks executable permutations (factoring in `Scenario Outline` rows) and calculates an estimated ROI based on automation time versus manual execution.
 
 ---
 
