@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Gherkin PowerTools Output Channel**: Added a native VS Code Output Channel for transparent logging. Users can now monitor cache indexing progress, parser fallback events, and trace syntax errors without needing Developer Tools.
-- **Enterprise-Grade Testing**: Drastically expanded the testing architecture to achieve a **92.7% Code Coverage**. 
+- **Enterprise-Grade Testing**: Drastically expanded the testing architecture to achieve a **92.7% Code Coverage**.
   - Expanded unit tests to strictly cover edge cases in AST Fallbacks, Code Actions, and Symbol Caching.
   - Implemented 8 comprehensive Headless E2E scenarios via `@vscode/test-electron` covering real UI interactions (Hover, Definition, Quick Fixes, Autocomplete).
 

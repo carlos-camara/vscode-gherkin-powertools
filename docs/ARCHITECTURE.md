@@ -4,7 +4,9 @@ This document describes the internal architecture of the **Gherkin PowerTools** 
 
 ## High-Level Architecture
 
-The extension is built on a Hybrid Parsing Engine. While formatting is traditionally difficult for whitespace-sensitive languages, we use the official `@cucumber/gherkin` Abstract Syntax Tree (AST) to achieve mathematically precise structural analysis. If the AST fails due to catastrophic syntax errors (e.g., a user currently typing a malformed line), our Live Diagnostics Linter seamlessly falls back to a custom text-based scanner to ensure the extension never crashes.
+The extension is built on a Hybrid Parsing Engine.
+While formatting is traditionally difficult for whitespace-sensitive languages, we use the official `@cucumber/gherkin` Abstract Syntax Tree (AST) to achieve mathematically precise structural analysis.
+If the AST fails due to catastrophic syntax errors (e.g., a user currently typing a malformed line), our Live Diagnostics Linter seamlessly falls back to a custom text-based scanner to ensure the extension never crashes.
 
 ### Module Map
 
