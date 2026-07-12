@@ -1,6 +1,6 @@
-# Gherkin PowerTools
-
+<!-- markdownlint-disable-file MD041 -->
 <div align="center">
+  <h1>Gherkin PowerTools</h1>
   <img src="assets/logo.png" alt="Gherkin PowerTools Logo" width="250" /><br/><br/>
 
   <p><em>The ultimate professional formatting and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
@@ -12,11 +12,26 @@
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
       <img src="https://img.shields.io/visual-studio-marketplace/i/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Installs&color=blue" alt="Installs" />
     </a>
-    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/lint.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/lint.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Lint" alt="Lint" />
+    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools#review-details">
+      <img src="https://img.shields.io/visual-studio-marketplace/stars/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&color=yellow" alt="Rating" />
     </a>
+  </p>
+  <p>
+    <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
+    <img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js 22+" />
     <a href="./LICENSE">
-      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=yellow" alt="License: MIT" />
+      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=green" alt="License: MIT" />
+    </a>
+  </p>
+  <p>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=mocha&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
+    </a>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/e2e.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=electron&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
+    </a>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/lint.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/lint.yml?branch=main&style=for-the-badge&logo=eslint&logoColor=white&label=Lint" alt="Lint" />
     </a>
   </p>
 
@@ -30,6 +45,22 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 
 ---
 
+## 📑 Table of Contents
+
+- [Core Capabilities](#-core-capabilities)
+- [Official Documentation](#-official-documentation)
+- [Enterprise-Grade Quality](#️-enterprise-grade-quality)
+- [Features](#-features)
+- [Keyboard Shortcuts](#️-keyboard-shortcuts)
+- [Configuration](#️-configuration)
+- [Installation](#-installation)
+- [Roadmap](#️-roadmap)
+- [Contributing](#-contributing)
+- [Support & Sponsors](#-support--sponsors)
+- [License](#-license)
+
+---
+
 ## ✨ Core Capabilities
 
 | | Feature | Description |
@@ -40,26 +71,24 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 | 💡 | **Code Actions (Quick Fixes)** | Instantly auto-correct syntax errors, missing colons, misspelled keywords, and generate missing step definitions. |
 | 🧭 | **Go To Definition** | Instantly jump from `.feature` steps to their underlying Python implementations with a single click. |
 | 📊 | **Project Analytics V4** | Beautiful HTML glassmorphism dashboard providing comprehensive metrics for your entire BDD workspace. |
-| 🌈 | **Syntax Highlighting** | Curated VS Code color palette tailored specifically for dark themes. |
+| 🌙 | **Syntax Highlighting** | Curated VS Code color palette tailored specifically for dark themes. |
 | 📝 | **Intelligent Snippets** | Instant scaffolding for `Feature`, `Scenario`, `Scenario Outline`, and `Rule` blocks. |
 | 🌐 | **i18n Support** | Format keywords in English, Spanish, French, and German natively. |
 | 🛡️ | **Enterprise CI/CD & E2E** | Rigorous automated Native UI E2E Testing, Security Audits, and Cross-Platform Unit Coverage. |
 
 ---
 
-## 📚 In-Depth Documentation
+## 📚 Official Documentation
 
-Want to master the extension? Read the dedicated documentation for each feature in our comprehensive guides:
+Want to master the extension? Our comprehensive guides, architecture overviews, and feature deep-dives are hosted on our dedicated documentation website.
 
-- [**🎨 Formatter Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/formatter.md)
-- [**🔍 Live Linter & Quick Fixes Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/linter.md)
-- [**🧭 Go To Definition Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/definition.md)
-- [**📊 Statistics Dashboard Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/statistics.md)
-- [**🌈 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/highlighting.md)
-- [**🌳 Outline Provider Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/outline.md)
-- [**📝 Snippets & Autocomplete Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/snippets.md)
-- [**🖱️ Hover Documentation Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/hover.md)
-- [**⚙️ CI/CD Pipelines Architecture**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/pipelines.md)
+<br>
+<div align="center">
+  <a href="https://carlos-camara.github.io/vscode-gherkin-powertools/">
+    <img src="https://img.shields.io/badge/📖_Read_the_Official_Documentation-512BD4?style=for-the-badge" alt="Official Documentation" />
+  </a>
+</div>
+<br>
 
 ---
 
@@ -293,6 +322,33 @@ code --install-extension vscode-gherkin-powertools-1.7.0.vsix
 
 All contributions are highly welcome — bug reports, feature requests, documentation, or code.
 Read our detailed [CONTRIBUTING.md](./CONTRIBUTING.md) guide to get started.
+
+<div align="center">
+  <p><em>If you find Gherkin PowerTools useful, please consider giving it a star!</em> ⭐</p>
+  <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/stargazers">
+    <img src="https://img.shields.io/github/stars/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" />
+  </a>
+</div>
+
+---
+
+## 💖 Support & Sponsors
+
+Gherkin PowerTools is an independent open-source project created and maintained in my free time. If this extension has saved you hours of formatting headaches or improved your team's BDD workflow, please consider supporting its ongoing development!
+
+<br>
+<div align="center">
+  <a href="https://www.buymeacoffee.com/carloscamara">
+    <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/sponsors/carlos-camara">
+    <img src="https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" />
+  </a>
+</div>
+<br>
+
+---
 
 ## 📄 License
 
