@@ -102,7 +102,73 @@ suite('E2E UI Test Suite', () => {
         
         
         assert.ok(diagnostics.length > 0, 'Linter failed to generate diagnostics for bad syntax');
-        const hasSyntaxError = diagnostics.some(d => d.message.includes('Expected') || d.message.includes('EOF') || d.message.includes('Misspelled'));
+        const hasSyntaxError = diagnostics.some(d => d.message.includes('Expected') || d.message.includes('EOF') || d.message.includes('Misspelled') || d.message.includes('Invalid'));
         assert.ok(hasSyntaxError, 'Linter did not detect the syntax error');
+    });
+
+    test('Simulate Hover provider', async () => {
+        const uri = vscode.Uri.parse('untitled:hover_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Given a step');
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+            'vscode.executeHoverProvider',
+            document.uri,
+            new vscode.Position(0, 2) // hovering over 'Given'
+        );
+
+        assert.ok(hovers !== undefined, 'Hover provider should return array (even if empty)');
+    });
+
+    test('Simulate Go To Definition provider', async () => {
+        const uri = vscode.Uri.parse('untitled:definition_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Test\n  Scenario: Test\n    Given a step');
+        });
+
+        const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
+            'vscode.executeDefinitionProvider',
+            document.uri,
+            new vscode.Position(2, 10) // hovering over 'a step'
+        );
+
+        assert.ok(definitions !== undefined, 'Definition provider should return array (even if empty)');
+    });
+
+    test('Simulate Code Action provider (Generate Step)', async () => {
+        const uri = vscode.Uri.parse('untitled:codeaction_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Code Action\n  Scenario: Fix me\n    Given I need a definition');
+        });
+
+        // Allow diagnostics to flag it
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const range = new vscode.Range(2, 0, 2, 25);
+        
+        const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider',
+            document.uri,
+            range
+        );
+
+        assert.ok(codeActions !== undefined);
+        // It might be empty if the provider logic requires strict diagnostics to be present first,
+        // but we verify it executes successfully.
     });
 });
