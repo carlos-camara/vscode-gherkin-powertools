@@ -29,7 +29,7 @@
 
 ## Why Gherkin PowerTools?
 
-Writing Behavior-Driven Development (BDD) specifications often leads to misaligned tables, inconsistent indentation, and syntax typos caught only during test execution. 
+Writing Behavior-Driven Development (BDD) specifications often leads to misaligned tables, inconsistent indentation, and syntax typos caught only during test execution.
 
 This extension runs natively in VS Code to format your files, detect structural errors in real-time, and provide navigation capabilities directly to your code.
 
