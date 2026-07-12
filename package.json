@@ -1,7 +1,7 @@
 {
   "name": "vscode-gherkin-powertools",
   "displayName": "Gherkin PowerTools",
-  "description": "Advanced formatter, linter, and productivity suite for Gherkin (.feature) files. Features dynamic table alignment, real-time syntax checking, and project statistics.",
+  "description": "Format, lint, and navigate Gherkin (.feature) files in VS Code. Includes dynamic table alignment, real-time syntax checking, and Python/Behave step definition tooling.",
   "version": "1.7.0",
   "engines": {
     "vscode": "^1.93.0"
@@ -16,11 +16,11 @@
   "keywords": [
     "gherkin",
     "cucumber",
-    "bdd",
-    "specflow",
     "behave",
+    "specflow",
     "formatter",
     "linter",
+    "python",
     "testing"
   ],
   "publisher": "carloscamara",

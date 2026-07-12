@@ -3,7 +3,7 @@
   <h1>Gherkin PowerTools</h1>
   <img src="assets/logo.png" alt="Gherkin PowerTools Logo" width="250" /><br/><br/>
 
-  <p><em>Advanced formatter, linter, and productivity suite for Gherkin <code>.feature</code> files in VS Code.</em></p>
+  <p><em>Format, lint and navigate Gherkin <code>.feature</code> files in VS Code.</em></p>
 
   <p>
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
@@ -13,26 +13,12 @@
       <img src="https://img.shields.io/visual-studio-marketplace/stars/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&color=yellow" alt="Rating" />
     </a>
     <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
-    <a href="./LICENSE">
-      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=green" alt="License: MIT" />
-    </a>
   </p>
+
+  <p><strong><a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">Install from VS Code Marketplace</a></strong></p>
 </div>
 
 ---
-
-Writing and maintaining Behavior-Driven Development (BDD) specifications often leads to chaotic, misaligned `.feature` files and unnoticed syntax errors. 
-
-**Gherkin PowerTools** solves this by providing a zero-configuration, native VS Code extension that automatically formats your scenarios, catches syntax errors in real-time, and provides deep insights into your BDD project.
-
----
-
-## 🚀 Main Benefits
-
-- **Zero Configuration Formatter**: Instantly align tables, indent steps, and wrap long tags. Press `Shift+Alt+F` and let the extension handle the rest.
-- **Real-Time Linter**: Catch missing colons, invalid structures, and misspelled keywords as you type, with intelligent **Quick Fixes** to auto-correct them.
-- **Analytics Dashboard**: Visualize your project's health with the integrated Statistics Dashboard, highlighting scenario complexity, test execution ROI, and step distribution.
-- **Seamless Navigation**: `Cmd/Ctrl+Click` on any step to instantly jump to its underlying Python implementation.
 
 <div align="center">
   <img src="assets/formatter.webp" alt="Formatter Demonstration" width="49%" />
@@ -41,29 +27,24 @@ Writing and maintaining Behavior-Driven Development (BDD) specifications often l
 
 ---
 
-## 📦 Installation
+## Why Gherkin PowerTools?
 
-**Via VS Code Marketplace** *(recommended)*
+The advanced Gherkin formatter and linter for VS Code, with deeper tooling for Python/Behave projects. 
 
-1. Open VS Code → Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
-2. Search **"Gherkin PowerTools"** and click **Install**
-
-**Via CLI:**
-
-```bash
-code --install-extension carloscamara.vscode-gherkin-powertools
-```
+Writing Behavior-Driven Development (BDD) specifications often results in misaligned tables, inconsistent indentation, and syntax typos that are only caught during test execution. **Gherkin PowerTools** runs natively in VS Code to format your files, detect structural errors in real-time, and provide navigation capabilities directly to your code.
 
 ---
 
-## 🎨 Formatter: Before & After
+## 🎨 Before / After
 
-Gherkin PowerTools integrates directly with the VS Code formatting API.
+The formatter parses the Abstract Syntax Tree (AST) to ensure correct casing, indentation, and alignment.
 
-**Before** (Chaotic, misaligned)
+**Before**
 ```gherkin
 feature: user authentication
-@smoke @regression @login @security
+
+@smoke @regression
+scenario: successful login
 given i am on the login page
 when i enter "admin" as username
 and i enter "secret" as password
@@ -72,12 +53,11 @@ then i should be redirected to dashboard
   |user   |admin |
 ```
 
-**After** (Clean, standardized)
+**After**
 ```gherkin
 Feature: User Authentication
 
-    @login @regression @security
-    @smoke
+    @smoke @regression
     Scenario: Successful login
         Given I am on the login page
         When  I enter "admin" as username
@@ -87,8 +67,86 @@ Feature: User Authentication
               | user  | admin |
 ```
 
-> [!TIP]
-> Enable **Format on Save** in your `.vscode/settings.json`:
+---
+
+## 🤝 Compatibility
+
+The extension splits its functionality into two tiers to optimize performance:
+
+### Generic `.feature` files (Any Framework)
+Works immediately on any `.feature` file regardless of the underlying test runner (Cucumber, SpecFlow, Karate, Cypress, etc.).
+- Formatter
+- Linter
+- Quick Fixes
+- Workspace Statistics Dashboard
+- Syntax Highlighting
+
+### Python / Behave Specific
+When working in a Python/Behave project, the extension automatically parses your `@given`, `@when`, and `@then` decorators to enable code-level features:
+- Go To Definition (`Cmd/Ctrl+Click`)
+- Autocomplete (Step suggestions based on Python definitions)
+- Hover (Displays the Python Docstring of the step)
+
+---
+
+## ⚖️ Gherkin PowerTools vs Official Cucumber Extension
+
+This extension is designed to address formatting and linting workflows, whereas the [Official Cucumber Extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) provides broader language support for code generation.
+
+| Feature | Gherkin PowerTools | Official Cucumber Extension |
+|---------|--------------------|-----------------------------|
+| **Setup** | Does not require workspace configuration. | Requires `cucumber.features` & `cucumber.glue` globs in settings. |
+| **Formatter** | Configurable step indentation, dynamic table alignment relative to keyword, tag wrapping limit. | 2-space indentation, internal table cell alignment. |
+| **Linter / Diagnostics** | Flags syntax errors, missing colons, and structural warnings in real-time. | Does not provide syntax linting. |
+| **Code Actions** | Auto-corrects typos, inserts missing colons, closes data tables. | Generates undefined step snippets. |
+| **Navigation** | Parses Behave/Python decorators. | Parses multiple languages (Java, Ruby, JS, SpecFlow, etc.). |
+
+---
+
+## ✨ Features
+
+### 1. Formatter
+Auto-indentation, dynamic data table alignment to the preceding step keyword, auto-casing for Gherkin keywords (`given` -> `Given`), and configurable tag wrapping.
+
+### 2. Live Diagnostics Linter
+Real-time syntax error detection. It flags missing colons after block keywords, invalid structural nesting (e.g., `Examples` without `Scenario Outline`), and unclosed data tables.
+
+### 3. Quick Fixes (Code Actions)
+Press `Cmd+.` / `Ctrl+.` over a diagnostic warning to apply auto-corrections:
+- Suggests corrections for misspelled keywords based on Levenshtein distance.
+- Automatically appends missing colons.
+- Converts `Scenario` to `Scenario Outline` when an `Examples` table is added.
+- Closes malformed data table rows.
+
+### 4. Behave Navigation (Go To Definition)
+`Cmd+Click` (macOS) or `Ctrl+Click` (Windows/Linux) on any step to jump directly to its Python `@given`, `@when`, or `@then` implementation.
+
+### 5. Autocomplete
+Provides intelligent suggestions for steps as you type, directly sourced from your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
+
+### 6. Hover
+Hover your cursor over any step in the `.feature` file to view the underlying Python function signature and its associated Docstring.
+
+### 7. Dashboard
+An integrated HTML Webview displaying project metrics, including a Gherkin Quality Score (GQS), file complexity warnings, and tag distribution.
+
+### 8. Workspace Analytics
+Tracks the total number of executable permutations (factoring in `Scenario Outline` rows) and calculates an estimated ROI based on automation time versus manual execution.
+
+---
+
+## ⚙️ Configuration
+
+Available via your VS Code `settings.json`:
+
+| Setting | Default | Description |
+|---------|:-------:|-------------|
+| `gherkinPowerTools.indentation.steps` | `4` | Number of spaces to indent step lines. |
+| `gherkinPowerTools.tables.alignToKeyword` | `true` | Align pipe tables dynamically to the start of the step text. |
+| `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Enforced blank lines between `Scenario` / `Rule` blocks. |
+| `gherkinPowerTools.tags.format` | `"wrap"` | `"wrap"` splits long tags at 80 chars. `"singleLine"` disables wrapping. |
+
+> **Format on Save**:
 > ```jsonc
 > "[feature]": {
 >   "editor.defaultFormatter": "carloscamara.vscode-gherkin-powertools",
@@ -98,80 +156,17 @@ Feature: User Authentication
 
 ---
 
-## 🤝 Compatibility
+## 📚 Documentation
 
-Works seamlessly out-of-the-box with any Gherkin-based framework:
-**Cucumber** · **Behave** · **SpecFlow** · **Karate** · **pytest-bdd**
-
-*(Note: "Go To Definition" currently supports Python/Behave projects).*
+For architecture overviews and feature deep-dives, see the [Documentation Website](https://carlos-camara.github.io/vscode-gherkin-powertools/).
 
 ---
 
-## ⚖️ Gherkin PowerTools vs Official Cucumber Extension
+## 🛠️ Contributing
 
-While the [Official Cucumber Extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) is great for step auto-completion and general language support, **Gherkin PowerTools** focuses heavily on code quality, advanced formatting, and live diagnostics without requiring complex workspace configurations.
+Bug reports, feature requests, and code contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
-| Feature | Gherkin PowerTools | Official Cucumber Extension |
-|---------|--------------------|-----------------------------|
-| **Setup Required** | None (Works out of the box) | Requires `cucumber.features` & `cucumber.glue` globs |
-| **Formatter** | Advanced (Configurable indents, dynamic tables, tag wrapping) | Basic (Strict 2-space, basic table alignment) |
-| **Linter / Diagnostics** | Yes (Real-time typo & structure detection) | No |
-| **Quick Fixes (Code Actions)** | Yes (Auto-correct typos, insert missing colons, close tables) | Limited (Generate undefined step only) |
-| **Project Statistics Dashboard** | Yes (Visual HTML dashboard with project metrics) | No |
-| **Go To Definition** | Python / Behave (0ms cache lookup) | Multiple Languages |
-
----
-
-## ✨ Complete Feature List
-
-- **Intelligent Formatter**: Auto-indentation, dynamic table alignment to the keyword, auto-casing, and tag wrapping at 80 characters.
-- **Live Diagnostics Linter**: Real-time syntax error detection instantly mapped to VS Code diagnostics.
-- **Smart Code Actions**: Auto-correct syntax errors, missing colons, misspelled keywords, and automatically close malformed data tables.
-- **Go To Definition**: Instantly jump from `.feature` steps to their Python implementations.
-- **Hover Documentation Preview**: Hover over steps to view their underlying Python function signature and Docstring.
-- **Project Analytics Dashboard**: Comprehensive metrics for your BDD workspace (Total executable tests, behavioral archetypes, code density).
-- **Intelligent Snippets**: Instant scaffolding for `Feature`, `Scenario`, `Scenario Outline`, and `Rule` blocks.
-- **Output Channel Tracing**: Native VS Code "Gherkin PowerTools" output channel for transparent logging.
-- **Syntax Highlighting**: Hand-tuned color palette tailored specifically for VS Code dark themes.
-
----
-
-## ⚙️ Configuration
-
-Fine-tune the extension via your VS Code `settings.json`:
-
-| Setting | Default | Description |
-|---------|:-------:|-------------|
-| `gherkinPowerTools.indentation.steps` | `4` | Number of spaces to indent step lines. |
-| `gherkinPowerTools.tables.alignToKeyword` | `true` | Align pipe tables to the preceding step column. |
-| `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Blank lines between `Scenario` / `Rule` blocks. |
-| `gherkinPowerTools.tags.format` | `"wrap"` | `"wrap"` splits long tags at 80 chars. `"singleLine"` keeps them on one line. |
-
----
-
-## 📚 Official Documentation
-
-Want to master the extension? Detailed guides, architecture overviews, and feature deep-dives are hosted on our dedicated documentation website.
-
-<div align="center">
-  <a href="https://carlos-camara.github.io/vscode-gherkin-powertools/">
-    <img src="https://img.shields.io/badge/📖_Read_the_Official_Documentation-512BD4?style=for-the-badge" alt="Official Documentation" />
-  </a>
-</div>
-
----
-
-## 🛠️ Contributing & Architecture
-
-All contributions are highly welcome — bug reports, feature requests, documentation, or code. Read our detailed [CONTRIBUTING.md](./CONTRIBUTING.md) guide to get started.
-
-**Quality Assurance & CI/CD**
-The extension maintains strict quality standards:
-- **Native UI E2E Tests** via `@vscode/test-electron`.
-- **>92% Unit Test Coverage** across platforms (macOS, Linux, Windows).
-- Instantaneous bundle via **esbuild** for 0ms activation times.
-
-<p align="center">
+<p>
   <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=mocha&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
   </a>
@@ -182,24 +177,6 @@ The extension maintains strict quality standards:
 
 ---
 
-## 💖 Support & Sponsors
-
-If this extension has saved you hours of formatting headaches or improved your team's BDD workflow, please consider supporting its ongoing development!
-
-<br>
-<div align="center">
-  <a href="https://www.buymeacoffee.com/carloscamara">
-    <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://github.com/sponsors/carlos-camara">
-    <img src="https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" />
-  </a>
-</div>
-<br>
-
----
-
 ## 📄 License
 
-This project is licensed under the [MIT License](./LICENSE) - © [Carlos Camara](https://github.com/carlos-camara).
+Licensed under the [MIT License](./LICENSE) - © [Carlos Camara](https://github.com/carlos-camara).
