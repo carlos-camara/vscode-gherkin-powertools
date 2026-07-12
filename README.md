@@ -269,7 +269,7 @@ code --install-extension carloscamara.vscode-gherkin-powertools
 **Via `.vsix` file:**
 
 ```bash
-code --install-extension vscode-gherkin-powertools-1.6.0.vsix
+code --install-extension vscode-gherkin-powertools-1.7.0.vsix
 ```
 
 ---
