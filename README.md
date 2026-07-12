@@ -15,9 +15,6 @@
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools#review-details">
       <img src="https://img.shields.io/visual-studio-marketplace/stars/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&color=yellow" alt="Rating" />
     </a>
-    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/stargazers">
-      <img src="https://img.shields.io/github/stars/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" />
-    </a>
   </p>
   <p>
     <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
@@ -307,6 +304,13 @@ code --install-extension vscode-gherkin-powertools-1.7.0.vsix
 
 All contributions are highly welcome — bug reports, feature requests, documentation, or code.
 Read our detailed [CONTRIBUTING.md](./CONTRIBUTING.md) guide to get started.
+
+<div align="center">
+  <p><em>If you find Gherkin PowerTools useful, please consider giving it a star!</em> ⭐</p>
+  <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/stargazers">
+    <img src="https://img.shields.io/github/stars/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" />
+  </a>
+</div>
 
 ## 📄 License
 
