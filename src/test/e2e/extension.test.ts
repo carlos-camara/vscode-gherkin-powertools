@@ -19,7 +19,7 @@ suite('E2E UI Test Suite', () => {
         await vscode.languages.setTextDocumentLanguage(document, 'feature');
 
         // Give the extension a moment to activate if it hasn't already
-        const ext = vscode.extensions.getExtension('carlos-camara.vscode-gherkin-beautifier');
+        const ext = vscode.extensions.getExtension('carlos-camara.vscode-gherkin-powertools');
         if (ext) {
             await ext.activate();
         }

@@ -1,6 +1,6 @@
 # Security Policy
 
-We take the security of **Gherkin Beautifier** seriously.
+We take the security of **Gherkin PowerTools** seriously.
 
 ## Supported Versions
 

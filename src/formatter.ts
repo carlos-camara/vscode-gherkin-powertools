@@ -9,7 +9,7 @@ export interface FormatterOptions {
 export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider {
     
     private getOptions(): FormatterOptions {
-        const config = vscode.workspace.getConfiguration('gherkinBeautifier');
+        const config = vscode.workspace.getConfiguration('gherkinPowerTools');
         return {
             stepIndentation: config.get<number>('indentation.steps', 4),
             alignTableToKeyword: config.get<boolean>('tables.alignToKeyword', true),
@@ -81,7 +81,7 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         } catch (e) {
             // If syntax is invalid, we refuse to format to avoid breaking the document.
             // This is standard behavior for AST-based formatters like Prettier.
-            vscode.window.showWarningMessage("Gherkin Beautifier: Cannot format document due to syntax errors.");
+            vscode.window.showWarningMessage("Gherkin PowerTools: Cannot format document due to syntax errors.");
             return null;
         }
 

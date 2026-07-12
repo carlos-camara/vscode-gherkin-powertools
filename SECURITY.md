@@ -1,6 +1,6 @@
 # Security Policy
 
-We take the security of **Gherkin Beautifier** seriously. Our goal is to maintain a secure environment for all users.
+We take the security of **Gherkin PowerTools** seriously. Our goal is to maintain a secure environment for all users.
 
 ## Supported Versions
 

@@ -23,7 +23,7 @@ export class SymbolCache {
                 this.updateFile(file);
             }
             this.isInitialized = true;
-            console.log(`Gherkin Beautifier: Symbol cache initialized with ${stepFiles.length} files.`);
+            console.log(`Gherkin PowerTools: Symbol cache initialized with ${stepFiles.length} files.`);
         } catch (err) {
             console.error('Error initializing symbol cache:', err);
         }
