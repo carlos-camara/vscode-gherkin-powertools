@@ -12,11 +12,25 @@
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
       <img src="https://img.shields.io/visual-studio-marketplace/i/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Installs&color=blue" alt="Installs" />
     </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools#review-details">
+      <img src="https://img.shields.io/visual-studio-marketplace/stars/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&color=yellow" alt="Rating" />
+    </a>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/stargazers">
+      <img src="https://img.shields.io/github/stars/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" />
+    </a>
+  </p>
+  <p>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=mocha&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
+    </a>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/e2e.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=electron&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
+    </a>
     <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/lint.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/lint.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Lint" alt="Lint" />
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/lint.yml?branch=main&style=for-the-badge&logo=eslint&logoColor=white&label=Lint" alt="Lint" />
     </a>
     <a href="./LICENSE">
-      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=yellow" alt="License: MIT" />
+      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=green" alt="License: MIT" />
     </a>
   </p>
 
