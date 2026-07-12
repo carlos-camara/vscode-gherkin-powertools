@@ -81,7 +81,7 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         } catch (e) {
             // If syntax is invalid, we refuse to format to avoid breaking the document.
             // This is standard behavior for AST-based formatters like Prettier.
-            vscode.window.showWarningMessage("Gherkin Beautifier: Cannot format document due to syntax errors.");
+            vscode.window.showWarningMessage("Gherkin PowerTools: Cannot format document due to syntax errors.");
             return null;
         }
 

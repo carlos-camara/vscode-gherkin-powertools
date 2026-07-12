@@ -13,13 +13,13 @@ import { GherkinHoverProvider } from './hover';
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
 /**
- * Activates the Gherkin Beautifier extension.
+ * Activates the Gherkin PowerTools extension.
  * This method is called when the extension is activated by VS Code.
  * 
  * @param context The extension context provided by VS Code.
  */
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Extension "vscode-gherkin-beautifier" is now active.');
+    console.log('Extension "vscode-gherkin-powertools" is now active.');
 
     const formatter = new GherkinFormattingEditProvider();
     const symbolProvider = new GherkinDocumentSymbolProvider();
@@ -149,7 +149,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * Deactivates the Gherkin Beautifier extension.
+ * Deactivates the Gherkin PowerTools extension.
  * This method is called when the extension is deactivated.
  */
 export function deactivate() {

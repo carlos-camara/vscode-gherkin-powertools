@@ -1,6 +1,6 @@
 # Architecture
 
-This document describes the internal architecture of the **Gherkin Beautifier** Visual Studio Code extension.
+This document describes the internal architecture of the **Gherkin PowerTools** Visual Studio Code extension.
 
 ## High-Level Architecture
 

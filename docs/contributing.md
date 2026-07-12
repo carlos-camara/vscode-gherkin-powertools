@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to **Gherkin Beautifier**! This document explains our architecture, how to set up the project locally, and how to submit your contributions.
+Thank you for your interest in contributing to **Gherkin PowerTools**! This document explains our architecture, how to set up the project locally, and how to submit your contributions.
 
 ---
 
@@ -13,8 +13,8 @@ The extension is written in **TypeScript** and uses the native **VS Code Extensi
 1. **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) (v16+) and [npm](https://www.npmjs.com/) installed.
 2. **Clone the repository**:
    ```bash
-   git clone https://github.com/carloscamara/vscode-gherkin-beautifier.git
-   cd vscode-gherkin-beautifier
+   git clone https://github.com/carloscamara/vscode-gherkin-powertools.git
+   cd vscode-gherkin-powertools
    ```
 3. **Install dependencies**:
    ```bash

@@ -1,6 +1,6 @@
-# Contributing to Gherkin Beautifier
+# Contributing to Gherkin PowerTools
 
-Thank you for your interest in contributing to **Gherkin Beautifier**! This document explains our architecture, how to set up the project locally, and how to submit your contributions.
+Thank you for your interest in contributing to **Gherkin PowerTools**! This document explains our architecture, how to set up the project locally, and how to submit your contributions.
 
 ---
 
@@ -25,8 +25,8 @@ Here is a breakdown of the core modules located in the `src/` directory:
 1. **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) (v16+) and [npm](https://www.npmjs.com/) installed.
 2. **Clone the repository**:
    ```bash
-   git clone https://github.com/carloscamara/vscode-gherkin-beautifier.git
-   cd vscode-gherkin-beautifier
+   git clone https://github.com/carloscamara/vscode-gherkin-powertools.git
+   cd vscode-gherkin-powertools
    ```
 3. **Install dependencies**:
    ```bash
@@ -82,7 +82,7 @@ To create a local `.vsix` file for distribution or local testing:
 npx vsce package
 ```
 
-This will generate a `vscode-gherkin-beautifier-x.x.x.vsix` file in the root directory.
+This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root directory.
 
 ---
 

@@ -1,6 +1,6 @@
 {
-  "name": "vscode-gherkin-beautifier",
-  "displayName": "Gherkin Beautifier",
+  "name": "vscode-gherkin-powertools",
+  "displayName": "Gherkin PowerTools",
   "description": "A highly professional, native formatting extension for Visual Studio Code, meticulously designed to format and align Gherkin (.feature) files.",
   "version": "1.7.0",
   "engines": {
@@ -29,7 +29,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/carloscamara/vscode-gherkin-beautifier"
+    "url": "https://github.com/carloscamara/vscode-gherkin-powertools"
   },
   "activationEvents": [
     "onLanguage:feature"
@@ -49,7 +49,7 @@
       }
     ],
     "configuration": {
-      "title": "Gherkin Beautifier",
+      "title": "Gherkin PowerTools",
       "properties": {
         "gherkinBeautifier.indentation.steps": {
           "type": "number",

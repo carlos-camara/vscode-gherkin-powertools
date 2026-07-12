@@ -5,7 +5,7 @@
 
 1. Open Visual Studio Code.
 2. Navigate to the Extensions view (`Ctrl+Shift+X` / `Cmd+Shift+X`).
-3. Search for **"Gherkin Beautifier"**.
+3. Search for **"Gherkin PowerTools"**.
 4. Click **Install**.
 
 ## From a `.vsix` File
@@ -13,7 +13,7 @@
 If you have a pre-built `.vsix` package (e.g., from a GitHub Release):
 
 ```bash
-code --install-extension vscode-gherkin-beautifier-1.6.0.vsix
+code --install-extension vscode-gherkin-powertools-1.6.0.vsix
 ```
 
 !!! tip "Pro-Tip: Auto-Formatting"
@@ -21,7 +21,7 @@ code --install-extension vscode-gherkin-beautifier-1.6.0.vsix
 
     ```json
     "[feature]": {
-        "editor.defaultFormatter": "carloscamara.vscode-gherkin-beautifier",
+        "editor.defaultFormatter": "carloscamara.vscode-gherkin-powertools",
         "editor.formatOnSave": true
     }
     ```

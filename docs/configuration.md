@@ -1,6 +1,6 @@
 # ⚙️ Configuration
 
-Gherkin Beautifier works perfectly out-of-the-box, but you can tailor it to your team's style guide via your `settings.json`.
+Gherkin PowerTools works perfectly out-of-the-box, but you can tailor it to your team's style guide via your `settings.json`.
 
 ## Available Settings
 
@@ -28,4 +28,4 @@ Gherkin Beautifier works perfectly out-of-the-box, but you can tailor it to your
 - **Workspace Settings**: Apply only to the current project (via `.vscode/settings.json`).
 
 !!! tip "Team Standardization"
-    For team projects, commit a `.vscode/settings.json` with your preferred Gherkin Beautifier settings so all contributors use the same formatting rules.
+    For team projects, commit a `.vscode/settings.json` with your preferred Gherkin PowerTools settings so all contributors use the same formatting rules.
