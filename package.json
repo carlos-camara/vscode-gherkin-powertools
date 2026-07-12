@@ -119,7 +119,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "@types/vscode": "^1.93.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
@@ -127,13 +127,13 @@
     "mocha": "^11.7.6",
     "mocha-junit-reporter": "^2.2.1",
     "mocha-multi-reporters": "^1.5.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "overrides": {
     "serialize-javascript": "^7.0.5"
   },
   "dependencies": {
     "@cucumber/gherkin": "^41.0.0",
-    "@cucumber/messages": "^33.0.4"
+    "@cucumber/messages": "^34.0.1"
   }
 }
