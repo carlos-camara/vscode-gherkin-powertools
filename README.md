@@ -17,6 +17,13 @@
     </a>
   </p>
   <p>
+    <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
+    <img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js 22+" />
+    <a href="./LICENSE">
+      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=green" alt="License: MIT" />
+    </a>
+  </p>
+  <p>
     <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
       <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=mocha&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
     </a>
@@ -25,9 +32,6 @@
     </a>
     <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/lint.yml">
       <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/lint.yml?branch=main&style=for-the-badge&logo=eslint&logoColor=white&label=Lint" alt="Lint" />
-    </a>
-    <a href="./LICENSE">
-      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&color=green" alt="License: MIT" />
     </a>
   </p>
 
