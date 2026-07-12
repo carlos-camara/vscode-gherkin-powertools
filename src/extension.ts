@@ -6,6 +6,7 @@ import { GherkinHighlighter } from './highlighter';
 import { showStatisticsDashboard } from './statistics';
 import { GherkinDefinitionProvider } from './definition';
 import { SymbolCache } from './cache';
+import { logger } from './logger';
 import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 import { GherkinCompletionProvider } from './completion';
 import { GherkinHoverProvider } from './hover';
@@ -19,7 +20,7 @@ const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
  * @param context The extension context provided by VS Code.
  */
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Extension "vscode-gherkin-powertools" is now active.');
+    logger.info('Extension "vscode-gherkin-powertools" is now active.');
 
     const formatter = new GherkinFormattingEditProvider();
     const symbolProvider = new GherkinDocumentSymbolProvider();

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { logger } from './logger';
 import * as fs from 'fs';
 
 export interface StepDefinition {
@@ -23,9 +24,9 @@ export class SymbolCache {
                 this.updateFile(file);
             }
             this.isInitialized = true;
-            console.log(`Gherkin PowerTools: Symbol cache initialized with ${stepFiles.length} files.`);
+            logger.info(`Gherkin PowerTools: Symbol cache initialized with ${stepFiles.length} files.`);
         } catch (err) {
-            console.error('Error initializing symbol cache:', err);
+            logger.error('Error initializing symbol cache:', err);
         }
     }
 
@@ -128,7 +129,7 @@ export class SymbolCache {
 
             this.cache.set(uri.toString(), definitions);
         } catch (err) {
-            console.error(`Error updating cache for file ${uri.fsPath}:`, err);
+            logger.error(`Error updating cache for file ${uri.fsPath}:`, err);
             this.removeFile(uri); // Remove if file cannot be read
         }
     }
