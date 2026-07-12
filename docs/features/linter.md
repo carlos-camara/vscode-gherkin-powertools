@@ -1,6 +1,6 @@
 # 🔍 Live Diagnostics & Quick Fixes
 
-Writing Gherkin should be error-free before you even execute your test suite. The **Gherkin Beautifier** integrates a real-time semantic and syntactic linter directly into VS Code to catch mistakes the moment you type them.
+Writing Gherkin should be error-free before you even execute your test suite. The **Gherkin PowerTools** integrates a real-time semantic and syntactic linter directly into VS Code to catch mistakes the moment you type them.
 
 ## ⚙️ How It Works
 

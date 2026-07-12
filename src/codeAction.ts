@@ -61,7 +61,7 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
                 const stepText = stepTextMatch ? stepTextMatch[1] : '';
 
                 action.command = {
-                    command: 'gherkinBeautifier.createStepDefinition',
+                    command: 'gherkinPowerTools.createStepDefinition',
                     title: 'Create empty step definition',
                     arguments: [stepText, keyword]
                 };
