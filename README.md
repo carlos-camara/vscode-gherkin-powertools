@@ -234,10 +234,10 @@ Works perfectly out-of-the-box. Fine-tune via `settings.json`:
 
 | Setting | Default | Description |
 |---------|:-------:|-------------|
-| `gherkinBeautifier.indentation.steps` | `4` | Spaces to indent step lines |
-| `gherkinBeautifier.tables.alignToKeyword` | `true` | Align pipe tables to the preceding step column |
-| `gherkinBeautifier.emptyLines.betweenScenarios` | `1` | Blank lines between `Scenario` / `Rule` blocks |
-| `gherkinBeautifier.tags.format` | `"wrap"` | `"wrap"` splits at 80 chars · `"singleLine"` keeps on one line |
+| `gherkinPowerTools.indentation.steps` | `4` | Spaces to indent step lines |
+| `gherkinPowerTools.tables.alignToKeyword` | `true` | Align pipe tables to the preceding step column |
+| `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Blank lines between `Scenario` / `Rule` blocks |
+| `gherkinPowerTools.tags.format` | `"wrap"` | `"wrap"` splits at 80 chars · `"singleLine"` keeps on one line |
 
 **Enable Format on Save (recommended):**
 

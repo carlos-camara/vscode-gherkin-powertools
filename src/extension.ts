@@ -47,21 +47,21 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Register the context menu command to format the document
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinBeautifier.format', () => {
+        vscode.commands.registerCommand('gherkinPowerTools.format', () => {
             vscode.commands.executeCommand('editor.action.formatDocument');
         })
     );
 
     // Register the statistics dashboard command
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinBeautifier.showStatistics', () => {
+        vscode.commands.registerCommand('gherkinPowerTools.showStatistics', () => {
             showStatisticsDashboard(context);
         })
     );
 
     // Register the custom command for creating step definitions
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinBeautifier.createStepDefinition', createStepDefinition)
+        vscode.commands.registerCommand('gherkinPowerTools.createStepDefinition', createStepDefinition)
     );
     
     context.subscriptions.push(linter);

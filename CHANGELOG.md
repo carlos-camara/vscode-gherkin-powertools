@@ -101,8 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Outline Provider**: Added an interactive tree view in the VS Code "Outline" panel for quick navigation between `Feature`, `Rule`, and `Scenario` blocks.
 - **Context Menu Command**: Added a "Format Gherkin Document" action to the editor's right-click context menu.
 - **Snippets**: Bundled comprehensive autocompletion snippets for common Gherkin blocks (`feature`, `scenario`, `outline`, `rule`).
-- **Configuration `gherkinBeautifier.tags.format`**: Added option to format tags either as `wrap` (80 chars max line length) or `singleLine`.
-- **Configuration `gherkinBeautifier.emptyLines.betweenScenarios`**: Added setting to customize the exact number of blank lines to enforce between major blocks.
+- **Configuration `gherkinPowerTools.tags.format`**: Added option to format tags either as `wrap` (80 chars max line length) or `singleLine`.
+- **Configuration `gherkinPowerTools.emptyLines.betweenScenarios`**: Added setting to customize the exact number of blank lines to enforce between major blocks.
 - **Go to Definition (Python/Behave)**: You can now `Cmd + Click` (or `F12`) on any Gherkin step (e.g. `Given I login`) and VS Code will automatically search your `steps/` folder and jump directly to the Python `.py` file where that `@given` or `@step` decorator is defined.
 - **Project Statistics Dashboard**: Added a new command (`Gherkin: Show Project Statistics`) that scans your workspace and displays a beautiful HTML dashboard with metrics on your Features, Rules, and Scenarios. This is also accessible by Right-Clicking inside the editor.
 - **Beautiful Syntax Highlighting**: Overrides default VS Code themes to dynamically colorize Gherkin files. Features a stunning **Magenta** for structural keywords (`Feature`, `Scenario`, `Rule`) and **Blue** for action steps (`Given`, `When`, `Then`).
@@ -124,8 +124,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2026-06-24
 ### Added
 - **Configuration Settings**: Added support for customizing the formatter via `settings.json`.
-  - `gherkinBeautifier.indentation.steps`: Allows changing step indentation (e.g. from 4 to 2 spaces).
-  - `gherkinBeautifier.tables.alignToKeyword`: Allows toggling the dynamic table alignment behavior.
+  - `gherkinPowerTools.indentation.steps`: Allows changing step indentation (e.g. from 4 to 2 spaces).
+  - `gherkinPowerTools.tables.alignToKeyword`: Allows toggling the dynamic table alignment behavior.
 
 ## [1.2.0] - 2026-06-24
 ### Added

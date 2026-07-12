@@ -9,7 +9,7 @@ export interface FormatterOptions {
 export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider {
     
     private getOptions(): FormatterOptions {
-        const config = vscode.workspace.getConfiguration('gherkinBeautifier');
+        const config = vscode.workspace.getConfiguration('gherkinPowerTools');
         return {
             stepIndentation: config.get<number>('indentation.steps', 4),
             alignTableToKeyword: config.get<boolean>('tables.alignToKeyword', true),

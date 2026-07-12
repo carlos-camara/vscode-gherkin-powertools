@@ -41,14 +41,14 @@ jobs:
       - name: 📦 Package VSIX
         if: steps.tag_check.outputs.is_new_version == 'true'
         run: |
-          npx -y @vscode/vsce package --out "gherkin-beautifier-${{ steps.tag_check.outputs.tag_name }}.vsix"
+          npx -y @vscode/vsce package --out "gherkin-powertools-${{ steps.tag_check.outputs.tag_name }}.vsix"
 
       - name: 🚀 Create GitHub Release
         if: steps.tag_check.outputs.is_new_version == 'true'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag_check.outputs.tag_name }}
-          files: gherkin-beautifier-*.vsix
+          files: gherkin-powertools-*.vsix
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
