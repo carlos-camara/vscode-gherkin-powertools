@@ -51,7 +51,7 @@ Works seamlessly with any Gherkin-based framework: **Cucumber** · **Behave** ·
 | 💡 | **Code Actions (Quick Fixes)** | Instantly auto-correct syntax errors, missing colons, misspelled keywords, and generate missing step definitions. |
 | 🧭 | **Go To Definition** | Instantly jump from `.feature` steps to their underlying Python implementations with a single click. |
 | 📊 | **Project Analytics V4** | Beautiful HTML glassmorphism dashboard providing comprehensive metrics for your entire BDD workspace. |
-| 🌈 | **Syntax Highlighting** | Curated VS Code color palette tailored specifically for dark themes. |
+| 🌙 | **Syntax Highlighting** | Curated VS Code color palette tailored specifically for dark themes. |
 | 📝 | **Intelligent Snippets** | Instant scaffolding for `Feature`, `Scenario`, `Scenario Outline`, and `Rule` blocks. |
 | 🌐 | **i18n Support** | Format keywords in English, Spanish, French, and German natively. |
 | 🛡️ | **Enterprise CI/CD & E2E** | Rigorous automated Native UI E2E Testing, Security Audits, and Cross-Platform Unit Coverage. |
@@ -66,7 +66,7 @@ Want to master the extension? Read the dedicated documentation for each feature 
 - [**🔍 Live Linter & Quick Fixes Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/linter.md)
 - [**🧭 Go To Definition Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/definition.md)
 - [**📊 Statistics Dashboard Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/statistics.md)
-- [**🌈 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/highlighting.md)
+- [**🌙 Syntax Highlighting Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/highlighting.md)
 - [**🌳 Outline Provider Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/outline.md)
 - [**📝 Snippets & Autocomplete Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/snippets.md)
 - [**🖱️ Hover Documentation Guide**](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/docs/features/hover.md)
