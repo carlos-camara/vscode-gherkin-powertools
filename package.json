@@ -34,7 +34,7 @@
   "activationEvents": [
     "onLanguage:feature"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "languages": [
       {
@@ -109,10 +109,12 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run esbuild -- --production",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
+    "esbuild": "node esbuild.js",
+    "esbuild-watch": "node esbuild.js --watch",
+    "pretest": "npm run compile && npm run esbuild",
     "test": "vscode-test --label unitTests",
     "test:e2e": "vscode-test --label e2eTests",
     "coverage": "vscode-test --label unitTests --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=json-summary"
@@ -124,9 +126,11 @@
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
     "c8": "^11.0.0",
+    "esbuild": "^0.28.1",
     "mocha": "^11.7.6",
     "mocha-junit-reporter": "^2.2.1",
     "mocha-multi-reporters": "^1.5.1",
+    "npm-run-all": "^4.1.5",
     "typescript": "^7.0.2"
   },
   "overrides": {
