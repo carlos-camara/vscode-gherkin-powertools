@@ -1,6 +1,6 @@
 # 🧠 Intelligent Autocomplete & Snippets
 
-The Gherkin Beautifier supercharges your typing speed using two core mechanisms: **Dynamic Step Autocomplete (IntelliSense)** and **Structural Snippets**.
+The Gherkin PowerTools supercharges your typing speed using two core mechanisms: **Dynamic Step Autocomplete (IntelliSense)** and **Structural Snippets**.
 
 ## 🚀 Smart Autocompletion (IntelliSense)
 

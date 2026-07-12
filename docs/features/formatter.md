@@ -1,6 +1,6 @@
 # 🎨 Intelligent Formatter
 
-The core feature of Gherkin Beautifier. Powered by the official `@cucumber/gherkin` Abstract Syntax Tree (AST) parser, the robust formatting engine analyzes your Gherkin syntax with mathematical precision and aligns it automatically. It transforms messy, unreadable tests into a pristine, standardized format instantly.
+The core feature of Gherkin PowerTools. Powered by the official `@cucumber/gherkin` Abstract Syntax Tree (AST) parser, the robust formatting engine analyzes your Gherkin syntax with mathematical precision and aligns it automatically. It transforms messy, unreadable tests into a pristine, standardized format instantly.
 
 > [!TIP]
 > **How to Trigger Formatting**
