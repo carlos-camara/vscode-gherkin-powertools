@@ -100,7 +100,7 @@ This extension is built for formatting and linting workflows, whereas the [Offic
 | Feature | Gherkin PowerTools | Official Cucumber Extension |
 |---------|--------------------|-----------------------------|
 | **Formatter** | Configurable indentation, dynamic table alignment relative to keyword, tag wrapping. | 2-space indentation, internal table cell alignment. |
-| **Linter / Diagnostics** | Flags syntax errors, missing colons, and structural warnings. | Not included. |
+| **Diagnostics** | Adds structural checks and quick fixes for issues such as missing colons, keyword typos and malformed tables. | Highlights syntax errors and undefined steps. |
 | **Code Actions** | Auto-corrects typos, inserts colons, closes data tables. | Generates undefined step snippets. |
 | **Navigation** | Supports Behave/Python decorators. | Supports multiple languages (Java, Ruby, JS, SpecFlow, etc.). |
 
