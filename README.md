@@ -41,7 +41,7 @@ This extension runs natively in VS Code to format your files, detect structural 
 
 ## 🎨 Before / After
 
-The formatter parses the Abstract Syntax Tree (AST) to ensure correct casing, indentation, and alignment.
+The formatter uses the Gherkin AST to apply consistent keyword casing, indentation and table alignment.
 
 **Before**
 ```gherkin
