@@ -13,9 +13,6 @@
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
       <img src="https://vsmarketplacebadges.dev/installs-short/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=blue" alt="Installs" />
     </a>
-    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools#review-details">
-      <img src="https://vsmarketplacebadges.dev/rating-star/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=yellow" alt="Rating" />
-    </a>
     <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
   </p>
 
