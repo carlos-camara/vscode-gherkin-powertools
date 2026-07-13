@@ -26,11 +26,13 @@ jobs:
 
       - name: 🏷️ Determine Version
         id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
-          if git ls-remote --tags origin | grep -q "refs/tags/$TAG"; then
-            echo "Tag $TAG already exists. Skipping release."
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists. Skipping release."
             echo "is_new_version=false" >> "$GITHUB_OUTPUT"
           else
             echo "New version detected: $TAG."
@@ -46,18 +48,11 @@ jobs:
         if: steps.version.outputs.is_new_version == 'true'
         run: npx -y @vscode/vsce package --out "gherkin-powertools-${{ steps.version.outputs.tag_name }}.vsix"
 
-      - name: 🏷️ Create Tag
-        if: steps.version.outputs.is_new_version == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "${{ steps.version.outputs.tag_name }}"
-          git push origin "${{ steps.version.outputs.tag_name }}"
-
       - name: 🚀 Create GitHub Release
         if: steps.version.outputs.is_new_version == 'true'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.tag_name }}
+          target_commitish: ${{ github.sha }}
           files: gherkin-powertools-*.vsix
           generate_release_notes: true
