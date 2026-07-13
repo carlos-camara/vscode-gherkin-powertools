@@ -15,6 +15,7 @@ The built-in linter monitors your `.feature` files **in real-time** using the of
 | **Semantic Error** | Validates proper structural nesting | A `Scenario` containing an `Examples:` block → ⚠️ |
 | **Table Inconsistency** | Verifies data table integrity | Forgetting a closing `&#124;` in a table row → ❌ |
 | **Undefined Step** | Cross-references the Symbol Cache | `Given I do magic` (no Python match) → ⚠️ |
+| **Ambiguous Step** | Detects overlapping Python decorators | Step matches multiple `@given` regexes → ⚠️ |
 
 ## 🛡️ Fault-Tolerant Hybrid Parsing
 
