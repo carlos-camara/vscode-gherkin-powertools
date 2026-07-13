@@ -131,10 +131,10 @@ Suggests steps as you type based on your Python step definitions. Converts Behav
 Hover over any step to view the underlying Python function signature and its associated Docstring.
 
 ### 7. Dashboard
-An HTML Webview displaying project metrics, including a Gherkin Quality Score (GQS), file complexity warnings, and tag distribution.
+An HTML webview displaying heuristic workspace metrics, including a Gherkin quality indicator, scenario complexity signals and tag distribution.
 
 ### 8. Workspace Analytics
-Tracks executable permutations (factoring in `Scenario Outline` rows) and calculates an estimated ROI based on automation time versus manual execution.
+Estimates executable permutations and provides a heuristic comparison between automated and manual execution effort.
 
 ---
 
