@@ -77,8 +77,8 @@ Feature: User Authentication
 
 Features are divided into two tiers based on your project stack:
 
-### Generic `.feature` files (Any Framework)
-Works on any `.feature` file regardless of the test runner (Cucumber, SpecFlow, Karate, Cypress, etc.).
+### Generic `.feature` files
+Core formatting and syntax features operate directly on standard Gherkin `.feature` files and do not depend on a specific test runner (e.g., Cucumber, SpecFlow, Karate).
 - Formatter
 - Linter
 - Quick Fixes
