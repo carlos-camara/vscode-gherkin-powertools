@@ -117,7 +117,7 @@
     "pretest": "npm run compile && npm run esbuild",
     "test": "vscode-test --label unitTests",
     "test:e2e": "vscode-test --label e2eTests",
-    "coverage": "vscode-test --label unitTests --coverage"
+    "coverage": "vscode-test --label unitTests --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=html --coverage-reporter=json-summary"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
