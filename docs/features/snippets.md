@@ -13,7 +13,7 @@ Tired of memorizing the exact wording of your Python step definitions? The exten
 
 ### 📊 Scenario Outline Parameter Autocompletion
 
-When working within a `Scenario Outline` or `Scenario Template`, you frequently need to reference columns from the underlying `Examples` table using the `<parameter>` syntax. 
+When working within a `Scenario Outline` or `Scenario Template`, you frequently need to reference columns from the underlying `Examples` table using the `<parameter>` syntax.
 
 **How it works:**
 1. Inside a `Scenario Outline`, type `<` anywhere within a step.
