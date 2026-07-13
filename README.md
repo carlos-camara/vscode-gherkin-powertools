@@ -17,9 +17,6 @@
       <img src="https://vsmarketplacebadges.dev/rating-star/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=yellow" alt="Rating" />
     </a>
     <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
-    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/LICENSE">
-      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=opensourceinitiative&logoColor=white&label=License" alt="License" />
-    </a>
   </p>
 
   <p><strong><a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">Install from VS Code Marketplace</a></strong></p>
@@ -185,5 +182,7 @@ Bug reports, feature requests, and code contributions are welcome. See [CONTRIBU
 ---
 
 ## 📄 License
+
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](./LICENSE)
 
 Licensed under the [MIT License](./LICENSE) - © [Carlos Camara](https://github.com/carlos-camara).
