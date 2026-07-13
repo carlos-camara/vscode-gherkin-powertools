@@ -8,11 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Scenario Outline Parameter Autocomplete**: Typing `<` inside a step within a `Scenario Outline` will now automatically parse the block and provide an IntelliSense dropdown with the column headers from the underlying `Examples` table. Selecting a parameter automatically appends the closing `>` bracket.
+
+## [1.7.1] - 2026-07-13
+
 ### Performance ⚡️
 - **Turbocharged Activation (Esbuild)**: Migrated the build system from standard TypeScript (`tsc`) to **Esbuild**. The extension now bundles all source code and dependencies into a single minified `extension.js` file, slashing the `.vsix` payload size and dropping activation times to a flat 0ms.
 
 ### Added
-- **Scenario Outline Parameter Autocomplete**: Typing `<` inside a step within a `Scenario Outline` will now automatically parse the block and provide an IntelliSense dropdown with the column headers from the underlying `Examples` table. Selecting a parameter automatically appends the closing `>` bracket.
 - **Tag Blast Radius Hover**: Hovering over any Gherkin tag (`@tag`) now dynamically calculates and displays the total number of scenarios affected by that tag across the entire workspace, taking into account `Feature`/`Rule` tag inheritance and multiplying by `Scenario Outline` data rows.
 - **Gherkin PowerTools Output Channel**: Added a native VS Code Output Channel for transparent logging. Users can now monitor cache indexing progress, parser fallback events, and trace syntax errors without needing Developer Tools.
 - **Enterprise-Grade Testing**: Drastically expanded the testing architecture to achieve a **92.7% Code Coverage**.
