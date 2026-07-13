@@ -84,7 +84,7 @@ Core formatting and syntax features operate directly on standard Gherkin `.featu
 
 ### Python / Behave Specific
 When working in a Python/Behave project, the extension parses your `@given`, `@when`, and `@then` decorators to enable:
-- Go To Definition (`Cmd/Ctrl+Click`)
+- Go To Definition (`Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux)
 - Autocomplete (Step suggestions based on Python definitions)
 - Hover (Displays the Python Docstring of the step)
 
@@ -121,7 +121,7 @@ Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:
 - Close malformed data table rows.
 
 ### 4. Behave Navigation (Go To Definition)
-`Cmd/Ctrl+Click` on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
+Use `Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
 
 ### 5. Autocomplete
 Suggests steps as you type based on your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
