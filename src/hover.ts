@@ -13,7 +13,7 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
     public provideHover(
         document: vscode.TextDocument,
         position: vscode.Position,
-        token: vscode.CancellationToken
+        _token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.Hover> {
 
         // First, check if the user is hovering over a tag

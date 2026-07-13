@@ -131,7 +131,7 @@ Some stray text without docstrings
         
         // As long as it parses and does not throw, the linter shouldn't crash.
         // It might not generate a diagnostic if checkDescription ignores it or handles it silently.
-        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        vscode.languages.getDiagnostics(doc.uri);
         // It's a semantic warning if the linter implements it, but at least we cover the checkDescription branch
         assert.ok(true);
     });

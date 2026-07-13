@@ -11,12 +11,11 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
     public provideCompletionItems(
         document: vscode.TextDocument,
         position: vscode.Position,
-        token: vscode.CancellationToken,
-        context: vscode.CompletionContext
+        _token: vscode.CancellationToken,
+        _context: vscode.CompletionContext
     ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
         
         const linePrefix = document.lineAt(position).text.substr(0, position.character);
-        const trimmedPrefix = linePrefix.trim();
         
         // Ensure we only autocomplete when a valid step keyword is present
         const match = linePrefix.match(/^(\s*(?:Given|When|Then|And|But)\s+)/);
@@ -25,7 +24,6 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
         }
 
         const keywordPrefix = match[1];
-        const typedText = linePrefix.substring(keywordPrefix.length);
 
         // Range to replace (everything after the keyword up to the cursor)
         const replaceRange = new vscode.Range(
@@ -46,12 +44,12 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
             let counter = 1;
 
             // Replace {param} -> ${1:param}
-            snippetString = snippetString.replace(/\{([^}]+)\}/g, (match, paramName) => {
+            snippetString = snippetString.replace(/\{([^}]+)\}/g, (_match, paramName) => {
                 return `\${${counter++}:${paramName}}`;
             });
 
             // Replace (?P<param>.*) -> ${1:param}
-            snippetString = snippetString.replace(/\(\?P<([^>]+)>.*?\)/g, (match, paramName) => {
+            snippetString = snippetString.replace(/\(\?P<([^>]+)>.*?\)/g, (_match, paramName) => {
                 return `\${${counter++}:${paramName}}`;
             });
 
