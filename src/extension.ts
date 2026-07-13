@@ -5,7 +5,7 @@ import { GherkinLinter } from './linter';
 import { GherkinHighlighter } from './highlighter';
 import { showStatisticsDashboard } from './statistics';
 import { GherkinDefinitionProvider } from './definition';
-import { SymbolCache } from './cache';
+import { SymbolCache, FeatureCache } from './cache';
 import { logger } from './logger';
 import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 import { GherkinCompletionProvider } from './completion';
@@ -29,6 +29,10 @@ export function activate(context: vscode.ExtensionContext) {
     const symbolCache = new SymbolCache();
     symbolCache.initialize();
 
+    // Initialize Feature Cache for workspace-wide tag statistics
+    const featureCache = new FeatureCache();
+    featureCache.initialize();
+
     const linter = new GherkinLinter(symbolCache);
 
     const reLintOpenFiles = () => {
@@ -45,6 +49,13 @@ export function activate(context: vscode.ExtensionContext) {
     watcher.onDidChange(uri => { symbolCache.updateFile(uri); reLintOpenFiles(); });
     watcher.onDidDelete(uri => { symbolCache.removeFile(uri); reLintOpenFiles(); });
     context.subscriptions.push(watcher);
+    
+    // Watch for changes in feature files to update tag statistics
+    const featureWatcher = vscode.workspace.createFileSystemWatcher('**/*.feature');
+    featureWatcher.onDidCreate(uri => { featureCache.updateFile(uri); });
+    featureWatcher.onDidChange(uri => { featureCache.updateFile(uri); });
+    featureWatcher.onDidDelete(uri => { featureCache.removeFile(uri); });
+    context.subscriptions.push(featureWatcher);
     
     // Register the context menu command to format the document
     context.subscriptions.push(
@@ -136,7 +147,7 @@ export function activate(context: vscode.ExtensionContext) {
             ),
             vscode.languages.registerHoverProvider(
                 { language },
-                new GherkinHoverProvider(symbolCache)
+                new GherkinHoverProvider(symbolCache, featureCache)
             ),
             vscode.languages.registerCodeActionsProvider(
                 { language },

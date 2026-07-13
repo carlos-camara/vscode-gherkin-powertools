@@ -1,19 +1,33 @@
 import * as vscode from 'vscode';
-import { SymbolCache, StepDefinition } from './cache';
+import { SymbolCache, FeatureCache, StepDefinition } from './cache';
 
 export class GherkinHoverProvider implements vscode.HoverProvider {
     private symbolCache: SymbolCache;
+    private featureCache: FeatureCache;
 
-    constructor(symbolCache: SymbolCache) {
+    constructor(symbolCache: SymbolCache, featureCache: FeatureCache) {
         this.symbolCache = symbolCache;
+        this.featureCache = featureCache;
     }
 
     public provideHover(
         document: vscode.TextDocument,
         position: vscode.Position,
-        token: vscode.CancellationToken
+        _token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.Hover> {
 
+        // First, check if the user is hovering over a tag
+        const tagRange = document.getWordRangeAtPosition(position, /@[^\s@]+/);
+        if (tagRange) {
+            const tagName = document.getText(tagRange);
+            const blastRadius = this.featureCache.getTagBlastRadius(tagName);
+            
+            const hoverContent = new vscode.MarkdownString();
+            hoverContent.appendMarkdown(`🏷️ **${tagName}**\n\nApplies to **${blastRadius}** scenarios across the workspace.`);
+            return new vscode.Hover(hoverContent);
+        }
+
+        // Otherwise, check if hovering over a step
         const lineText = document.lineAt(position.line).text;
         const match = lineText.match(/^\s*(Given|When|Then|And|But)\s+(.*)$/);
 

@@ -127,7 +127,8 @@ Use `Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux on any step to jum
 Suggests steps as you type based on your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
 
 ### 6. Hover
-Hover over any step to view the underlying Python function signature and its associated Docstring.
+- **Steps:** Hover over any step to view the underlying Python function signature and its associated Docstring.
+- **Tags:** Hover over any Gherkin tag (`@tag`) to view its "Blast Radius" (the exact number of scenarios and outline examples across the entire workspace affected by that tag).
 
 ### 7. Dashboard
 An HTML webview displaying heuristic workspace metrics, including a Gherkin quality indicator, scenario complexity signals and tag distribution.

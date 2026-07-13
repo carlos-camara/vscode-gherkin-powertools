@@ -12,6 +12,9 @@ The tooltip displays the exact Python function signature (`def step_impl(context
 ### 2. Docstring Parsing
 If your Python developer left a docstring (`"""..."""` or `'''...'''`) explaining what the step does, the Hover Provider will extract it and render it cleanly inside the tooltip using Markdown.
 
+### 3. Tag Blast Radius
+Hovering over any Gherkin tag (e.g., `@regression`) instantly calculates its "Blast Radius". The tooltip dynamically counts and displays the total number of executable scenarios affected by that tag across the entire workspace. This fully supports tag inheritance (from `Feature` or `Rule` levels) and multiplies data rows within `Scenario Outline` tables.
+
 ## 💡 Usage Example
 
 Imagine you have the following Python code in your `steps.py`:

@@ -15,7 +15,7 @@ Gherkin PowerTools focuses on:
 
 - 🎨 **Intelligent Formatter** — Auto-indentation, table alignment, auto-casing
 - 🔍 **Live Diagnostics** — Real-time syntax validation as you type
-- 🧭 **Go To Definition** — `Cmd+Click` to jump from `.feature` to Python steps
+- 🧭 **Navigation & Context** — `Cmd+Click` definition jumps, and Hover for step documentation and Tag Blast Radius.
 - 📊 **Statistics Dashboard** — Visual metrics across your entire BDD project
 - 🌐 **Multi-language i18n** — English, Spanish, French, German keyword support
 

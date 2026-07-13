@@ -164,3 +164,137 @@ export class SymbolCache {
         return Array.from(patterns).sort();
     }
 }
+
+export class FeatureCache {
+    private fileTagCounts: Map<string, Map<string, number>> = new Map();
+    private globalTagCount: Map<string, number> = new Map();
+    private parserPromise?: Promise<any>;
+    private isInitialized = false;
+
+    private async parseFeature(content: string): Promise<any> {
+        if (!this.parserPromise) {
+            this.parserPromise = (async () => {
+                const dynamicImport = new Function('specifier', 'return import(specifier)');
+                const gherkin = await dynamicImport('@cucumber/gherkin');
+                const messages = await dynamicImport('@cucumber/messages');
+                return { gherkin, messages };
+            })();
+        }
+        
+        const { gherkin, messages } = await this.parserPromise;
+        const uuidFn = messages.IdGenerator.uuid();
+        const builder = new gherkin.AstBuilder(uuidFn);
+        const matcher = new gherkin.GherkinClassicTokenMatcher();
+        const parser = new gherkin.Parser(builder, matcher);
+        
+        try {
+            return parser.parse(content);
+        } catch (e) {
+            // If parsing fails due to syntax errors, extract whatever valid AST was built so far
+            return builder.getResult();
+        }
+    }
+
+    public async initialize(): Promise<void> {
+        if (this.isInitialized) return;
+        try {
+            const featureFiles = await vscode.workspace.findFiles('**/*.feature', '**/node_modules/**');
+            for (const file of featureFiles) {
+                await this.updateFile(file);
+            }
+            this.isInitialized = true;
+            logger.info(`Gherkin PowerTools: Feature cache initialized with ${featureFiles.length} files.`);
+        } catch (err) {
+            logger.error('Error initializing feature cache:', err);
+        }
+    }
+
+    public async updateFile(uri: vscode.Uri): Promise<void> {
+        try {
+            const content = await fs.promises.readFile(uri.fsPath, 'utf8');
+            const doc = await this.parseFeature(content);
+            if (!doc) {
+                // If completely unparsable, retain the last valid state
+                return;
+            }
+
+            const tagCounts = new Map<string, number>();
+
+            const addTagCount = (tag: string, count: number) => {
+                tagCounts.set(tag, (tagCounts.get(tag) || 0) + count);
+            };
+
+            const processTags = (tags: any[] | undefined): string[] => {
+                if (!tags) return [];
+                return tags.map((t: any) => t.name);
+            };
+
+            const traverse = (node: any, inheritedTags: string[]) => {
+                const currentTags = processTags(node.tags);
+                const allTags = [...new Set([...inheritedTags, ...currentTags])];
+
+                // Check if the scenario has examples (Scenario Outline)
+                if (node.examples && node.examples.length > 0) {
+                    // Scenario Outline
+                    for (const example of node.examples) {
+                        const exampleTags = processTags(example.tags);
+                        const combinedTags = [...new Set([...allTags, ...exampleTags])];
+                        const rowCount = example.tableBody ? example.tableBody.length : 0;
+                        if (rowCount > 0) {
+                            for (const tag of combinedTags) { addTagCount(tag, rowCount); }
+                        } else {
+                            // Fallback: If the table is empty or malformed but the outline exists, count it as 1
+                            for (const tag of combinedTags) { addTagCount(tag, 1); }
+                        }
+                    }
+                } else {
+                    // Standard Scenario (or Outline without examples)
+                    for (const tag of allTags) { addTagCount(tag, 1); }
+                }
+            };
+
+            if (doc && doc.feature) {
+                const featureTags = processTags(doc.feature.tags);
+                if (doc.feature.children) {
+                    for (const child of doc.feature.children) {
+                        if (child.rule) {
+                            const ruleTags = processTags(child.rule.tags);
+                            const combinedRuleTags = [...new Set([...featureTags, ...ruleTags])];
+                            if (child.rule.children) {
+                                for (const rChild of child.rule.children) {
+                                    if (rChild.scenario) traverse(rChild.scenario, combinedRuleTags);
+                                }
+                            }
+                        } else if (child.scenario) {
+                            traverse(child.scenario, featureTags);
+                        }
+                    }
+                }
+            }
+
+            this.fileTagCounts.set(uri.toString(), tagCounts);
+            this.recalculateGlobalTags();
+        } catch (err) {
+            logger.error(`Error updating feature cache for file ${uri.fsPath}:`, err);
+            this.removeFile(uri);
+        }
+    }
+
+    public removeFile(uri: vscode.Uri): void {
+        this.fileTagCounts.delete(uri.toString());
+        this.recalculateGlobalTags();
+    }
+
+    private recalculateGlobalTags() {
+        this.globalTagCount.clear();
+        for (const fileCounts of this.fileTagCounts.values()) {
+            for (const [tag, count] of fileCounts.entries()) {
+                this.globalTagCount.set(tag, (this.globalTagCount.get(tag) || 0) + count);
+            }
+        }
+    }
+
+    public getTagBlastRadius(tag: string): number {
+        return this.globalTagCount.get(tag) || 0;
+    }
+}
