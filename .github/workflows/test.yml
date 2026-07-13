@@ -37,21 +37,9 @@ jobs:
         if: runner.os == 'Linux'
         run: xvfb-run -a npm run coverage
 
-      - name: 🧪 Run Tests & Generate Coverage (macOS / Windows)
+      - name: 🧪 Run Tests (macOS / Windows)
         if: runner.os != 'Linux'
-        run: npm run coverage
-
-      - name: 🧹 Delete Old PR Comments (Push to Bottom)
-        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          COMMENT_IDS=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq '.[] | select(.user.type == "Bot") | select(.body | contains("Coverage") or contains("Test Execution Results")) | .id')
-          for ID in $COMMENT_IDS; do
-            gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$ID"
-          done || true
+        run: npm test
 
       - name: 📊 Report Coverage to PR
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
