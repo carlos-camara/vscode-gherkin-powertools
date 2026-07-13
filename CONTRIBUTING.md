@@ -70,7 +70,7 @@ npm run test:e2e
 
 ## 🤖 CI/CD Pipeline
 
-Our CI/CD pipeline leverages reusable GitHub Actions from the [qa-hub-actions](https://github.com/carlos-camara/qa-hub-actions) repository. This ensures consistency and enterprise-grade quality checks. Specifically, coverage reporting and other QA gates are handled externally by these actions.
+Our CI/CD pipeline leverages reusable GitHub Actions from the [qa-hub-actions](https://github.com/carlos-camara/qa-hub-actions) repository. This ensures consistency across quality checks. Specifically, coverage reporting and other QA gates are handled externally by these actions.
 
 ---
 
@@ -87,6 +87,9 @@ This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root dir
 ---
 
 ## 🤝 Submitting a Pull Request
+
+> [!NOTE]
+> If you are planning a large feature or significant architectural change, please open an Issue or Discussion first to align with the project maintainers before writing code.
 
 1. Fork the repository.
 2. Create a new branch for your feature or bug fix: `git checkout -b feature/my-new-feature`

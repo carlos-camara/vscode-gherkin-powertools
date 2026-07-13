@@ -2,16 +2,16 @@
 
 <div align="center">
   <img src="assets/logo.png" alt="Gherkin PowerTools Logo" width="250" />
-  <p><em>The ultimate, professional formatting and productivity suite for Gherkin and BDD inside VS Code.</em></p>
+  <p><em>Configurable formatter, structural linter, quick fixes, and Python/Behave navigation for Gherkin files in VS Code.</em></p>
 </div>
 
 ---
 
 ## What is Gherkin PowerTools?
 
-**Gherkin PowerTools** is a meticulously crafted VS Code extension designed for teams using Behavior-Driven Development (BDD). It transforms chaotic `.feature` files into perfectly aligned, highly readable, and deeply integrated specifications.
+**Gherkin PowerTools** is a VS Code extension designed for teams using Behavior-Driven Development (BDD). It assists in formatting, linting, and navigating `.feature` files.
 
-Whether you're using **Cucumber**, **Behave**, or any other BDD framework, Gherkin PowerTools supercharges your workflow with:
+Gherkin PowerTools focuses on:
 
 - 🎨 **Intelligent Formatter** — Auto-indentation, table alignment, auto-casing
 - 🔍 **Live Diagnostics** — Real-time syntax validation as you type

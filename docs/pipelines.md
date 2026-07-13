@@ -8,7 +8,7 @@ Here is a detailed breakdown of all the active pipelines in this project:
 **Triggers:** Push to `main`, Pull Requests
 - **Matrix Strategy:** Runs concurrently across three operating systems (`ubuntu-latest`, `macos-latest`, `windows-latest`) to ensure full cross-platform compatibility of the VS Code extension.
 - **Node.js:** Compiles the TypeScript codebase using strict typing.
-- **Reporting & Coverage:** On Linux, it generates an LCOV coverage report and a JUnit XML test report. It uses GitHub Actions to automatically post beautiful, formatted PR comments with test execution results and coverage data, cleaning up previous comments to ensure the latest report is always at the bottom of the discussion thread.
+- **Reporting & Coverage:** On Linux, it generates an LCOV coverage report and a JUnit XML test report. It uses GitHub Actions to automatically post formatted PR comments with test execution results and coverage data.
 
 ## 2. 🎭 End-to-End (E2E) UI Tests (`e2e.yml`)
 **Triggers:** Push to `main`, Pull Requests
@@ -19,43 +19,24 @@ Here is a detailed breakdown of all the active pipelines in this project:
   - Using `vscode.commands.executeCommand('editor.action.formatDocument')` to invoke the native formatter.
   - Querying native `vscode.executeDocumentSymbolProvider` commands to assert the Outline tree generates correctly.
   - Asserting the `Linter` creates real-time `Diagnostic` instances in response to active text modifications.
-- **Reporting:** Automatically generates JUnit XML test results and posts a formatted summary as a Pull Request comment. Identical to the unit tests, it cleans up previous E2E reports to ensure feedback remains tidy and visible.
+- **Reporting:** Automatically generates JUnit XML test results and posts a formatted summary as a Pull Request comment.
 
-## 3. 🛡️ Security Audit (`security-audit.yml`)
-**Triggers:** Push to `main`, Pull Requests (on package changes), Daily Schedule (03:00 AM)
-- **Vulnerability Scanning:** Runs `npm audit --audit-level=high`.
-- **Purpose:** Acts as a strict gatekeeper. It immediately fails the build if a developer introduces a package with a known High or Critical vulnerability (CVE), preventing vulnerable code from reaching `main`.
-
-## 4. 🛡️ Code Quality Lint (`lint.yml`)
+## 3. 🛡️ Code Quality Lint (`lint.yml`)
 **Triggers:** Push to `main`, Pull Requests
 - **Codebase Linting:** Runs `carlos-camara/qa-hub-actions/lint-codebase`.
-- **Scope:** It strictly lints Markdown files, YAML configurations, and GitHub Actions definitions to enforce consistency across the repository (e.g., ensuring no trailing spaces or misconfigured workflows).
+- **Scope:** It strictly lints Markdown files, YAML configurations, and GitHub Actions definitions to enforce consistency across the repository.
 
-## 5. 🔗 Link Checker (`link-checker.yml`)
-**Triggers:** Push/PRs affecting `docs/` or `README.md`, Daily Schedule (02:00 AM)
-- **Broken Link Detection:** Uses Lychee to recursively scan all Markdown files.
-- **Purpose:** Ensures the documentation and README never contain 404 broken links or missing images, which is critical before publishing the extension.
-
-## 6. 🏷️ PR Labeler (`labeler.yml`)
-**Triggers:** `pull_request_target`
+## 4. 🏷️ PR Labeler (`labeler.yml`)
+**Triggers:** `pull_request`
 - **Semantic Labeling:** Analyzes the PR title and automatically assigns labels like `bug`, `enhancement`, or `documentation`.
 - **Size Labeling:** Calculates the number of lines added/deleted in the PR and automatically assigns a size label (`size/S`, `size/M`, `size/L`, `size/XL`) to help maintainers prioritize code reviews.
 
-## 7. 🚦 PR Hygiene Gate (`gate-check.yml`)
-**Triggers:** Pull Requests
-- **Hygiene Validator:** Ensures that the PR description meets a minimum length and quality, and that commits follow the Conventional Commits format.
-- **AI Summarizer:** Leverages AI to provide a quick summary of the PR's impact for reviewers.
-
-## 8. 🌐 Pages Deployment (`pages.yml`)
+## 5. 🌐 Pages Deployment (`pages.yml`)
 **Triggers:** Push to `main` (on `docs/` or `mkdocs.yml` changes)
-- **MkDocs Compilation:** Builds the static documentation site using `mkdocs-material` (strictly pinned to avoid upstream breaking changes).
+- **MkDocs Compilation:** Builds the static documentation site using `mkdocs-material` (pinned to avoid upstream breaking changes).
 - **Deployment:** Automatically pushes the generated HTML site to GitHub Pages.
 
-## 9. 📦 Release & Packaging (`release.yml`)
+## 6. 📦 Release & Packaging (`release.yml`)
 **Triggers:** Push to `main`
 - **Version Detection:** Checks if the version in `package.json` has changed.
-- **Tagging & Packaging:** If a new version is detected, it creates a new Git Tag, compiles the `.vsix` extension package using `@vscode/vsce`, and uploads it automatically to a new GitHub Release.
-
-## 10. 🧑‍💻 Auto Assign PR (`auto-assign.yml`)
-**Triggers:** Pull Request opened or ready for review
-- **Auto-Assignment:** Automatically assigns the author of the PR as the assignee using the GitHub CLI, saving manual clicks and improving visibility.
+- **Tagging & Packaging:** If a new version is detected, it compiles the `.vsix` extension package using `@vscode/vsce`, and uploads it automatically to a new GitHub Release.

@@ -1,6 +1,6 @@
 # ⚙️ Configuration
 
-Gherkin PowerTools works perfectly out-of-the-box, but you can tailor it to your team's style guide via your `settings.json`.
+Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's style guide via your `settings.json`.
 
 ## Available Settings
 
