@@ -192,26 +192,6 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         assert.ok(formattedText.includes('    Given I am on the login page'));
     });
 
-    test('provideDocumentRangeFormattingEdits formats only the requested range', async () => {
-        const vscode = await import('vscode');
-        const formatter = new GherkinFormattingEditProvider();
-        const mockDocument = {
-            getText: () => 'Feature: Login\nScenario: Success\nGiven I am on the login page\nAnd I enter my password',
-            lineCount: 4,
-            lineAt: (_line: number) => ({ text: 'And I enter my password' })
-        } as any;
-        
-        const range = new vscode.Range(new vscode.Position(2, 0), new vscode.Position(3, 23));
-        
-        const edits = await formatter.provideDocumentRangeFormattingEdits(mockDocument, range, {} as any, {} as any);
-        assert.strictEqual(edits.length, 1);
-        
-        const formattedText = edits[0].newText;
-        const lines = formattedText.split('\n');
-        assert.strictEqual(lines.length, 2);
-        assert.strictEqual(lines[0], '  Scenario: Success');
-        assert.strictEqual(lines[1], '    Given I am on the login page');
-    });
 
     test('returns empty array when formatting invalid document via API', async () => {
         const formatter = new GherkinFormattingEditProvider();

@@ -6,7 +6,7 @@ export interface FormatterOptions {
     emptyLinesBetweenScenarios: number;
 }
 
-export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider {
+export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider {
     
     private getOptions(): FormatterOptions {
         const config = vscode.workspace.getConfiguration('gherkinPowerTools');
@@ -36,34 +36,7 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         return [vscode.TextEdit.replace(range, formattedText + '\n')];
     }
 
-    public async provideDocumentRangeFormattingEdits(
-        document: vscode.TextDocument,
-        range: vscode.Range,
-        _options: vscode.FormattingOptions,
-        _token: vscode.CancellationToken
-    ): Promise<vscode.TextEdit[]> {
-        // Range formatting is tricky with AST since AST requires a full valid document.
-        // We will format the whole document and then only extract the requested range.
-        const formatOptions = this.getOptions();
-        const text = document.getText();
-        
-        const formattedText = await this.formatGherkin(text, formatOptions);
-        if (!formattedText) return [];
 
-        const formattedLines = formattedText.split('\n');
-        
-        const startLine = range.start.line;
-        const endLine = Math.min(range.end.line, formattedLines.length - 1);
-
-        const linesInRange = formattedLines.slice(startLine, endLine + 1);
-
-        const formatRange = new vscode.Range(
-            new vscode.Position(startLine, 0),
-            new vscode.Position(endLine, document.lineAt(range.end.line).text.length)
-        );
-
-        return [vscode.TextEdit.replace(formatRange, linesInRange.join('\n'))];
-    }
 
     public async formatGherkin(text: string, options: FormatterOptions): Promise<string | null> {
         const dynamicImport = new Function('specifier', 'return import(specifier)');
