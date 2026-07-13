@@ -11,6 +11,16 @@ Tired of memorizing the exact wording of your Python step definitions? The exten
 2. **Interactive Variables**: If your Python step uses variables (like `{username}` or `(?P<role>.*)`), they are instantly transformed into VS Code **Snippet Variables**.
 3. **Tab-to-Fill**: Select the suggestion, and your cursor will automatically land on the first variable. Fill it in, hit <kbd>Tab</kbd>, and jump straight to the next one!
 
+### 📊 Scenario Outline Parameter Autocompletion
+
+When working within a `Scenario Outline` or `Scenario Template`, you frequently need to reference columns from the underlying `Examples` table using the `<parameter>` syntax. 
+
+**How it works:**
+1. Inside a `Scenario Outline`, type `<` anywhere within a step.
+2. The extension instantly scans downward, parses the `Examples` table, and extracts all column headers.
+3. An IntelliSense dropdown appears with your exact table headers.
+4. Select a header, and the extension automatically inserts the header name along with the closing bracket `>`.
+
 ---
 
 ## ⚡ Structural Snippets

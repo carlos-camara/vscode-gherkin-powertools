@@ -13,6 +13,7 @@
 
 Gherkin PowerTools focuses on:
 
+- 🎨 **Intelligent Autocomplete**: Tab-stops for Python parameters and dynamic `<parameter>` completion from `Examples` tables.
 - 🎨 **Intelligent Formatter** — Auto-indentation, table alignment, auto-casing
 - 🔍 **Live Diagnostics** — Real-time syntax validation as you type
 - 🧭 **Navigation & Context** — `Cmd+Click` definition jumps, and Hover for step documentation and Tag Blast Radius.

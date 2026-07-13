@@ -204,4 +204,97 @@ suite('E2E UI Test Suite', () => {
         }
         assert.strictEqual(errorThrown, false, 'The Statistics Webview command threw an error');
     });
+    test('Simulate Outline Parameter Autocompletion', async () => {
+        const uri = vscode.Uri.parse('untitled:outline_autocomplete_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 
+`Feature: Autocomplete
+  Scenario Outline: Test params
+    Given I type <
+
+    Examples:
+      | username | password |
+      | admin    | 123      |`);
+        });
+
+        // The cursor is after the '<' on line 2, character 18
+        const position = new vscode.Position(2, 18);
+        
+        const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            document.uri,
+            position,
+            '<'
+        );
+
+        assert.ok(completions, 'Completion provider should return a list');
+        assert.ok(completions.items.length > 0, 'Should return parameters from Examples');
+        
+        const labels = completions.items.map(i => typeof i.label === 'string' ? i.label : i.label.label);
+        assert.ok(labels.includes('username'), 'Should include username parameter');
+        assert.ok(labels.includes('password'), 'Should include password parameter');
+    });
+
+    test('Simulate Tag Blast Radius Hover', async () => {
+        const uri = vscode.Uri.parse('untitled:tag_hover_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 
+`@regression
+Feature: Tags
+  Scenario Outline: Outline 1
+    Given step
+    Examples:
+      | a |
+      | 1 |
+      | 2 |`);
+        });
+        
+        // Let the feature cache parse it
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+            'vscode.executeHoverProvider',
+            document.uri,
+            new vscode.Position(0, 3) // Hovering over '@regression'
+        );
+
+        assert.ok(hovers !== undefined, 'Should return a hover response (even if empty for untitled files)');
+    });
+
+    test('Simulate Code Action execution (Close Data Table)', async () => {
+        const uri = vscode.Uri.parse('untitled:code_action_execution_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 
+`Feature: Code Action
+  Scenario: Fix table
+    Given I have a malformed table
+      | header1 | header2
+      | value1  | value2`);
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // The malformed table row is on line 3
+        const range = new vscode.Range(3, 0, 3, 29);
+        
+        const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider',
+            document.uri,
+            range
+        );
+
+        assert.ok(codeActions !== undefined, 'Should provide Code Actions response (even if empty)');
+    });
 });

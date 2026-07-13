@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { SymbolCache } from '../../cache';
+import { SymbolCache, FeatureCache } from '../../cache';
 
 suite('SymbolCache Test Suite', () => {
     let cache: SymbolCache;
@@ -116,5 +116,54 @@ def step_impl(
         await cache.initialize();
         // Calling it again should return early
         await cache.initialize();
+    });
+
+    test('Tag Blast Radius: Handles inherited tags from Feature and multiplies by Examples', async () => {
+        const featureCache = new FeatureCache();
+        const featurePath = path.join(tempDir, 'tags.feature');
+        const content = `
+@regression
+Feature: Blast Radius
+  @smoke
+  Scenario: Simple Scenario
+    Given step
+
+  Scenario Outline: Outline with Examples
+    Given step <param>
+    Examples:
+      | param |
+      | 1     |
+      | 2     |
+      | 3     |
+        `;
+        fs.writeFileSync(featurePath, content);
+        await featureCache.updateFile(vscode.Uri.file(featurePath));
+        
+        // Feature has @regression, which is inherited by 1 Scenario + 1 Outline (3 examples) = 4 total
+        assert.strictEqual(featureCache.getTagBlastRadius('@regression'), 4, '@regression should inherit down to all 4 executable scenarios');
+        
+        // @smoke is only on the Simple Scenario
+        assert.strictEqual(featureCache.getTagBlastRadius('@smoke'), 1, '@smoke should only affect 1 scenario');
+    });
+
+    test('AST Fallback: Retains data even with severe syntax errors', async () => {
+        const featureCache = new FeatureCache();
+        const featurePath = path.join(tempDir, 'syntax_error.feature');
+        // This file has an unclosed table which causes parser.parse() to throw an error.
+        // If our fallback (builder.getResult()) works, it will still parse the tags above the error.
+        const content = `
+@salvaged
+Feature: Fallback Test
+  Scenario: Broken Scenario
+    Given unclosed table
+      | header1 | header2
+        `;
+        fs.writeFileSync(featurePath, content);
+        
+        await featureCache.updateFile(vscode.Uri.file(featurePath));
+        
+        // If the AST was entirely dropped, this would be 0.
+        // Because of our fallback, the AST is salvaged up to the error, retaining the @salvaged tag.
+        assert.strictEqual(featureCache.getTagBlastRadius('@salvaged'), 1, 'Tags should still be parsed via AST fallback');
     });
 });

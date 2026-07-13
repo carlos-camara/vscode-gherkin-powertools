@@ -83,4 +83,32 @@ Feature: Test
         const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext);
         assert.strictEqual(completions, undefined);
     });
+
+    test('Provides parameter completions for Scenario Outline Examples', async () => {
+        const text = `
+Feature: Test
+  Scenario Outline: Test Outline
+    Given I type <us
+  
+    Examples:
+      | username | password |
+      | admin    | 12345    |
+        `.trim();
+        // Line index 2 is "    Given I type <us"
+        const [doc, pos] = createMockDocument(text, 2);
+        
+        const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext) as vscode.CompletionItem[];
+        
+        assert.ok(completions);
+        assert.strictEqual(completions.length, 2);
+        
+        const labels = completions.map(c => typeof c.label === 'string' ? c.label : c.label.label);
+        assert.ok(labels.includes('username'));
+        assert.ok(labels.includes('password'));
+        
+        // Ensure insert text has closing bracket
+        const userItem = completions.find(c => (typeof c.label === 'string' ? c.label : c.label.label) === 'username');
+        assert.ok(userItem?.insertText instanceof vscode.SnippetString);
+        assert.strictEqual(userItem?.insertText.value, 'username>$0');
+    });
 });
