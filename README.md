@@ -36,7 +36,7 @@ This extension runs natively in VS Code to format your files, detect structural 
 
 ---
 
-## 🎨 Before / After
+## Before / After
 
 The formatter uses the Gherkin AST to apply consistent keyword casing, indentation and table alignment.
 
@@ -70,7 +70,7 @@ Feature: User Authentication
 
 ---
 
-## 🤝 Compatibility
+## Compatibility
 
 Features are divided into two tiers based on your project stack:
 
@@ -92,7 +92,7 @@ When working in a Python/Behave project, the extension parses your `@given`, `@w
 
 ---
 
-## ⚖️ Gherkin PowerTools vs Official Cucumber Extension
+## Gherkin PowerTools vs Official Cucumber Extension
 
 Gherkin PowerTools focuses on configurable formatting, structural diagnostics and Python/Behave tooling. The [official Cucumber extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) provides broader step-definition language support, localisation and Cucumber Language Server integration.
 
@@ -105,7 +105,7 @@ Gherkin PowerTools focuses on configurable formatting, structural diagnostics an
 
 ---
 
-## ✨ Features
+## Features
 
 ### 1. Formatter
 Auto-indentation, dynamic data table alignment to the preceding step keyword, auto-casing for Gherkin keywords (`given` -> `Given`), and configurable tag wrapping.
@@ -137,7 +137,7 @@ Estimates executable permutations and provides a heuristic comparison between au
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Available via your VS Code `settings.json`:
 
@@ -158,13 +158,13 @@ Available via your VS Code `settings.json`:
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 For architecture overviews and feature deep-dives, see the [Documentation Website](https://carlos-camara.github.io/vscode-gherkin-powertools/).
 
 ---
 
-## 🛠️ Contributing
+## Contributing
 
 Bug reports, feature requests, and code contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
@@ -179,7 +179,7 @@ Bug reports, feature requests, and code contributions are welcome. See [CONTRIBU
 
 ---
 
-## 📄 License
+## License
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](./LICENSE)
 
