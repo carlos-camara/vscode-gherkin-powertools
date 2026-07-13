@@ -17,6 +17,34 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
         
         const linePrefix = document.lineAt(position).text.substr(0, position.character);
         
+        // Check if we are inside a parameter typing state: e.g. "Given I do <fo"
+        const paramMatch = linePrefix.match(/<([^>]*)$/);
+        
+        if (paramMatch) {
+            const typedParamText = paramMatch[1];
+            const headers = this.getOutlineHeaders(document, position.line);
+            
+            if (headers.length > 0) {
+                const replaceRange = new vscode.Range(
+                    position.line,
+                    position.character - typedParamText.length,
+                    position.line,
+                    position.character
+                );
+
+                const items = headers.map(header => {
+                    const item = new vscode.CompletionItem(header, vscode.CompletionItemKind.Variable);
+                    // Add the closing bracket. The SnippetString allows putting the cursor after it.
+                    item.insertText = new vscode.SnippetString(`${header}>$0`);
+                    item.range = replaceRange;
+                    item.detail = 'Examples Table Column';
+                    item.sortText = '0_' + header; // Force to the top of the completion list
+                    return item;
+                });
+                return items;
+            }
+        }
+        
         // Ensure we only autocomplete when a valid step keyword is present
         const match = linePrefix.match(/^(\s*(?:Given|When|Then|And|But)\s+)/);
         if (!match) {
@@ -69,5 +97,43 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
         }
 
         return completionItems;
+    }
+
+    private getOutlineHeaders(document: vscode.TextDocument, currentLine: number): string[] {
+        let outlineStartLine = -1;
+        for (let i = currentLine; i >= 0; i--) {
+            const line = document.lineAt(i).text.trim();
+            if (line.match(/^(?:Scenario Outline|Scenario Template)\s*:/)) {
+                outlineStartLine = i;
+                break;
+            }
+            if (line.match(/^Scenario\s*:/)) {
+                return []; // Not in an outline
+            }
+            if (line.match(/^(?:Feature|Rule|Background)\s*:/)) {
+                return []; // Hit the top boundaries
+            }
+        }
+
+        if (outlineStartLine === -1) return [];
+
+        let inExamples = false;
+        for (let i = outlineStartLine + 1; i < document.lineCount; i++) {
+            const line = document.lineAt(i).text.trim();
+            if (line.match(/^Examples\s*:/)) {
+                inExamples = true;
+                continue;
+            }
+            if (inExamples && line.startsWith('|')) {
+                // Return the cells of the first table row
+                return line.split('|')
+                    .filter(c => c.trim() !== '')
+                    .map(c => c.trim());
+            }
+            if (line.match(/^(?:Scenario|Scenario Outline|Scenario Template|Rule|Background)\s*:/)) {
+                break; // hit the next block
+            }
+        }
+        return [];
     }
 }
