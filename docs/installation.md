@@ -13,7 +13,7 @@
 If you have a pre-built `.vsix` package (e.g., from a GitHub Release):
 
 ```bash
-code --install-extension vscode-gherkin-powertools-1.7.0.vsix
+code --install-extension vscode-gherkin-powertools-<version>.vsix
 ```
 
 !!! tip "Pro-Tip: Auto-Formatting"
