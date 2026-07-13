@@ -143,7 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.languages.registerCompletionItemProvider(
                 { language },
                 new GherkinCompletionProvider(symbolCache),
-                ' ' // trigger on space
+                ' ', '<' // trigger on space or <
             ),
             vscode.languages.registerHoverProvider(
                 { language },

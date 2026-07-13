@@ -13,6 +13,9 @@
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
       <img src="https://vsmarketplacebadges.dev/installs-short/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=blue" alt="Installs" />
     </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
+      <img src="https://vsmarketplacebadges.dev/downloads-short/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=blue" alt="Downloads" />
+    </a>
     <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
   </p>
 
@@ -124,7 +127,8 @@ Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:
 Use `Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
 
 ### 5. Autocomplete
-Suggests steps as you type based on your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
+- **Steps:** Suggests steps as you type based on your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
+- **Parameters:** When typing inside a `Scenario Outline`, typing `<` automatically parses the underlying `Examples` table and provides an IntelliSense dropdown with the available column headers. Selecting one inserts it with the closing `>` bracket.
 
 ### 6. Hover
 - **Steps:** Hover over any step to view the underlying Python function signature and its associated Docstring.

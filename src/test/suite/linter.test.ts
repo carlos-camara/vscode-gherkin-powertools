@@ -152,4 +152,35 @@ Featre: Bad
         // Fallback should still find SCENARIO_WITH_EXAMPLES
         assert.ok(diagnostics.some(d => d.code === 'SCENARIO_WITH_EXAMPLES'));
     });
+
+    test('Edge Case: Flags completely missing Feature block', async () => {
+        const text = `
+Scenario: Floating scenario
+  Given step
+        `;
+        const doc = createMockDocument(text, 'file:///missing_feature.feature');
+        await linter.lint(doc);
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        
+        // It flags 'Scenario:' as out of place or misspelled since it's expecting Feature
+        assert.ok(diagnostics.length > 0, 'Should generate at least one diagnostic for a missing feature');
+    });
+
+    test('Edge Case: Empty Examples block is syntactically valid', async () => {
+        const text = `
+Feature: Empty outline
+  Scenario Outline: Empty
+    Given step
+    Examples:
+        `;
+        const doc = createMockDocument(text, 'file:///empty_examples.feature');
+        await linter.lint(doc);
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        
+        // The parser successfully parses this with tableBody: []
+        // We ensure no exception is thrown and it passes linter checks
+        // (Other semantic checks might flag undefined steps, but no syntax error).
+        // Since we mock 'step' in setup(), it will NOT flag UNDEFINED_STEP.
+        assert.strictEqual(diagnostics.length, 0);
+    });
 });
