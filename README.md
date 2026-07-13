@@ -6,11 +6,12 @@
   <p><em>Format, lint and navigate Gherkin <code>.feature</code> files in VS Code.</em></p>
 
   <p>
+    <!-- Marketplace and VS Code info -->
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
-      <img src="https://img.shields.io/visual-studio-marketplace/i/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Installs&color=blue" alt="Installs" />
+      <img src="https://vsmarketplacebadges.dev/version/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=blue" alt="Marketplace Version" />
     </a>
-    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools#review-details">
-      <img src="https://img.shields.io/visual-studio-marketplace/stars/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&color=yellow" alt="Rating" />
+    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
+      <img src="https://vsmarketplacebadges.dev/installs-short/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=blue" alt="Installs" />
     </a>
     <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
   </p>
@@ -35,9 +36,9 @@ This extension runs natively in VS Code to format your files, detect structural 
 
 ---
 
-## 🎨 Before / After
+## Before / After
 
-The formatter parses the Abstract Syntax Tree (AST) to ensure correct casing, indentation, and alignment.
+The formatter uses the Gherkin AST to apply consistent keyword casing, indentation and table alignment.
 
 **Before**
 ```gherkin
@@ -69,12 +70,12 @@ Feature: User Authentication
 
 ---
 
-## 🤝 Compatibility
+## Compatibility
 
 Features are divided into two tiers based on your project stack:
 
-### Generic `.feature` files (Any Framework)
-Works on any `.feature` file regardless of the test runner (Cucumber, SpecFlow, Karate, Cypress, etc.).
+### Generic `.feature` files
+Core formatting and syntax features operate directly on standard Gherkin `.feature` files and do not depend on a specific test runner (e.g., Cucumber, SpecFlow, Karate).
 - Formatter
 - Linter
 - Quick Fixes
@@ -83,27 +84,28 @@ Works on any `.feature` file regardless of the test runner (Cucumber, SpecFlow, 
 
 ### Python / Behave Specific
 When working in a Python/Behave project, the extension parses your `@given`, `@when`, and `@then` decorators to enable:
-- Go To Definition (`Cmd/Ctrl+Click`)
+- Go To Definition (`Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux)
 - Autocomplete (Step suggestions based on Python definitions)
 - Hover (Displays the Python Docstring of the step)
 
+> **Note:** Behave tooling is designed for conventional step decorators and `steps/` directory layouts. Dynamically generated decorators or complex multiline patterns may not be detected.
+
 ---
 
-## ⚖️ Gherkin PowerTools vs Official Cucumber Extension
+## Gherkin PowerTools vs Official Cucumber Extension
 
-This extension is built for formatting and linting workflows, whereas the [Official Cucumber Extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) focuses on broad language support and code generation.
+Gherkin PowerTools focuses on configurable formatting, structural diagnostics and Python/Behave tooling. The [official Cucumber extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) provides broader step-definition language support, localisation and Cucumber Language Server integration.
 
 | Feature | Gherkin PowerTools | Official Cucumber Extension |
 |---------|--------------------|-----------------------------|
-| **Setup** | Zero workspace configuration required. | Requires `cucumber.features` & `cucumber.glue` globs. |
 | **Formatter** | Configurable indentation, dynamic table alignment relative to keyword, tag wrapping. | 2-space indentation, internal table cell alignment. |
-| **Linter / Diagnostics** | Flags syntax errors, missing colons, and structural warnings. | Not included. |
+| **Diagnostics** | Adds structural checks and quick fixes for issues such as missing colons, keyword typos and malformed tables. | Highlights syntax errors and undefined steps. |
 | **Code Actions** | Auto-corrects typos, inserts colons, closes data tables. | Generates undefined step snippets. |
 | **Navigation** | Supports Behave/Python decorators. | Supports multiple languages (Java, Ruby, JS, SpecFlow, etc.). |
 
 ---
 
-## ✨ Features
+## Features
 
 ### 1. Formatter
 Auto-indentation, dynamic data table alignment to the preceding step keyword, auto-casing for Gherkin keywords (`given` -> `Given`), and configurable tag wrapping.
@@ -119,7 +121,7 @@ Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:
 - Close malformed data table rows.
 
 ### 4. Behave Navigation (Go To Definition)
-`Cmd/Ctrl+Click` on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
+Use `Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
 
 ### 5. Autocomplete
 Suggests steps as you type based on your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
@@ -128,14 +130,14 @@ Suggests steps as you type based on your Python step definitions. Converts Behav
 Hover over any step to view the underlying Python function signature and its associated Docstring.
 
 ### 7. Dashboard
-An HTML Webview displaying project metrics, including a Gherkin Quality Score (GQS), file complexity warnings, and tag distribution.
+An HTML webview displaying heuristic workspace metrics, including a Gherkin quality indicator, scenario complexity signals and tag distribution.
 
 ### 8. Workspace Analytics
-Tracks executable permutations (factoring in `Scenario Outline` rows) and calculates an estimated ROI based on automation time versus manual execution.
+Estimates executable permutations and provides a heuristic comparison between automated and manual execution effort.
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Available via your VS Code `settings.json`:
 
@@ -156,27 +158,29 @@ Available via your VS Code `settings.json`:
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 For architecture overviews and feature deep-dives, see the [Documentation Website](https://carlos-camara.github.io/vscode-gherkin-powertools/).
 
 ---
 
-## 🛠️ Contributing
+## Contributing
 
 Bug reports, feature requests, and code contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
 <p>
   <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=mocha&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
+    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
   </a>
   <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/e2e.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=electron&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
+    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
   </a>
 </p>
 
 ---
 
-## 📄 License
+## License
+
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](./LICENSE)
 
 Licensed under the [MIT License](./LICENSE) - © [Carlos Camara](https://github.com/carlos-camara).
