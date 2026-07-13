@@ -6,6 +6,10 @@
   <p><em>Format, lint and navigate Gherkin <code>.feature</code> files in VS Code.</em></p>
 
   <p>
+    <!-- Marketplace and VS Code info -->
+    <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
+      <img src="https://img.shields.io/visual-studio-marketplace/v/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Marketplace" alt="Marketplace Version" />
+    </a>
     <a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">
       <img src="https://img.shields.io/visual-studio-marketplace/i/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&label=Installs&color=blue" alt="Installs" />
     </a>
@@ -13,6 +17,26 @@
       <img src="https://img.shields.io/visual-studio-marketplace/stars/carloscamara.vscode-gherkin-powertools?style=for-the-badge&logo=visualstudiocode&logoColor=white&color=yellow" alt="Rating" />
     </a>
     <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/LICENSE">
+      <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=opensourceinitiative&logoColor=white&label=License" alt="License" />
+    </a>
+    <br /><br />
+    <!-- CI, Actions, Docs and Release -->
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
+    </a>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/e2e.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
+    </a>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/lint.yml">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/lint.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Lint" alt="Linter" />
+    </a>
+    <a href="https://carlos-camara.github.io/vscode-gherkin-powertools/">
+      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/pages.yml?branch=main&style=for-the-badge&logo=githubpages&logoColor=white&label=Docs" alt="Pages Deployment" />
+    </a>
+    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/releases">
+      <img src="https://img.shields.io/github/v/release/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=github&logoColor=white&label=Release" alt="GitHub Release" />
+    </a>
   </p>
 
   <p><strong><a href="https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools">Install from VS Code Marketplace</a></strong></p>
@@ -166,14 +190,7 @@ For architecture overviews and feature deep-dives, see the [Documentation Websit
 
 Bug reports, feature requests, and code contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
-<p>
-  <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=mocha&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
-  </a>
-  <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/e2e.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=electron&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
-  </a>
-</p>
+
 
 ---
 
