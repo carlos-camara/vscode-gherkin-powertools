@@ -23,7 +23,7 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
             const blastRadius = this.featureCache.getTagBlastRadius(tagName);
             
             const hoverContent = new vscode.MarkdownString();
-            hoverContent.appendMarkdown(`🏷️ **${tagName}**\n\nApplies to **${blastRadius}** scenarios/examples across the workspace.`);
+            hoverContent.appendMarkdown(`🏷️ **${tagName}**\n\nApplies to **${blastRadius}** scenarios across the workspace.`);
             return new vscode.Hover(hoverContent);
         }
 

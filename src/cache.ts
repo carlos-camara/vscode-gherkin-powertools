@@ -208,7 +208,9 @@ export class FeatureCache {
             try {
                 doc = parser.parse(content);
             } catch (e) {
-                // Ignore parsing errors for partial/invalid files
+                // If parsing fails due to syntax errors (e.g., user is typing),
+                // we retain the last valid cache state for this file instead of dropping to 0.
+                return;
             }
 
             const tagCounts = new Map<string, number>();
