@@ -17,14 +17,6 @@
       <img src="https://vsmarketplacebadges.dev/rating-star/carloscamara.vscode-gherkin-powertools.svg?style=for-the-badge&color=yellow" alt="Rating" />
     </a>
     <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code 1.93.0+" />
-    <br /><br />
-    <!-- CI and License -->
-    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
-    </a>
-    <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/e2e.yml">
-      <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
-    </a>
     <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/LICENSE">
       <img src="https://img.shields.io/github/license/carlos-camara/vscode-gherkin-powertools?style=for-the-badge&logo=opensourceinitiative&logoColor=white&label=License" alt="License" />
     </a>
@@ -181,7 +173,14 @@ For architecture overviews and feature deep-dives, see the [Documentation Websit
 
 Bug reports, feature requests, and code contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
-
+<p>
+  <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/test.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Unit%20Tests" alt="Unit Tests" />
+  </a>
+  <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/e2e.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/carlos-camara/vscode-gherkin-powertools/e2e.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=E2E%20Tests" alt="E2E Tests" />
+  </a>
+</p>
 
 ---
 
