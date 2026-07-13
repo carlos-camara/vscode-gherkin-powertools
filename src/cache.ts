@@ -226,10 +226,8 @@ export class FeatureCache {
                 const currentTags = processTags(node.tags);
                 const allTags = [...new Set([...inheritedTags, ...currentTags])];
 
-                // Check node.keyword for Scenario and Scenario Outline translations
-                // A simpler way: Check node's structure instead of just keyword to be language-agnostic
-                // The AST sets 'examples' only for outlines.
-                if (node.examples !== undefined) {
+                // Check if the scenario has examples (Scenario Outline)
+                if (node.examples && node.examples.length > 0) {
                     // Scenario Outline
                     for (const example of node.examples) {
                         const exampleTags = processTags(example.tags);
@@ -240,7 +238,7 @@ export class FeatureCache {
                         }
                     }
                 } else {
-                    // Standard Scenario
+                    // Standard Scenario (or Outline without examples)
                     for (const tag of allTags) { addTagCount(tag, 1); }
                 }
             };
