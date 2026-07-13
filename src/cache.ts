@@ -171,19 +171,28 @@ export class FeatureCache {
     private parserPromise?: Promise<any>;
     private isInitialized = false;
 
-    private async getParser() {
+    private async parseFeature(content: string): Promise<any> {
         if (!this.parserPromise) {
             this.parserPromise = (async () => {
                 const dynamicImport = new Function('specifier', 'return import(specifier)');
-                const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
-                const { IdGenerator } = await dynamicImport('@cucumber/messages');
-                const uuidFn = IdGenerator.uuid();
-                const builder = new AstBuilder(uuidFn);
-                const matcher = new GherkinClassicTokenMatcher();
-                return new Parser(builder, matcher);
+                const gherkin = await dynamicImport('@cucumber/gherkin');
+                const messages = await dynamicImport('@cucumber/messages');
+                return { gherkin, messages };
             })();
         }
-        return this.parserPromise;
+        
+        const { gherkin, messages } = await this.parserPromise;
+        const uuidFn = messages.IdGenerator.uuid();
+        const builder = new gherkin.AstBuilder(uuidFn);
+        const matcher = new gherkin.GherkinClassicTokenMatcher();
+        const parser = new gherkin.Parser(builder, matcher);
+        
+        try {
+            return parser.parse(content);
+        } catch (e) {
+            // If parsing fails due to syntax errors, extract whatever valid AST was built so far
+            return builder.getResult();
+        }
     }
 
     public async initialize(): Promise<void> {
@@ -203,13 +212,9 @@ export class FeatureCache {
     public async updateFile(uri: vscode.Uri): Promise<void> {
         try {
             const content = await fs.promises.readFile(uri.fsPath, 'utf8');
-            const parser = await this.getParser();
-            let doc: any = null;
-            try {
-                doc = parser.parse(content);
-            } catch (e) {
-                // If parsing fails due to syntax errors (e.g., user is typing),
-                // we retain the last valid cache state for this file instead of dropping to 0.
+            const doc = await this.parseFeature(content);
+            if (!doc) {
+                // If completely unparsable, retain the last valid state
                 return;
             }
 
@@ -237,6 +242,9 @@ export class FeatureCache {
                         const rowCount = example.tableBody ? example.tableBody.length : 0;
                         if (rowCount > 0) {
                             for (const tag of combinedTags) { addTagCount(tag, rowCount); }
+                        } else {
+                            // Fallback: If the table is empty or malformed but the outline exists, count it as 1
+                            for (const tag of combinedTags) { addTagCount(tag, 1); }
                         }
                     }
                 } else {
