@@ -91,6 +91,8 @@ When working in a Python/Behave project, the extension parses your `@given`, `@w
 - Autocomplete (Step suggestions based on Python definitions)
 - Hover (Displays the Python Docstring of the step)
 
+> **Note:** Behave tooling is designed for conventional step decorators and `steps/` directory layouts. Dynamically generated decorators or complex multiline patterns may not be detected.
+
 ---
 
 ## ⚖️ Gherkin PowerTools vs Official Cucumber Extension
