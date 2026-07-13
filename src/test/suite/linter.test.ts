@@ -21,6 +21,9 @@ suite('Linter Test Suite', () => {
     setup(() => {
         mockCache = new SymbolCache();
         mockCache.findDefinition = () => new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0));
+        mockCache.getStepDefinitions = (stepText) => {
+            return [{ patternText: stepText, regex: new RegExp(stepText), location: new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0)) }];
+        };
         linter = new GherkinLinter(mockCache);
     });
 
@@ -70,7 +73,7 @@ Feature Invalid
     });
 
     test('Undefined step should generate a diagnostic', async () => {
-        mockCache.findDefinition = () => null;
+        mockCache.getStepDefinitions = () => [];
 
         const text = `
 Feature: Test
@@ -82,6 +85,32 @@ Feature: Test
         
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
         assert.ok(diagnostics.some(d => d.code === 'UNDEFINED_STEP'));
+    });
+
+    test('Ambiguous step should generate a diagnostic', async () => {
+        mockCache.getStepDefinitions = (stepText) => {
+            if (stepText === 'an ambiguous step') {
+                return [
+                    { patternText: 'an ambiguous (.*)', regex: /^an ambiguous (.*)$/, location: new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0)) },
+                    { patternText: 'an (.*) step', regex: /^an (.*) step$/, location: new vscode.Location(vscode.Uri.parse('file:///mock2.py'), new vscode.Position(0,0)) }
+                ];
+            }
+            return [{ patternText: stepText, regex: new RegExp(stepText), location: new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0)) }];
+        };
+
+        const text = `
+Feature: Test
+  Scenario: Test
+    Given an ambiguous step
+        `.trim();
+        const doc = createMockDocument(text, 'file:///ambiguous-step.feature');
+        await linter.lint(doc);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        const ambiguousDiag = diagnostics.find(d => d.code === 'AMBIGUOUS_STEP');
+        assert.ok(ambiguousDiag, 'Should generate AMBIGUOUS_STEP diagnostic');
+        assert.ok(ambiguousDiag?.message.includes('an ambiguous (.*)'), 'Message should include first pattern');
+        assert.ok(ambiguousDiag?.message.includes('an (.*) step'), 'Message should include second pattern');
     });
 
     test('Scenario with Examples should generate SCENARIO_WITH_EXAMPLES', async () => {

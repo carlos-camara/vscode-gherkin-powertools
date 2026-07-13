@@ -51,11 +51,25 @@ def step_impl_when(context, amount):
         assert.ok(whenDef);
         assert.strictEqual(whenDef?.functionSignature, 'def step_impl_when(context, amount)');
 
-        // Test finding definitions
         const location = cache.findDefinition('I have 3 apples');
         assert.ok(location);
         assert.strictEqual(location?.uri.toString(), uri.toString());
         assert.strictEqual(location?.range.start.line, 1);
+
+        // Test multiple ambiguous definitions
+        const ambiguousCode = `
+@given('I have 10 apples')
+def specific(context): pass
+
+@given(r'I have \\d+ apples')
+def general(context): pass
+        `;
+        const ambigFile = path.join(tempDir, 'ambig.py');
+        fs.writeFileSync(ambigFile, ambiguousCode);
+        cache.updateFile(vscode.Uri.file(ambigFile));
+
+        const multipleDefs = cache.getStepDefinitions('I have 10 apples');
+        assert.strictEqual(multipleDefs.length, 2, 'Should return both matching definitions');
     });
 
     test('Removes file from cache', () => {
