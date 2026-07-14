@@ -1,5 +1,14 @@
 import * as vscode from 'vscode';
 
+export function escapeHtml(unsafe: string): string {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 export interface GherkinStats {
     totalFiles: number;
     totalFeatures: number;
@@ -41,7 +50,7 @@ export async function showStatisticsDashboard(context: vscode.ExtensionContext) 
         'gherkinStatistics',
         'Gherkin Statistics',
         vscode.ViewColumn.One,
-        { enableScripts: true }
+        { enableScripts: false }
     );
 
     panel.webview.html = getLoadingHtml();
@@ -209,7 +218,7 @@ function getLoadingHtml() {
         <!DOCTYPE html>
         <html lang="en">
         <head>
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
             <style>
                 body { font-family: var(--vscode-font-family); color: var(--vscode-editor-foreground); display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(135deg, rgba(30,144,255,0.1) 0%, rgba(197,134,192,0.1) 100%); }
                 .spinner { width: 50px; height: 50px; border: 5px solid var(--vscode-editorWidget-background); border-top: 5px solid #C586C0; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
@@ -223,7 +232,7 @@ function getLoadingHtml() {
 }
 
 function getErrorHtml() {
-    return `<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"></head><body><h1 style="color: var(--vscode-errorForeground);">Error parsing workspace</h1></body></html>`;
+    return `<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"></head><body><h1 style="color: var(--vscode-errorForeground);">Error parsing workspace</h1></body></html>`;
 }
 
 function getDashboardHtml(stats: GherkinStats, version: string) {
@@ -252,16 +261,16 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
 
     let tagsHtml = stats.tagFrequencies.map((tag) => 
         `<div class="tag-row">
-            <div class="tag-name" onclick="this.classList.toggle('expanded')" title="Click to expand/collapse">${tag[0]}</div>
-            <span class="tag-count counter" data-target="${tag[1]}">0</span>
+            <div class="tag-name" title="Hover to expand">${escapeHtml(tag[0])}</div>
+            <span class="tag-count counter">${tag[1]}</span>
         </div>`
     ).join('');
     if (stats.tagFrequencies.length === 0) tagsHtml = `<div style="text-align: center; opacity: 0.5; padding: 20px;">No tags found</div>`;
 
     let stepsHtml = stats.topRepeatedSteps.map(step => 
         `<div class="tag-row" style="flex-direction: column; align-items: flex-start; gap: 5px;">
-            <div class="expandable-text" onclick="this.classList.toggle('expanded')" title="Click to expand/collapse">"${step[0]}"</div>
-            <div style="font-size: 0.8em; color: var(--accent-secondary); flex-shrink: 0; white-space: nowrap;"><strong class="counter" data-target="${step[1]}">0</strong> uses</div>
+            <div class="expandable-text" title="Hover to expand">"${escapeHtml(step[0])}"</div>
+            <div style="font-size: 0.8em; color: var(--accent-secondary); flex-shrink: 0; white-space: nowrap;"><strong class="counter">${step[1]}</strong> uses</div>
         </div>`
     ).join('');
     if (stats.topRepeatedSteps.length === 0) stepsHtml = `<div style="text-align: center; opacity: 0.5; padding: 20px;">No repeated steps</div>`;
@@ -280,7 +289,7 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
         <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Hyper-Analytics V6</title>
             <style>
@@ -351,7 +360,11 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
 
                 /* Progress Bars */
                 .progress-track { width: 100%; height: 28px; background: rgba(0,0,0,0.2); border-radius: 14px; overflow: hidden; display: flex; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); margin: 20px 0; }
-                .progress-segment { height: 100%; transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1); width: 0%; }
+                
+                /* Using pure CSS animation for expanding widths instead of JS */
+                @keyframes expandWidth { from { width: 0%; } }
+                .progress-segment { height: 100%; animation: expandWidth 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+                
                 .legend { display: flex; justify-content: space-between; font-size: 0.85em; font-weight: 600; color: var(--vscode-descriptionForeground); }
 
                 /* Reusability & Tags Lists */
@@ -359,14 +372,12 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
                 .tag-row { display: flex; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); transition: background 0.2s; }
                 .tag-row:hover { background: rgba(255,255,255,0.05); }
                 .tag-name { color: var(--accent-secondary); font-weight: 600; font-size: 0.95em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-                .tag-name:hover { opacity: 0.8; }
-                .tag-name.expanded { white-space: normal; overflow: visible; word-break: break-word; }
+                .tag-name:hover { opacity: 0.8; white-space: normal; overflow: visible; word-break: break-word; }
                 .tag-count { font-weight: bold; color: var(--vscode-editor-foreground); background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 12px; font-size: 0.75em; flex-shrink: 0; white-space: nowrap; margin-left: 10px; height: fit-content; }
 
                 /* Expandable Text */
                 .expandable-text { font-family: monospace; font-size: 0.9em; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; cursor: pointer; transition: background 0.2s; padding: 2px 4px; border-radius: 4px;}
-                .expandable-text:hover { background: rgba(255,255,255,0.1); }
-                .expandable-text.expanded { white-space: normal; overflow: visible; background: rgba(255,255,255,0.05); }
+                .expandable-text:hover { background: rgba(255,255,255,0.1); white-space: normal; overflow: visible; word-break: break-word; }
 
                 /* Breakdown Details Grid */
                 .breakdown-grid {
@@ -388,14 +399,14 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
                         <div class="subtitle">BDD Intelligence Platform</div>
                         <div class="title">Project Analytics</div>
                     </div>
-                    <div class="badge">V${version} OMEGA SQUEEZE</div>
+                    <div class="badge">V${escapeHtml(version)} OMEGA SQUEEZE</div>
                 </div>
 
                 <div class="masonry">
                     <!-- TOP ROW: GQS (4) + Breakdown (4) + Executable Tests (4) -->
                     <div class="card span-4 gqs-card" style="animation-delay: 0.1s; padding: 25px 15px;">
                         <div class="gqs-circle" style="margin-bottom: 5px;">
-                            <div class="gqs-value counter" data-target="${gqs}">0</div>
+                            <div class="gqs-value counter">${gqs}</div>
                         </div>
                         <div style="margin-top: 15px; font-weight: 800; font-size: 0.85em; color: ${gqsColor}; letter-spacing: 1.5px; text-align: center;">GHERKIN QUALITY<br/>SCORE</div>
                     </div>
@@ -424,12 +435,12 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
 
                     <div class="card span-4" style="animation-delay: 0.2s; background: linear-gradient(135deg, rgba(86,156,214,0.15), transparent);">
                         <div class="card-title">Executable Tests</div>
-                        <div class="card-value counter" data-target="${stats.totalScenarios + stats.totalDataRows}" style="color: var(--accent-secondary);">0</div>
+                        <div class="card-value counter" style="color: var(--accent-secondary);">${stats.totalScenarios + stats.totalDataRows}</div>
                         <div style="margin-top: 5px; font-size: 0.85em; opacity: 0.7; line-height: 1.3;">
                             Scenarios + Examples Permutations
                         </div>
                         <div style="margin-top: auto; font-weight: bold; color: var(--accent-tertiary); font-size: 1.3em;">
-                            <span class="counter" data-target="${((stats.totalScenarios + stats.totalDataRows)*5)/60}" data-is-float="true">0</span> Hrs ROI
+                            <span class="counter">${(((stats.totalScenarios + stats.totalDataRows)*5)/60).toFixed(1)}</span> Hrs ROI
                         </div>
                         <div style="margin-top: 5px; font-size: 0.7em; opacity: 0.5;">Manual testing time saved</div>
                     </div>
@@ -440,23 +451,23 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
                         <div class="breakdown-grid">
                             <div class="breakdown-item">
                                 <div class="breakdown-label">Vocabulary Richness</div>
-                                <div class="breakdown-value counter" data-target="${stats.totalWordsInSteps}">0</div>
+                                <div class="breakdown-value counter">${stats.totalWordsInSteps}</div>
                                 <div style="font-size: 0.75em; opacity: 0.6; margin-top: 5px;">Total words parsed in steps</div>
                             </div>
                             <div class="breakdown-item">
                                 <div class="breakdown-label">Avg Words / Step</div>
-                                <div class="breakdown-value counter" data-target="${avgWordsPerStep}" data-is-float="true">0</div>
+                                <div class="breakdown-value counter">${avgWordsPerStep}</div>
                                 <div style="font-size: 0.75em; opacity: 0.6; margin-top: 5px;">Step conciseness</div>
                             </div>
                             <div class="breakdown-item">
                                 <div class="breakdown-label">Data Density</div>
-                                <div class="breakdown-value counter" data-target="${dataDensity}" data-is-float="true">0</div>
+                                <div class="breakdown-value counter">${dataDensity}</div>
                                 <div style="font-size: 0.75em; opacity: 0.6; margin-top: 5px;">Avg rows per Outline</div>
                             </div>
                             <div class="breakdown-item" style="border-color: rgba(220,220,170,0.3);">
                                 <div class="breakdown-label" style="color: var(--accent-warning);">Most Complex Scenario</div>
-                                <div class="breakdown-value counter" data-target="${stats.maxStepsInScenario}" style="color: var(--accent-warning);">0</div>
-                                <div style="font-size: 0.75em; opacity: 0.8; margin-top: 8px; line-height: 1.4; word-break: break-word;">"${stats.longestScenarioName}"</div>
+                                <div class="breakdown-value counter" style="color: var(--accent-warning);">${stats.maxStepsInScenario}</div>
+                                <div style="font-size: 0.75em; opacity: 0.8; margin-top: 8px; line-height: 1.4; word-break: break-word;">"${escapeHtml(stats.longestScenarioName)}"</div>
                             </div>
                         </div>
                     </div>
@@ -466,14 +477,14 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
                         <div class="card-title">Behavioral Archetypes</div>
                         <div style="opacity: 0.8; font-size: 0.9em;">Distribution of UI, API, and DB operations detected in steps.</div>
                         <div class="progress-track">
-                            <div class="progress-segment" id="pb-ui" style="background-color: var(--accent-primary);" data-width="${uiPct}%"></div>
-                            <div class="progress-segment" id="pb-api" style="background-color: var(--accent-secondary);" data-width="${apiPct}%"></div>
-                            <div class="progress-segment" id="pb-db" style="background-color: var(--accent-warning);" data-width="${dbPct}%"></div>
+                            <div class="progress-segment" id="pb-ui" style="background-color: var(--accent-primary); width: ${uiPct}%;"></div>
+                            <div class="progress-segment" id="pb-api" style="background-color: var(--accent-secondary); width: ${apiPct}%;"></div>
+                            <div class="progress-segment" id="pb-db" style="background-color: var(--accent-warning); width: ${dbPct}%;"></div>
                         </div>
                         <div class="legend">
-                            <div><span style="color: var(--accent-primary);">■</span> UI/E2E: <span class="counter" data-target="${stats.uiSteps}">0</span></div>
-                            <div><span style="color: var(--accent-secondary);">■</span> API: <span class="counter" data-target="${stats.apiSteps}">0</span></div>
-                            <div><span style="color: var(--accent-warning);">■</span> DB/SQL: <span class="counter" data-target="${stats.dbSteps}">0</span></div>
+                            <div><span style="color: var(--accent-primary);">■</span> UI/E2E: <span class="counter">${stats.uiSteps}</span></div>
+                            <div><span style="color: var(--accent-secondary);">■</span> API: <span class="counter">${stats.apiSteps}</span></div>
+                            <div><span style="color: var(--accent-warning);">■</span> DB/SQL: <span class="counter">${stats.dbSteps}</span></div>
                         </div>
                     </div>
 
@@ -481,16 +492,16 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
                         <div class="card-title">Step Execution Breakdown</div>
                         <div style="opacity: 0.8; font-size: 0.9em;">Keyword usage across all ${stats.totalSteps} steps in the project.</div>
                         <div class="progress-track">
-                            <div class="progress-segment" id="pb-given" style="background-color: var(--accent-secondary);" data-width="${givenPct}%"></div>
-                            <div class="progress-segment" id="pb-when" style="background-color: var(--accent-warning);" data-width="${whenPct}%"></div>
-                            <div class="progress-segment" id="pb-then" style="background-color: var(--accent-tertiary);" data-width="${thenPct}%"></div>
-                            <div class="progress-segment" id="pb-andbut" style="background-color: #9CDCFE;" data-width="${andButPct}%"></div>
+                            <div class="progress-segment" id="pb-given" style="background-color: var(--accent-secondary); width: ${givenPct}%;"></div>
+                            <div class="progress-segment" id="pb-when" style="background-color: var(--accent-warning); width: ${whenPct}%;"></div>
+                            <div class="progress-segment" id="pb-then" style="background-color: var(--accent-tertiary); width: ${thenPct}%;"></div>
+                            <div class="progress-segment" id="pb-andbut" style="background-color: #9CDCFE; width: ${andButPct}%;"></div>
                         </div>
                         <div class="legend">
-                            <div><span style="color: var(--accent-secondary);">■</span> Given: <span class="counter" data-target="${stats.totalGiven}">0</span></div>
-                            <div><span style="color: var(--accent-warning);">■</span> When: <span class="counter" data-target="${stats.totalWhen}">0</span></div>
-                            <div><span style="color: var(--accent-tertiary);">■</span> Then: <span class="counter" data-target="${stats.totalThen}">0</span></div>
-                            <div><span style="color: #9CDCFE;">■</span> And/But: <span class="counter" data-target="${stats.totalAnd + stats.totalBut}">0</span></div>
+                            <div><span style="color: var(--accent-secondary);">■</span> Given: <span class="counter">${stats.totalGiven}</span></div>
+                            <div><span style="color: var(--accent-warning);">■</span> When: <span class="counter">${stats.totalWhen}</span></div>
+                            <div><span style="color: var(--accent-tertiary);">■</span> Then: <span class="counter">${stats.totalThen}</span></div>
+                            <div><span style="color: #9CDCFE;">■</span> And/But: <span class="counter">${stats.totalAnd + stats.totalBut}</span></div>
                         </div>
                     </div>
 
@@ -498,7 +509,7 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
                     <div class="card span-6" style="animation-delay: 0.5s;">
                         <div class="card-title">
                             <span>Reusability Index</span>
-                            <span class="card-value counter" data-target="${reusabilityIndex}" data-is-float="true" style="color: var(--accent-primary); font-size: 1.5em; line-height: 1;">0</span>
+                            <span class="card-value counter" style="color: var(--accent-primary); font-size: 1.5em; line-height: 1;">${reusabilityIndex}</span>
                         </div>
                         <div style="font-size: 0.8em; opacity: 0.8; margin-bottom: 15px;">You have written <strong style="color: var(--accent-secondary);">${stats.totalSteps}</strong> total steps, but only <strong style="color: var(--accent-warning);">${stats.uniqueStepsCount}</strong> are unique.</div>
                         <div style="font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; color: var(--vscode-descriptionForeground); margin-bottom: 5px;">Most Repeated Steps:</div>
@@ -508,49 +519,12 @@ function getDashboardHtml(stats: GherkinStats, version: string) {
                     <div class="card span-6" style="animation-delay: 0.6s;">
                         <div class="card-title">
                             <span>Top 5 Tags</span>
-                            <span style="font-size: 0.8em; opacity: 0.6; text-transform: none; font-weight: normal;">Total Tags: <strong class="counter" data-target="${stats.totalTags}">0</strong></span>
+                            <span style="font-size: 0.8em; opacity: 0.6; text-transform: none; font-weight: normal;">Total Tags: <strong class="counter">${stats.totalTags}</strong></span>
                         </div>
                         <div class="list-container" style="flex: 1; margin-top: 10px;">${tagsHtml}</div>
                     </div>
                 </div>
             </div>
-
-            <script>
-                // Trigger CSS Animations for progress bars
-                setTimeout(() => {
-                    document.getElementById('pb-ui').style.width = document.getElementById('pb-ui').getAttribute('data-width');
-                    document.getElementById('pb-api').style.width = document.getElementById('pb-api').getAttribute('data-width');
-                    document.getElementById('pb-db').style.width = document.getElementById('pb-db').getAttribute('data-width');
-                    
-                    document.getElementById('pb-given').style.width = document.getElementById('pb-given').getAttribute('data-width');
-                    document.getElementById('pb-when').style.width = document.getElementById('pb-when').getAttribute('data-width');
-                    document.getElementById('pb-then').style.width = document.getElementById('pb-then').getAttribute('data-width');
-                    document.getElementById('pb-andbut').style.width = document.getElementById('pb-andbut').getAttribute('data-width');
-                }, 100);
-
-                // Animate Numbers smoothly
-                const counters = document.querySelectorAll('.counter');
-                counters.forEach(counter => {
-                    const target = +counter.getAttribute('data-target');
-                    if (isNaN(target)) return;
-                    
-                    const isFloat = counter.getAttribute('data-is-float') === 'true';
-                    let current = 0;
-                    const inc = target / 60; // 60 frames
-
-                    const updateCount = () => {
-                        if (current < target) {
-                            current += inc;
-                            if (current > target) current = target;
-                            counter.innerText = isFloat ? current.toFixed(1) : Math.floor(current);
-                            requestAnimationFrame(updateCount);
-                        } else {
-                            counter.innerText = isFloat ? target.toFixed(1) : target;
-                        }
-                    };
-                    updateCount();
-                });
-            </script>
         </body>
         </html>
     `;
