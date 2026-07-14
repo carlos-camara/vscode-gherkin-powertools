@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Range Formatting Data Corruption**: Safely removed `DocumentRangeFormattingEditProvider` because it conflicted with Gherkin's AST line-shifting algorithms, potentially causing data corruption during partial text selection formatting. Format Document (entire file) remains the supported and stable method.
+- **Deterministic Cache Initialization**: Fixed a critical race condition during extension startup where files were linted against an empty cache, causing false-positive `UNDEFINED_STEP` errors. Cache initialization is now governed by a strict asynchronous state machine.
 
 ## [1.7.1] - 2026-07-13
 
