@@ -117,4 +117,62 @@ suite('Statistics Core Logic Test Suite', () => {
         assert.ok(emptyHtml.includes('No tags found'));
         assert.ok(emptyHtml.includes('No repeated steps'));
     });
+
+    test('analyzeText and showStatisticsDashboard: Achieves full coverage by scanning a complex document', async () => {
+        const docContent = `
+        @ui @regression
+        Feature: Coverage Test
+        
+        # This is a comment
+        Background: Setup
+          Given I click the button
+          And I navigate to the url
+        
+        Rule: A simple rule
+        
+        @api
+        Scenario: API Request
+          When I send an api request
+          Then the status code is 200
+          But the response json is valid
+        
+        Scenario Outline: DB Query
+          Given I query the database table
+          | id |
+          | 1  |
+        `;
+        
+        // Open the document in memory so calculateStatistics can find it via openDocs
+        const vscode = require('vscode');
+        const doc = await vscode.workspace.openTextDocument({ language: 'feature', content: docContent });
+        
+        // Run calculateStatistics directly to assert parser logic
+        const stats = await calculateStatistics();
+        assert.strictEqual(stats.totalFeatures, 1, 'Should find 1 Feature');
+        assert.strictEqual(stats.totalRules, 1, 'Should find 1 Rule');
+        assert.strictEqual(stats.totalBackgrounds, 1, 'Should find 1 Background');
+        assert.strictEqual(stats.totalScenarios, 1, 'Should find 1 Scenario');
+        assert.strictEqual(stats.totalScenarioOutlines, 1, 'Should find 1 Scenario Outline');
+        assert.strictEqual(stats.totalComments, 1, 'Should find 1 Comment');
+        assert.strictEqual(stats.totalDataRows, 2, 'Should find 2 Data Rows (header + 1 row)');
+        assert.ok(stats.totalTags >= 3, 'Should find at least 3 Tags (@ui, @regression, @api)');
+        assert.ok(stats.uiSteps >= 2, 'Should find UI steps');
+        assert.ok(stats.apiSteps >= 2, 'Should find API steps');
+        assert.ok(stats.dbSteps >= 1, 'Should find DB steps');
+        assert.ok(stats.totalGiven >= 2, 'Should find Given steps');
+        assert.ok(stats.totalWhen >= 1, 'Should find When steps');
+        assert.ok(stats.totalThen >= 1, 'Should find Then steps');
+        assert.ok(stats.totalAnd >= 1, 'Should find And steps');
+        assert.ok(stats.totalBut >= 1, 'Should find But steps');
+
+        // Test the showStatisticsDashboard wrapper to cover lines 49-65
+        const { showStatisticsDashboard } = require('../../statistics');
+        const dummyContext = { extension: { packageJSON: { version: '1.0.0' } } } as any;
+        
+        // It creates a webview panel internally and shouldn't throw
+        await showStatisticsDashboard(dummyContext);
+        
+        // Close the mock document
+        // We can't close it directly without showing it, but it will be garbage collected or discarded at end of test.
+    });
 });
