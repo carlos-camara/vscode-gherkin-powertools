@@ -42,11 +42,11 @@ The dashboard is rendered as an interactive, fully responsive **HTML Webview** i
 When triggered, the extension deeply parses all `.feature` files in the workspace (including unsaved buffers) through the `@cucumber/gherkin` AST, aggregates the data in memory, and paints the dashboard without any external dependencies or telemetry.
 
 ### 🔒 Webview Security
-Following strict enterprise security standards, the Webview implements a robust Content Security Policy (CSP). 
-The injected `<meta http-equiv="Content-Security-Policy">` tag completely prevents the execution of inline scripts 
-(`script-src 'none'`), replacing old script animations with pure CSS equivalents. Furthermore, all dynamic inputs 
-parsed from the workspace (such as scenario names, tags, and step definitions) are comprehensively sanitized and 
-HTML-escaped before rendering. This safeguards the editor environment from potential Cross-Site Scripting (XSS) 
+Following strict enterprise security standards, the Webview implements a robust Content Security Policy (CSP).
+The injected `<meta http-equiv="Content-Security-Policy">` tag completely prevents the execution of inline scripts
+(`script-src 'none'`), replacing old script animations with pure CSS equivalents. Furthermore, all dynamic inputs
+parsed from the workspace (such as scenario names, tags, and step definitions) are comprehensively sanitized and
+HTML-escaped before rendering. This safeguards the editor environment from potential Cross-Site Scripting (XSS)
 vectors when rendering external or untrusted `.feature` data.
 
 ![Dashboard Demonstration](../assets/dashboard.webp)

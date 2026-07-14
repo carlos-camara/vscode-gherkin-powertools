@@ -42,8 +42,8 @@ When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+
 - **Intelligent Table Row Closure**: Gherkin parsers often assign cell inconsistency errors to the wrong row if a header is missing a closing pipe `|`. The extension actively scans the entire table upwards and downwards to pinpoint the exact unclosed row, and appends the pipe `|` for you.
 - **Create empty step definition**: When an undefined step is detected (⚠️), this action automatically generates
   a safe, syntax-compliant Python stub (`@given(...)`) and inserts it into your `steps/` folder.
-  It intelligently escapes strings containing quotes or emojis, guarantees collision-free function names 
-  (e.g. `def step_impl_1(context)`), and resolves `And` and `But` keywords by scanning upwards 
+  It intelligently escapes strings containing quotes or emojis, guarantees collision-free function names
+  (e.g. `def step_impl_1(context)`), and resolves `And` and `But` keywords by scanning upwards
   to inherit the correct preceding decorator.
 > [!TIP]
 > **Integration Ecosystem**
