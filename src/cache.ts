@@ -10,29 +10,40 @@ export interface StepDefinition {
     documentation?: string;
 }
 
+export type CacheState = 'uninitialized' | 'initializing' | 'ready' | 'failed';
+
 export class SymbolCache {
     // Map of file URI string to a list of step definitions in that file
     private cache: Map<string, StepDefinition[]> = new Map();
-    private isInitialized = false;
+    public state: CacheState = 'uninitialized';
+    private initPromise: Promise<void> | null = null;
 
-    public async initialize(): Promise<void> {
-        if (this.isInitialized) return;
-        
-        try {
-            const stepFiles = await vscode.workspace.findFiles('**/steps/**/*.py', '**/node_modules/**');
-            for (const file of stepFiles) {
-                this.updateFile(file);
-            }
-            this.isInitialized = true;
-            logger.info(`Gherkin PowerTools: Symbol cache initialized with ${stepFiles.length} files.`);
-        } catch (err) {
-            logger.error('Error initializing symbol cache:', err);
+    public initialize(): Promise<void> {
+        if (this.state === 'initializing' || this.state === 'ready') {
+            return this.initPromise!;
         }
+        
+        this.state = 'initializing';
+        this.initPromise = (async () => {
+            try {
+                const stepFiles = await vscode.workspace.findFiles('**/steps/**/*.py', '**/node_modules/**');
+                for (const file of stepFiles) {
+                    await this.updateFile(file);
+                }
+                this.state = 'ready';
+                logger.info(`Gherkin PowerTools: Symbol cache initialized with ${stepFiles.length} files.`);
+            } catch (err) {
+                this.state = 'failed';
+                logger.error('Error initializing symbol cache:', err);
+            }
+        })();
+        
+        return this.initPromise;
     }
 
-    public updateFile(uri: vscode.Uri): void {
+    public async updateFile(uri: vscode.Uri): Promise<void> {
         try {
-            const content = fs.readFileSync(uri.fsPath, 'utf8');
+            const content = await fs.promises.readFile(uri.fsPath, 'utf8');
             const lines = content.split(/\r?\n/);
             const definitions: StepDefinition[] = [];
 
@@ -175,7 +186,8 @@ export class FeatureCache {
     private fileTagCounts: Map<string, Map<string, number>> = new Map();
     private globalTagCount: Map<string, number> = new Map();
     private parserPromise?: Promise<any>;
-    private isInitialized = false;
+    public state: CacheState = 'uninitialized';
+    private initPromise: Promise<void> | null = null;
 
     private async parseFeature(content: string): Promise<any> {
         if (!this.parserPromise) {
@@ -201,18 +213,27 @@ export class FeatureCache {
         }
     }
 
-    public async initialize(): Promise<void> {
-        if (this.isInitialized) return;
-        try {
-            const featureFiles = await vscode.workspace.findFiles('**/*.feature', '**/node_modules/**');
-            for (const file of featureFiles) {
-                await this.updateFile(file);
-            }
-            this.isInitialized = true;
-            logger.info(`Gherkin PowerTools: Feature cache initialized with ${featureFiles.length} files.`);
-        } catch (err) {
-            logger.error('Error initializing feature cache:', err);
+    public initialize(): Promise<void> {
+        if (this.state === 'initializing' || this.state === 'ready') {
+            return this.initPromise!;
         }
+        
+        this.state = 'initializing';
+        this.initPromise = (async () => {
+            try {
+                const featureFiles = await vscode.workspace.findFiles('**/*.feature', '**/node_modules/**');
+                for (const file of featureFiles) {
+                    await this.updateFile(file);
+                }
+                this.state = 'ready';
+                logger.info(`Gherkin PowerTools: Feature cache initialized with ${featureFiles.length} files.`);
+            } catch (err) {
+                this.state = 'failed';
+                logger.error('Error initializing feature cache:', err);
+            }
+        })();
+        
+        return this.initPromise;
     }
 
     public async updateFile(uri: vscode.Uri): Promise<void> {
