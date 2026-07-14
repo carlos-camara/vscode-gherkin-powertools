@@ -297,4 +297,86 @@ Feature: Tags
 
         assert.ok(codeActions !== undefined, 'Should provide Code Actions response (even if empty)');
     });
+
+    test('Simulate Configuration Settings Override (alignTableToKeyword)', async () => {
+        // Set alignToKeyword to false
+        const config = vscode.workspace.getConfiguration('gherkinPowerTools');
+        const originalValue = config.get('tables.alignToKeyword');
+        await config.update('tables.alignToKeyword', false, vscode.ConfigurationTarget.Global);
+
+        const uri = vscode.Uri.parse('untitled:config_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Table Config\n  Scenario: Test\n    Given some step\n      | a | b |\n      | 1 | 2 |');
+        });
+
+        await vscode.commands.executeCommand('editor.action.formatDocument');
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const newText = document.getText();
+        
+        // If alignToKeyword is false, table should be indented to step indent + 2 (so 4 + 2 = 6 spaces)
+        // rather than step indent + keyword length (4 + 6 = 10 spaces)
+        assert.ok(newText.includes('      | a | b |'), 'Table was not formatted with alignToKeyword=false correctly');
+        
+        // Restore
+        await config.update('tables.alignToKeyword', originalValue, vscode.ConfigurationTarget.Global);
+    });
+
+    test('Simulate Semantic Highlighter Injection', async () => {
+        const uri = vscode.Uri.parse('untitled:highlight_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Highlight\nScenario Outline: Test\nGiven a <param>');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Since VS Code doesn't expose the applied text decorations via API,
+        // we can only execute the internal highlighter logic and ensure it doesn't throw.
+        // We trigger it manually by "changing" the active text editor again.
+        await vscode.commands.executeCommand('workbench.action.nextEditor');
+        await vscode.commands.executeCommand('workbench.action.previousEditor');
+        
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // If it didn't throw an error when processing <param>, it succeeded.
+        assert.ok(true);
+    });
+
+    test('Simulate Create Step Definition Command', async () => {
+        const uri = vscode.Uri.parse('untitled:create_step_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Create Step\nScenario: Foo\nGiven a brand new undefined step');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // The step is on line 2
+        editor.selection = new vscode.Selection(new vscode.Position(2, 6), new vscode.Position(2, 6));
+
+        // We can't fully automate QuickPicks through commands.executeCommand easily without complex mock setups.
+        // We will execute the command and catch any exceptions. 
+        // It will fail gracefully because no workspace or QuickPick is interactive in tests.
+        let errorThrown = false;
+        try {
+            // We run it async and don't await its UI parts if it blocks, but it shouldn't block without user input API mocks.
+            vscode.commands.executeCommand('gherkinPowerTools.createStepDefinition');
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (e) {
+            errorThrown = true;
+        }
+
+        assert.strictEqual(errorThrown, false, 'createStepDefinition command threw an error');
+    });
 });

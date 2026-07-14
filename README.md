@@ -114,7 +114,7 @@ Gherkin PowerTools focuses on configurable formatting, structural diagnostics an
 Auto-indentation, dynamic data table alignment to the preceding step keyword, auto-casing for Gherkin keywords (`given` -> `Given`), and configurable tag wrapping.
 
 ### 2. Live Diagnostics Linter
-Real-time syntax error detection. Flags missing colons after block keywords, invalid structural nesting (e.g., `Examples` without `Scenario Outline`), and unclosed data tables.
+Real-time syntax error detection. Flags missing colons after block keywords, invalid structural nesting (e.g., `Examples` without `Scenario Outline`), unclosed data tables, and **ambiguous steps** where overlapping Python regex decorators collide.
 
 ### 3. Quick Fixes (Code Actions)
 Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:

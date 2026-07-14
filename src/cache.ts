@@ -138,15 +138,21 @@ export class SymbolCache {
         this.cache.delete(uri.toString());
     }
 
-    public getStepDefinition(stepText: string): StepDefinition | null {
+    public getStepDefinitions(stepText: string): StepDefinition[] {
+        const matches: StepDefinition[] = [];
         for (const [_, definitions] of this.cache) {
             for (const def of definitions) {
                 if (def.regex.test(stepText)) {
-                    return def;
+                    matches.push(def);
                 }
             }
         }
-        return null;
+        return matches;
+    }
+
+    public getStepDefinition(stepText: string): StepDefinition | null {
+        const matches = this.getStepDefinitions(stepText);
+        return matches.length > 0 ? matches[0] : null;
     }
 
     public findDefinition(stepText: string): vscode.Location | null {

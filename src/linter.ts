@@ -419,8 +419,8 @@ export class GherkinLinter {
     private checkSteps(steps: any[], diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
         for (const step of steps) {
             const stepText = step.text.trim();
-            const def = this.symbolCache.findDefinition(stepText);
-            if (!def) {
+            const defs = this.symbolCache.getStepDefinitions(stepText);
+            if (defs.length !== 1) {
                 const lineIndex = Math.max(0, step.location.line - 1);
                 const lineText = document.lineAt(lineIndex).text;
                 
@@ -436,23 +436,35 @@ export class GherkinLinter {
                 const endChar = startChar + stepText.length;
                 const range = new vscode.Range(lineIndex, startChar, lineIndex, Math.max(startChar + 1, endChar));
 
-                const diagnostic = new vscode.Diagnostic(
-                    range,
-                    `Undefined step: "${stepText}"`,
-                    vscode.DiagnosticSeverity.Warning
-                );
-                diagnostic.source = 'Gherkin Definition';
-                diagnostic.code = 'UNDEFINED_STEP';
-                
-                // Attach the keyword as related information string for the code action to use
-                diagnostic.relatedInformation = [
-                    new vscode.DiagnosticRelatedInformation(
-                        new vscode.Location(document.uri, range),
-                        step.keyword.trim()
-                    )
-                ];
+                if (defs.length === 0) {
+                    const diagnostic = new vscode.Diagnostic(
+                        range,
+                        `Undefined step: "${stepText}"`,
+                        vscode.DiagnosticSeverity.Warning
+                    );
+                    diagnostic.source = 'Gherkin Definition';
+                    diagnostic.code = 'UNDEFINED_STEP';
+                    
+                    // Attach the keyword as related information string for the code action to use
+                    diagnostic.relatedInformation = [
+                        new vscode.DiagnosticRelatedInformation(
+                            new vscode.Location(document.uri, range),
+                            step.keyword.trim()
+                        )
+                    ];
 
-                diagnostics.push(diagnostic);
+                    diagnostics.push(diagnostic);
+                } else if (defs.length > 1) {
+                    const patterns = defs.map(d => `'${d.patternText}'`).join(', ');
+                    const diagnostic = new vscode.Diagnostic(
+                        range,
+                        `Ambiguous step: matches multiple definitions (${patterns})`,
+                        vscode.DiagnosticSeverity.Warning
+                    );
+                    diagnostic.source = 'Gherkin Definition';
+                    diagnostic.code = 'AMBIGUOUS_STEP';
+                    diagnostics.push(diagnostic);
+                }
             }
         }
     }
