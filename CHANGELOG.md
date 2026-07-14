@@ -12,8 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Ambiguous Step Linter (`AMBIGUOUS_STEP`)**: Detects and warns users in real-time when a Gherkin step matches multiple overlapping regular expressions (e.g., generic decorators like `@given(r'I am an (.*) step')`) in your Python code, mimicking runtime errors.
 - **Scenario Outline Parameter Autocomplete**: Typing `<` inside a step within a `Scenario Outline` will now automatically parse the block and provide an IntelliSense dropdown with the column headers from the underlying `Examples` table. Selecting a parameter automatically appends the closing `>` bracket.
 
-### Changed
-- **Expanded E2E Testing**: Amplified headless End-to-End test suite to 14 UI tests, validating dynamic configuration overrides, Semantic Highlighting injection, and Create Step Definition UI commands.
 
 ### Fixed
 - **Range Formatting Data Corruption**: Safely removed `DocumentRangeFormattingEditProvider` because it conflicted with Gherkin's AST line-shifting algorithms, potentially causing data corruption during partial text selection formatting. Format Document (entire file) remains the supported and stable method.

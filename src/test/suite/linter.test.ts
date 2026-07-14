@@ -269,4 +269,32 @@ Feature: Empty outline
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
         assert.strictEqual(diagnostics.length, 0, 'Diagnostics should be empty because clear() cancelled the timer');
     });
+
+    test('Concurrency: Document Closed before parsing finishes', async () => {
+        const text = 'Feature: Closed\n  Scenario: Closed\n    Givn something';
+        const doc = createMockDocument(text, 'file:///closed.feature');
+        
+        // Emulate it being closed
+        (doc as any).isClosed = true;
+        
+        await linter.lint(doc, 1, 1);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        assert.strictEqual(diagnostics.length, 0, 'Should not publish diagnostics for a closed document');
+    });
+
+    test('Concurrency: Monotonic ID tracking discards older requests', async () => {
+        const text = 'Feature: IDTracking\n  Scenario: IDTracking\n    Givn something';
+        const doc = createMockDocument(text, 'file:///id_tracking.feature');
+        
+        const anyLinter = linter as any;
+        anyLinter.pendingRequests.set(doc.uri.toString(), { requestId: 2 });
+        
+        // Run with an older ID
+        await linter.lint(doc, 1, 1);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        // It should have dropped the payload because ID 1 !== expected ID 2
+        assert.strictEqual(diagnostics.length, 0, 'Older request ID should be discarded');
+    });
 });
