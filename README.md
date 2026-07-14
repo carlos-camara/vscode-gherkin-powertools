@@ -122,6 +122,7 @@ Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:
 - Append missing colons.
 - Convert `Scenario` to `Scenario Outline` when an `Examples` table is added.
 - Close malformed data table rows.
+- **Undefined Steps**: Generate safe, syntax-compliant Python step definitions (`@given`, `@when`, `@then`) automatically. Escapes strings and intelligently resolves `And`/`But` back to the parent keyword.
 
 ### 4. Behave Navigation (Go To Definition)
 Use `Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
