@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-07-15
+
 ### Added
 - **Robust Behave Step Generation**: The "Create empty step definition" Quick Fix has been completely overhauled for Python/Behave projects.
   - Safely escapes Gherkin strings containing quotes, backslashes, and emojis (`u'...'`).
