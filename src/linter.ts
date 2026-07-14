@@ -7,34 +7,76 @@ import { SymbolCache } from './cache';
  */
 export class GherkinLinter {
     private diagnosticCollection: vscode.DiagnosticCollection;
-    private parserPromise?: Promise<any>;
+    private cucumberModulesPromise?: Promise<any>;
     private symbolCache: SymbolCache;
+    private pendingRequests: Map<string, { timer?: NodeJS.Timeout, requestId: number }> = new Map();
+    private nextRequestId: number = 0;
 
     constructor(symbolCache: SymbolCache) {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection('gherkin');
         this.symbolCache = symbolCache;
     }
 
-    private async getParser() {
-        if (!this.parserPromise) {
-            this.parserPromise = (async () => {
+    private async getCucumberModules() {
+        if (!this.cucumberModulesPromise) {
+            this.cucumberModulesPromise = (async () => {
                 const dynamicImport = new Function('specifier', 'return import(specifier)');
-                const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
-                const { IdGenerator } = await dynamicImport('@cucumber/messages');
-                const uuidFn = IdGenerator.uuid();
-                const builder = new AstBuilder(uuidFn);
-                const matcher = new GherkinClassicTokenMatcher();
-                return new Parser(builder, matcher);
+                const gherkin = await dynamicImport('@cucumber/gherkin');
+                const messages = await dynamicImport('@cucumber/messages');
+                return { gherkin, messages };
             })();
         }
-        return this.parserPromise;
+        return this.cucumberModulesPromise;
+    }
+
+    private async getParser() {
+        const { gherkin, messages } = await this.getCucumberModules();
+        const uuidFn = messages.IdGenerator.uuid();
+        const builder = new gherkin.AstBuilder(uuidFn);
+        const matcher = new gherkin.GherkinClassicTokenMatcher();
+        return new gherkin.Parser(builder, matcher);
+    }
+
+    /**
+     * Schedules a debounced linting request for a document.
+     */
+    public scheduleLint(document: vscode.TextDocument, delayMs: number = 250) {
+        const uriStr = document.uri.toString();
+        const existing = this.pendingRequests.get(uriStr);
+        if (existing?.timer) {
+            clearTimeout(existing.timer);
+        }
+
+        const requestId = ++this.nextRequestId;
+        const timer = setTimeout(() => {
+            this.lint(document, requestId, document.version);
+        }, delayMs);
+
+        this.pendingRequests.set(uriStr, { timer, requestId });
+    }
+
+    /**
+     * Immediately lints a document, bypassing any active debounce.
+     */
+    public immediateLint(document: vscode.TextDocument) {
+        const uriStr = document.uri.toString();
+        const existing = this.pendingRequests.get(uriStr);
+        if (existing?.timer) {
+            clearTimeout(existing.timer);
+        }
+
+        const requestId = ++this.nextRequestId;
+        this.pendingRequests.set(uriStr, { requestId });
+        this.lint(document, requestId, document.version);
     }
 
     /**
      * Lints the document and applies diagnostics.
      * @param document The VS Code text document to lint.
+     * @param requestId The execution request ID to track stale runs.
+     * @param version The document version at the time of the request.
      */
-    public async lint(document: vscode.TextDocument) {
+    public async lint(document: vscode.TextDocument, requestId: number = ++this.nextRequestId, version: number = document.version) {
         if (document.languageId !== 'feature' && document.languageId !== 'gherkin') {
             return;
         }
@@ -241,6 +283,18 @@ export class GherkinLinter {
             // the AST is null and we can't detect SCENARIO_WITH_EXAMPLES via AST.
             // Let's do a fallback text scan just for this specific semantic error.
             this.fallbackCheckScenarioExamples(document, diagnostics);
+        }
+
+        // Before publishing, verify we are still the most recent request for this document,
+        // and the document hasn't been modified or closed during our async parse.
+        if (document.isClosed || document.version !== version) {
+            return;
+        }
+
+        const uriStr = document.uri.toString();
+        const pending = this.pendingRequests.get(uriStr);
+        if (pending && pending.requestId !== requestId) {
+            return;
         }
 
         this.diagnosticCollection.set(document.uri, diagnostics);
@@ -476,6 +530,12 @@ export class GherkinLinter {
      * Clears diagnostics for a specific document.
      */
     public clear(document: vscode.TextDocument) {
+        const uriStr = document.uri.toString();
+        const pending = this.pendingRequests.get(uriStr);
+        if (pending?.timer) {
+            clearTimeout(pending.timer);
+        }
+        this.pendingRequests.delete(uriStr);
         this.diagnosticCollection.delete(document.uri);
     }
 
@@ -483,6 +543,12 @@ export class GherkinLinter {
      * Disposes the diagnostic collection.
      */
     public dispose() {
+        for (const [_, pending] of this.pendingRequests) {
+            if (pending.timer) {
+                clearTimeout(pending.timer);
+            }
+        }
+        this.pendingRequests.clear();
         this.diagnosticCollection.dispose();
     }
 }

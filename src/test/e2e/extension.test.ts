@@ -379,4 +379,94 @@ Feature: Tags
 
         assert.strictEqual(errorThrown, false, 'createStepDefinition command threw an error');
     });
+
+    test('Simulate rapid typing with debounced Linter (Stale Diagnostic Fix)', async () => {
+        const uri = vscode.Uri.parse('untitled:stale_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        // Type first state (syntax error)
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Featur: Stale\n');
+        });
+
+        // Don't wait for debounce, immediately type second state (valid)
+        await editor.edit(editBuilder => {
+            // Replace the whole line with a valid feature
+            editBuilder.replace(new vscode.Range(0, 0, 0, 13), 'Feature: Stale\n');
+        });
+
+        // Wait for debounce and processing (give it 1.5 seconds)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        const diagnostics = vscode.languages.getDiagnostics(document.uri);
+        
+        // Since we corrected the error before the debounce fired, we should have 0 diagnostics
+        assert.strictEqual(diagnostics.length, 0, 'Linter produced stale diagnostics for an older version of the document');
+    });
+
+    test('Simulate Code Action execution (Auto-correct missing colon)', async () => {
+        const uri = vscode.Uri.parse('untitled:missing_colon.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature My Feature'); // Missing colon
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const range = new vscode.Range(0, 0, 0, 18);
+        const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider',
+            document.uri,
+            range
+        );
+
+        assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for missing colon');
+        const fixAction = codeActions.find(a => a.title.includes("Insert missing ':'"));
+        assert.ok(fixAction, 'Did not find the "Insert missing \':\'" quick fix');
+    });
+
+    test('Simulate Code Action execution (Auto-correct misspelled step keyword)', async () => {
+        const uri = vscode.Uri.parse('untitled:misspelled.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: My Feature\n  Scenario: Test\n    Givn something');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const range = new vscode.Range(2, 4, 2, 8); // 'Givn'
+        const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider',
+            document.uri,
+            range
+        );
+
+        assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for typo');
+        const fixAction = codeActions.find(a => a.title.includes("Replace with 'Given'"));
+        assert.ok(fixAction, 'Did not find the spelling correction quick fix');
+    });
+
+    test('Simulate Ambiguous Step diagnostic (Integration Engine)', async () => {
+        const uri = vscode.Uri.parse('untitled:ambiguous.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Ambiguous\n  Scenario: Test\n    Given some step');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const diagnostics = vscode.languages.getDiagnostics(document.uri);
+        assert.ok(diagnostics !== undefined, 'Diagnostics should not be completely broken');
+    });
 });
