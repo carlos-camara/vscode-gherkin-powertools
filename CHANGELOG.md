@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Stale Asynchronous Diagnostics**: Implemented a per-URI debounce mechanism (250ms) and request tracker for the Linter to eliminate a race condition where rapid typing caused outdated parsing results to overwrite newer diagnostic states.
 
 ### Security
-- **Webview XSS Hardening**: Secured the Statistics Dashboard against Cross-Site Scripting (XSS) and HTML injection by disabling JavaScript (`enableScripts: false`), enforcing a strict Content-Security-Policy (`default-src 'none'; style-src 'unsafe-inline'`), replacing animations with pure CSS, and sanitizing all user-provided data via a centralized `escapeHtml` utility. Added a dedicated security test suite.
+- **Webview XSS Hardening**: Secured the Statistics Dashboard against Cross-Site Scripting (XSS) and HTML injection by disabling JavaScript (`enableScripts: false`), enforcing a strict Content-Security-Policy (`default-src 'none'; style-src 'unsafe-inline'`), replacing animations with pure CSS, and sanitizing all user-provided data via a centralized `escapeHtml` utility.
+  Added a dedicated security test suite.
 
 ## [1.7.1] - 2026-07-13
 
