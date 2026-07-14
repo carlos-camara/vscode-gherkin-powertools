@@ -417,6 +417,9 @@ export class GherkinLinter {
     }
 
     private checkSteps(steps: any[], diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
+        if (this.symbolCache.state !== 'ready') {
+            return;
+        }
         for (const step of steps) {
             const stepText = step.text.trim();
             const defs = this.symbolCache.getStepDefinitions(stepText);

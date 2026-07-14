@@ -18,7 +18,7 @@ suite('SymbolCache Test Suite', () => {
         fs.rmSync(tempDir, { recursive: true, force: true });
     });
 
-    test('Parses Python step definitions from file', () => {
+    test('Parses Python step definitions from file', async () => {
         const mockPythonCode = `
 @given('I have {count} apples')
 def step_impl(context, count):
@@ -34,7 +34,7 @@ def step_impl_when(context, amount):
         fs.writeFileSync(tempFile, mockPythonCode);
 
         const uri = vscode.Uri.file(tempFile);
-        cache.updateFile(uri);
+        await cache.updateFile(uri);
 
         const patterns = cache.getAllStepPatterns();
         assert.strictEqual(patterns.length, 2);
@@ -66,18 +66,18 @@ def general(context): pass
         `;
         const ambigFile = path.join(tempDir, 'ambig.py');
         fs.writeFileSync(ambigFile, ambiguousCode);
-        cache.updateFile(vscode.Uri.file(ambigFile));
+        await cache.updateFile(vscode.Uri.file(ambigFile));
 
         const multipleDefs = cache.getStepDefinitions('I have 10 apples');
         assert.strictEqual(multipleDefs.length, 2, 'Should return both matching definitions');
     });
 
-    test('Removes file from cache', () => {
+    test('Removes file from cache', async () => {
         const tempFile = path.join(tempDir, 'remove.py');
         fs.writeFileSync(tempFile, `@given('A step')\ndef step_impl():\n  pass`);
         
         const uri = vscode.Uri.file(tempFile);
-        cache.updateFile(uri);
+        await cache.updateFile(uri);
         
         assert.strictEqual(cache.getAllStepPatterns().length, 1);
         
@@ -85,19 +85,19 @@ def general(context): pass
         assert.strictEqual(cache.getAllStepPatterns().length, 0);
     });
 
-    test('Handles read errors gracefully', () => {
+    test('Handles read errors gracefully', async () => {
         const uri = vscode.Uri.file(path.join(tempDir, 'non_existent.py'));
         
         // Pre-populate so we can see it gets removed
         (cache as any).cache.set(uri.toString(), [{ patternText: 'A step' }]);
         
         // This should trigger the catch block and call removeFile
-        cache.updateFile(uri);
+        await cache.updateFile(uri);
         
         assert.strictEqual(cache.getAllStepPatterns().length, 0);
     });
 
-    test('Handles multiline function signatures and docstrings', () => {
+    test('Handles multiline function signatures and docstrings', async () => {
         const mockPythonCode = `
 @then('I have multi')
 def step_impl(
@@ -115,7 +115,7 @@ def step_impl(
         fs.writeFileSync(tempFile, mockPythonCode);
         
         const uri = vscode.Uri.file(tempFile);
-        cache.updateFile(uri);
+        await cache.updateFile(uri);
         
         const def = cache.getStepDefinition('I have multi');
         assert.ok(def);
@@ -126,10 +126,20 @@ def step_impl(
 
     test('Initializes cache from workspace files', async () => {
         // We can't easily mock vscode.workspace.findFiles, but we can verify 
-        // that calling initialize() doesn't crash and sets isInitialized.
-        await cache.initialize();
-        // Calling it again should return early
-        await cache.initialize();
+        // that calling initialize() doesn't crash and sets state.
+        const p1 = cache.initialize();
+        assert.strictEqual(cache.state, 'initializing');
+        
+        // Multiple simultaneous calls should return the same promise
+        const p2 = cache.initialize();
+        assert.strictEqual(p1, p2, 'Multiple initialize calls should return the exact same promise instance');
+        
+        await p1;
+        assert.strictEqual(cache.state, 'ready');
+        
+        // Calling it again after ready should also return the resolved promise
+        const p3 = cache.initialize();
+        assert.strictEqual(p1, p3);
     });
 
     test('Tag Blast Radius: Handles inherited tags from Feature and multiplies by Examples', async () => {

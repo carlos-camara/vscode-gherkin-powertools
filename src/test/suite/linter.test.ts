@@ -24,6 +24,7 @@ suite('Linter Test Suite', () => {
         mockCache.getStepDefinitions = (stepText) => {
             return [{ patternText: stepText, regex: new RegExp(stepText), location: new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0)) }];
         };
+        mockCache.state = 'ready';
         linter = new GherkinLinter(mockCache);
     });
 

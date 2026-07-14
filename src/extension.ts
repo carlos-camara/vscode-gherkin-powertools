@@ -19,7 +19,7 @@ const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
  * 
  * @param context The extension context provided by VS Code.
  */
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     logger.info('Extension "vscode-gherkin-powertools" is now active.');
 
     const formatter = new GherkinFormattingEditProvider();
@@ -27,11 +27,14 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Initialize Symbol Cache for definitions
     const symbolCache = new SymbolCache();
-    symbolCache.initialize();
+    const symbolInit = symbolCache.initialize();
 
     // Initialize Feature Cache for workspace-wide tag statistics
     const featureCache = new FeatureCache();
-    featureCache.initialize();
+    const featureInit = featureCache.initialize();
+
+    // Deterministic activation: wait for caches to initialize
+    await Promise.all([symbolInit, featureInit]);
 
     const linter = new GherkinLinter(symbolCache);
 
@@ -45,15 +48,15 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Watch for changes in Python step files
     const watcher = vscode.workspace.createFileSystemWatcher('**/steps/**/*.py');
-    watcher.onDidCreate(uri => { symbolCache.updateFile(uri); reLintOpenFiles(); });
-    watcher.onDidChange(uri => { symbolCache.updateFile(uri); reLintOpenFiles(); });
+    watcher.onDidCreate(async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); });
+    watcher.onDidChange(async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); });
     watcher.onDidDelete(uri => { symbolCache.removeFile(uri); reLintOpenFiles(); });
     context.subscriptions.push(watcher);
     
     // Watch for changes in feature files to update tag statistics
     const featureWatcher = vscode.workspace.createFileSystemWatcher('**/*.feature');
-    featureWatcher.onDidCreate(uri => { featureCache.updateFile(uri); });
-    featureWatcher.onDidChange(uri => { featureCache.updateFile(uri); });
+    featureWatcher.onDidCreate(async uri => { await featureCache.updateFile(uri); });
+    featureWatcher.onDidChange(async uri => { await featureCache.updateFile(uri); });
     featureWatcher.onDidDelete(uri => { featureCache.removeFile(uri); });
     context.subscriptions.push(featureWatcher);
     
