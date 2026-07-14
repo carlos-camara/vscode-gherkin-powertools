@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Robust Behave Step Generation**: The "Create empty step definition" Quick Fix has been completely overhauled for Python/Behave projects.
+  - Safely escapes Gherkin strings containing quotes, backslashes, and emojis (`u'...'`).
+  - Generates valid, collision-free Python function names (`def step_impl_1(context)`).
+  - Semantically resolves `And` and `But` keywords by scanning upwards to inherit the preceding `@given`, `@when`, or `@then` decorator.
 - **Ambiguous Step Linter (`AMBIGUOUS_STEP`)**: Detects and warns users in real-time when a Gherkin step matches multiple overlapping regular expressions (e.g., generic decorators like `@given(r'I am an (.*) step')`) in your Python code, mimicking runtime errors.
 - **Scenario Outline Parameter Autocomplete**: Typing `<` inside a step within a `Scenario Outline` will now automatically parse the block and provide an IntelliSense dropdown with the column headers from the underlying `Examples` table. Selecting a parameter automatically appends the closing `>` bracket.
 

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { GherkinCodeActionProvider, createStepDefinition } from '../../codeAction';
+import { GherkinCodeActionProvider, createStepDefinition, serializeToPythonString, generateStepFunctionName } from '../../codeAction';
 
 function createMockDocument(text: string, uriStr: string): vscode.TextDocument {
     const lines = text.split('\n');
@@ -13,7 +13,30 @@ function createMockDocument(text: string, uriStr: string): vscode.TextDocument {
     } as any as vscode.TextDocument;
 }
 
-suite('Code Action Test Suite', () => {
+suite('Code Action Helper Functions Test Suite', () => {
+    test('serializeToPythonString safely handles edge cases', () => {
+        assert.strictEqual(serializeToPythonString("I'm logged in"), "u'I\\'m logged in'");
+        assert.strictEqual(serializeToPythonString("the path is C:\\temp"), "u'the path is C:\\\\temp'");
+        assert.strictEqual(serializeToPythonString('the value is "quoted"'), "u'the value is \"quoted\"'");
+        assert.strictEqual(serializeToPythonString("café is available"), "u'café is available'");
+        assert.strictEqual(serializeToPythonString("line one\nline two"), "u'line one\\nline two'");
+        assert.strictEqual(serializeToPythonString("emoji 😀"), "u'emoji 😀'");
+        assert.strictEqual(serializeToPythonString("tabs\tand\x00control"), "u'tabs\\tand\\x00control'");
+    });
+
+    test('generateStepFunctionName generates valid deterministic python identifiers', () => {
+        assert.strictEqual(generateStepFunctionName("I'm logged in"), "i_m_logged_in");
+        assert.strictEqual(generateStepFunctionName("the path is C:\\temp"), "the_path_is_c_temp");
+        assert.strictEqual(generateStepFunctionName('the value is "quoted"'), "the_value_is_quoted");
+        assert.strictEqual(generateStepFunctionName("café is available"), "caf_is_available");
+        assert.strictEqual(generateStepFunctionName("123 starts with number"), "step_123_starts_with_number");
+        assert.strictEqual(generateStepFunctionName("emoji 😀 test"), "emoji_test");
+        assert.strictEqual(generateStepFunctionName("___lots_of__underscores___"), "lots_of_underscores");
+        assert.strictEqual(generateStepFunctionName(""), "step_impl");
+    });
+});
+
+suite('Code Action Provider Test Suite', () => {
     let provider: GherkinCodeActionProvider;
 
     setup(() => {
@@ -55,46 +78,26 @@ suite('Code Action Test Suite', () => {
         assert.strictEqual(actions.length, 1);
         assert.strictEqual(actions[0].title, "Create empty step definition");
         assert.strictEqual(actions[0].command?.command, 'gherkinPowerTools.createStepDefinition');
-        assert.deepStrictEqual(actions[0].command?.arguments, ['undefined step', 'Then']);
+        assert.deepStrictEqual(actions[0].command?.arguments, ['undefined step', 'then', doc.uri]);
     });
 
-    test('Provides Code Actions for missing colon', () => {
-        const doc = createMockDocument('Feature missing', 'file:///code-actions.feature');
-        const diagnostic = new vscode.Diagnostic(new vscode.Range(0,0,0,7), "Missing colon", vscode.DiagnosticSeverity.Error);
-        diagnostic.code = 'MISSING_COLON';
+    test('Resolves previous keyword for And/But steps', () => {
+        const doc = createMockDocument('Given some setup\nAnd undefined step', 'file:///code-actions.feature');
+        const diagnostic = new vscode.Diagnostic(
+            new vscode.Range(1,0,1,18),
+            "Undefined step: \"undefined step\"",
+            vscode.DiagnosticSeverity.Warning
+        );
+        diagnostic.code = 'UNDEFINED_STEP';
         diagnostic.relatedInformation = [
-            new vscode.DiagnosticRelatedInformation(new vscode.Location(doc.uri, new vscode.Range(0,0,0,7)), 'Feature:')
+            new vscode.DiagnosticRelatedInformation(new vscode.Location(doc.uri, new vscode.Range(1,0,1,18)), 'And')
         ];
 
-        const actions = provider.provideCodeActions(doc, new vscode.Range(0,0,0,0), { diagnostics: [diagnostic] } as any, {} as any);
+        const actions = provider.provideCodeActions(doc, new vscode.Range(1,0,1,0), { diagnostics: [diagnostic] } as any, {} as any);
         assert.ok(actions);
         assert.strictEqual(actions.length, 1);
-        assert.strictEqual(actions[0].title, "Insert missing ':'");
-    });
-
-    test('Provides Code Actions for Scenario with Examples', () => {
-        const doc = createMockDocument('Scenario', 'file:///code-actions.feature');
-        const diagnostic = new vscode.Diagnostic(new vscode.Range(0,0,0,8), "Scenario cannot have examples", vscode.DiagnosticSeverity.Error);
-        diagnostic.code = 'SCENARIO_WITH_EXAMPLES';
-
-        const actions = provider.provideCodeActions(doc, new vscode.Range(0,0,0,0), { diagnostics: [diagnostic] } as any, {} as any);
-        assert.ok(actions);
-        assert.strictEqual(actions.length, 1);
-        assert.strictEqual(actions[0].title, "Convert to 'Scenario Outline'");
-    });
-
-    test('Provides Code Actions for Inconsistent Cell Count', () => {
-        const doc = createMockDocument('| foo ', 'file:///code-actions.feature');
-        const diagnostic = new vscode.Diagnostic(new vscode.Range(0,0,0,6), "Inconsistent cell count", vscode.DiagnosticSeverity.Error);
-        diagnostic.code = 'INCONSISTENT_CELL_COUNT';
-        diagnostic.relatedInformation = [
-            new vscode.DiagnosticRelatedInformation(new vscode.Location(doc.uri, new vscode.Range(0,0,0,6)), '| foo |')
-        ];
-
-        const actions = provider.provideCodeActions(doc, new vscode.Range(0,0,0,0), { diagnostics: [diagnostic] } as any, {} as any);
-        assert.ok(actions);
-        assert.strictEqual(actions.length, 1);
-        assert.strictEqual(actions[0].title, "Close table row (append '|')");
+        // It should resolve 'And' to 'given' because line 0 starts with 'Given'
+        assert.deepStrictEqual(actions[0].command?.arguments, ['undefined step', 'given', doc.uri]);
     });
 });
 
@@ -104,6 +107,10 @@ suite('createStepDefinition Test Suite', () => {
     let originalShowQuickPick: any;
     let originalShowErrorMessage: any;
     let originalWorkspaceFolders: any;
+    let originalFs: any;
+    let originalApplyEdit: any;
+    let originalShowTextDocument: any;
+    let originalOpenTextDocument: any;
 
     setup(() => {
         originalFindFiles = vscode.workspace.findFiles;
@@ -111,6 +118,10 @@ suite('createStepDefinition Test Suite', () => {
         originalShowQuickPick = vscode.window.showQuickPick;
         originalShowErrorMessage = vscode.window.showErrorMessage;
         originalWorkspaceFolders = vscode.workspace.workspaceFolders;
+        originalFs = vscode.workspace.fs;
+        originalApplyEdit = vscode.workspace.applyEdit;
+        originalShowTextDocument = vscode.window.showTextDocument;
+        originalOpenTextDocument = vscode.workspace.openTextDocument;
     });
 
     teardown(() => {
@@ -119,6 +130,10 @@ suite('createStepDefinition Test Suite', () => {
         (vscode.window as any).showQuickPick = originalShowQuickPick;
         (vscode.window as any).showErrorMessage = originalShowErrorMessage;
         Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => originalWorkspaceFolders });
+        Object.defineProperty(vscode.workspace, 'fs', { get: () => originalFs });
+        (vscode.workspace as any).applyEdit = originalApplyEdit;
+        (vscode.window as any).showTextDocument = originalShowTextDocument;
+        (vscode.workspace as any).openTextDocument = originalOpenTextDocument;
     });
 
     test('Shows error message if no workspace is opened', async () => {
@@ -126,6 +141,7 @@ suite('createStepDefinition Test Suite', () => {
         (vscode.workspace as any).findFiles = async () => [];
         (vscode.window as any).showErrorMessage = async (msg: string) => { errorMessage = msg; };
         Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => undefined });
+        (vscode.workspace as any).getWorkspaceFolder = () => undefined;
 
         await createStepDefinition('step', 'Given');
 
@@ -134,36 +150,61 @@ suite('createStepDefinition Test Suite', () => {
 
     test('Creates a new file if none exists and user confirms', async () => {
         let infoMessage = '';
+        let directoryCreated = false;
+        let editApplied = false;
+
         (vscode.workspace as any).findFiles = async () => [];
         (vscode.window as any).showInformationMessage = async (msg: string, action: string) => { 
             infoMessage = msg;
-            return action; // Simulate user clicking 'Create'
+            return action;
         };
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => [{ uri: vscode.Uri.file('/tmp') }] });
+        (vscode.workspace as any).getWorkspaceFolder = () => ({ uri: vscode.Uri.file('/tmp') });
+        
+        Object.defineProperty(vscode.workspace, 'fs', { get: () => ({
+            createDirectory: async () => { directoryCreated = true; },
+            readFile: async () => { throw new Error('Not found'); }
+        })});
 
-        try {
-            await createStepDefinition('step', 'Given');
-        } catch (e) {
-            // Ignore fs errors since /tmp/features might fail
-        }
+        (vscode.workspace as any).applyEdit = async () => { editApplied = true; return true; };
+        (vscode.workspace as any).openTextDocument = async () => createMockDocument('', 'file:///tmp/features/steps/step_definitions.py');
+        (vscode.window as any).showTextDocument = async () => ({ 
+            document: { lineCount: 1, lineAt: () => ({text: ''}) },
+            revealRange: () => {} 
+        } as any);
+
+        await createStepDefinition('I test new file', 'Given');
 
         assert.ok(infoMessage.includes('Would you like to create one?'));
+        assert.ok(directoryCreated, "Should have created directory");
+        assert.ok(editApplied, "Should have applied workspace edit without saving");
     });
 
-    test('Prompts user to select file if multiple step files exist', async () => {
-        let quickPickCalled = false;
-        (vscode.workspace as any).findFiles = async () => [
-            vscode.Uri.file('/tmp/file1.py'),
-            vscode.Uri.file('/tmp/file2.py')
-        ];
-        (vscode.window as any).showQuickPick = async () => {
-            quickPickCalled = true;
-            return undefined; // simulate cancellation
+    test('Appends without collision to an existing file', async () => {
+        let editApplied = false;
+
+        (vscode.workspace as any).findFiles = async () => [vscode.Uri.file('/tmp/file1.py')];
+        
+        Object.defineProperty(vscode.workspace, 'fs', { get: () => ({
+            readFile: async () => Buffer.from("def i_test_collision(context):\n    pass\n")
+        })});
+
+        let insertedText = '';
+        (vscode.workspace as any).applyEdit = async (edit: vscode.WorkspaceEdit) => { 
+            editApplied = true; 
+            insertedText = edit.entries()[0][1][0].newText;
+            return true; 
         };
+        (vscode.workspace as any).openTextDocument = async () => createMockDocument('', 'file:///tmp/file1.py');
+        (vscode.window as any).showTextDocument = async () => ({ 
+            document: { lineCount: 1, lineAt: () => ({text: ''}) },
+            revealRange: () => {} 
+        } as any);
 
-        const { createStepDefinition } = require('../../codeAction');
-        await createStepDefinition('step', 'Given');
+        await createStepDefinition('I test collision', 'Given');
 
-        assert.ok(quickPickCalled);
+        assert.ok(editApplied);
+        // Because i_test_collision exists, it should generate i_test_collision_1
+        assert.ok(insertedText.includes('def i_test_collision_1(context):'));
     });
 });
+

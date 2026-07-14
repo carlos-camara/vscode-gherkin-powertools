@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
 
 export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
@@ -56,14 +55,37 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
                     ? diagnostic.relatedInformation[0].message
                     : 'step';
                 
-                // Extract step text (remove quotes if any)
+                let pyKeyword = keyword.toLowerCase().trim();
+                const continuationKeywords = ['and', 'but', '*', 'y', 'pero', 'et', 'mais', 'und', 'aber'];
+                
+                // Resolve semantic keyword if it's a continuation
+                if (continuationKeywords.includes(pyKeyword)) {
+                    const stepLine = diagnostic.range.start.line;
+                    for (let i = stepLine - 1; i >= 0; i--) {
+                        const lineText = document.lineAt(i).text.trim().toLowerCase();
+                        if (lineText.startsWith('given ') || lineText.startsWith('dado ') || lineText.startsWith('soit ') || lineText.startsWith('angenommen ')) {
+                            pyKeyword = 'given'; break;
+                        }
+                        if (lineText.startsWith('when ') || lineText.startsWith('cuando ') || lineText.startsWith('quand ') || lineText.startsWith('wenn ')) {
+                            pyKeyword = 'when'; break;
+                        }
+                        if (lineText.startsWith('then ') || lineText.startsWith('entonces ') || lineText.startsWith('alors ') || lineText.startsWith('dann ')) {
+                            pyKeyword = 'then'; break;
+                        }
+                    }
+                    if (continuationKeywords.includes(pyKeyword)) {
+                        pyKeyword = 'step'; // fallback if no primary keyword found
+                    }
+                }
+
+                // Extract step text
                 const stepTextMatch = diagnostic.message.match(/Undefined step: "(.*)"/);
                 const stepText = stepTextMatch ? stepTextMatch[1] : '';
 
                 action.command = {
                     command: 'gherkinPowerTools.createStepDefinition',
                     title: 'Create empty step definition',
-                    arguments: [stepText, keyword]
+                    arguments: [stepText, pyKeyword, document.uri]
                 };
                 action.diagnostics = [diagnostic];
                 action.isPreferred = true;
@@ -76,35 +98,64 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
 }
 
 /**
+ * Serializes arbitrary text to a safe Python string literal (e.g. u'Hello').
+ */
+export function serializeToPythonString(text: string): string {
+    let escaped = text.replace(/\\/g, '\\\\');
+    escaped = escaped.replace(/'/g, "\\'");
+    escaped = escaped.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+    escaped = escaped.replace(/[\x00-\x1F\x7F-\x9F]/g, char => '\\x' + ('00' + char.charCodeAt(0).toString(16)).slice(-2));
+    return `u'${escaped}'`;
+}
+
+/**
+ * Generates a deterministic, valid, non-colliding Python function name.
+ */
+export function generateStepFunctionName(text: string): string {
+    // Replace non-alphanumeric chars (including unicode emojis) with underscore
+    let name = text.replace(/[^a-zA-Z0-9]/g, '_');
+    // Collapse multiple underscores
+    name = name.replace(/_+/g, '_');
+    // Trim underscores from start and end
+    name = name.replace(/^_|_$/g, '');
+    name = name.toLowerCase();
+
+    // Must start with a letter or underscore
+    if (!name || /^[0-9]/.test(name)) {
+        name = 'step_' + (name || 'impl');
+    }
+    return name;
+}
+
+/**
  * Handles the creation of a new Python step definition.
  */
-export async function createStepDefinition(stepText: string, keyword: string) {
+export async function createStepDefinition(stepText: string, keyword: string, documentUri?: vscode.Uri) {
     if (!stepText) return;
 
-    // Normalize keyword to lowercase for python decorators
     let pyKeyword = keyword.toLowerCase().trim();
-    if (pyKeyword === 'and' || pyKeyword === 'but' || pyKeyword === '*') {
-        pyKeyword = 'step'; // Use @step for generic/continuation keywords
+    if (!['given', 'when', 'then', 'step'].includes(pyKeyword)) {
+        pyKeyword = 'step';
     }
 
-    const snippet = `\n@${pyKeyword}(u'${stepText}')\ndef step_impl(context):\n    raise NotImplementedError(u'STEP: ${stepText}')\n`;
-
-    // Find python files in steps folder
     const pyFiles = await vscode.workspace.findFiles('**/steps/**/*.py', '**/node_modules/**');
 
     let targetUri: vscode.Uri | undefined;
+    let isNewFile = false;
 
     if (pyFiles.length === 0) {
-        // No step files found. Ask to create a new one.
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) {
+        // Find workspace folder
+        const workspaceFolder = documentUri 
+            ? vscode.workspace.getWorkspaceFolder(documentUri) 
+            : (vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined);
+            
+        if (!workspaceFolder) {
             vscode.window.showErrorMessage("Please open a workspace to create step definitions.");
             return;
         }
 
-        const rootPath = workspaceFolders[0].uri.fsPath;
-        const defaultStepsDir = path.join(rootPath, 'features', 'steps');
-        const defaultFilePath = path.join(defaultStepsDir, 'step_definitions.py');
+        const defaultStepsDir = vscode.Uri.joinPath(workspaceFolder.uri, 'features', 'steps');
+        targetUri = vscode.Uri.joinPath(defaultStepsDir, 'step_definitions.py');
 
         const createAction = "Create features/steps/step_definitions.py";
         const selection = await vscode.window.showInformationMessage(
@@ -113,17 +164,15 @@ export async function createStepDefinition(stepText: string, keyword: string) {
         );
 
         if (selection === createAction) {
-            fs.mkdirSync(defaultStepsDir, { recursive: true });
-            const initialContent = "from behave import *\n";
-            fs.writeFileSync(defaultFilePath, initialContent);
-            targetUri = vscode.Uri.file(defaultFilePath);
+            await vscode.workspace.fs.createDirectory(defaultStepsDir);
+            // We'll write the initial content below using WorkspaceEdit
+            isNewFile = true;
         } else {
             return;
         }
     } else if (pyFiles.length === 1) {
         targetUri = pyFiles[0];
     } else {
-        // Multiple files. Ask user to pick one.
         const items = pyFiles.map(uri => ({
             label: vscode.workspace.asRelativePath(uri),
             uri: uri
@@ -136,30 +185,70 @@ export async function createStepDefinition(stepText: string, keyword: string) {
         if (selection) {
             targetUri = selection.uri;
         } else {
-            return; // User cancelled
+            return;
         }
     }
 
     if (targetUri) {
-        const document = await vscode.workspace.openTextDocument(targetUri);
-        
-        // Use WorkspaceEdit instead of fs to update the file within VS Code's editor state
-        const edit = new vscode.WorkspaceEdit();
-        const lastLine = document.lineCount > 0 ? document.lineCount - 1 : 0;
-        const lastLineLength = document.lineCount > 0 ? document.lineAt(lastLine).text.length : 0;
-        const endPos = new vscode.Position(lastLine, lastLineLength);
-        
-        const fileContent = document.getText();
-        const separator = fileContent.length === 0 || fileContent.endsWith('\n') ? '' : '\n';
-        
-        edit.insert(targetUri, endPos, separator + snippet);
-        await vscode.workspace.applyEdit(edit);
-        await document.save(); // Automatically save the document
+        let fileContent = '';
+        if (!isNewFile) {
+            try {
+                const data = await vscode.workspace.fs.readFile(targetUri);
+                fileContent = Buffer.from(data).toString('utf8');
+            } catch(e) {}
+        }
 
-        // Show the document
+        const safeString = serializeToPythonString(stepText);
+        const baseFuncName = generateStepFunctionName(stepText);
+        
+        let funcName = baseFuncName;
+        let suffix = 1;
+        while (new RegExp(`^def\\s+${funcName}\\s*\\(`, 'm').test(fileContent)) {
+            funcName = `${baseFuncName}_${suffix}`;
+            suffix++;
+        }
+
+        let snippet = '';
+        if (isNewFile) {
+            snippet = `from behave import given, when, then, step\n\n`;
+        } else {
+            snippet = fileContent.length === 0 || fileContent.endsWith('\n') ? '\n' : '\n\n';
+        }
+
+        snippet += `@${pyKeyword}(${safeString})\ndef ${funcName}(context):\n    raise NotImplementedError(${safeString})\n`;
+
+        const edit = new vscode.WorkspaceEdit();
+        if (isNewFile) {
+            edit.createFile(targetUri, { ignoreIfExists: true });
+            edit.insert(targetUri, new vscode.Position(0, 0), snippet);
+        } else {
+            // Document might be open, calculate end position
+            let lineCount = 0;
+            let lastLineLength = 0;
+            try {
+                const openDoc = await vscode.workspace.openTextDocument(targetUri);
+                lineCount = openDoc.lineCount;
+                lastLineLength = lineCount > 0 ? openDoc.lineAt(lineCount - 1).text.length : 0;
+            } catch(e) {
+                const lines = fileContent.split('\n');
+                lineCount = lines.length;
+                lastLineLength = lines[lines.length - 1].length;
+            }
+            const lastLine = lineCount > 0 ? lineCount - 1 : 0;
+            const endPos = new vscode.Position(lastLine, lastLineLength);
+            edit.insert(targetUri, endPos, snippet);
+        }
+
+        await vscode.workspace.applyEdit(edit);
+
+        // Intentionally DO NOT auto-save here (per user request).
+        // Let the user review the unsaved file.
+        const document = await vscode.workspace.openTextDocument(targetUri);
         const editor = await vscode.window.showTextDocument(document);
+        
         const newEndPos = new vscode.Position(editor.document.lineCount - 1, editor.document.lineAt(editor.document.lineCount - 1).text.length);
         editor.selection = new vscode.Selection(newEndPos, newEndPos);
         editor.revealRange(new vscode.Range(newEndPos, newEndPos));
     }
 }
+
