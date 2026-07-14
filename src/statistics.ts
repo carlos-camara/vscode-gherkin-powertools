@@ -64,7 +64,7 @@ export async function showStatisticsDashboard(context: vscode.ExtensionContext) 
     }
 }
 
-async function calculateStatistics(): Promise<GherkinStats> {
+export async function calculateStatistics(): Promise<GherkinStats> {
     const files = await vscode.workspace.findFiles('**/*.feature', '**/node_modules/**');
     
     const stats: GherkinStats = {
@@ -213,7 +213,7 @@ async function calculateStatistics(): Promise<GherkinStats> {
     return stats;
 }
 
-function getLoadingHtml() {
+export function getLoadingHtml() {
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -231,11 +231,11 @@ function getLoadingHtml() {
     `;
 }
 
-function getErrorHtml() {
+export function getErrorHtml() {
     return `<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"></head><body><h1 style="color: var(--vscode-errorForeground);">Error parsing workspace</h1></body></html>`;
 }
 
-function getDashboardHtml(stats: GherkinStats, version: string) {
+export function getDashboardHtml(stats: GherkinStats, version: string) {
     const totalScenarioBlocks = stats.totalScenarios + stats.totalScenarioOutlines;
     const avgSteps = totalScenarioBlocks > 0 ? (stats.totalSteps / totalScenarioBlocks) : 0;
     
