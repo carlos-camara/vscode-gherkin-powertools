@@ -41,7 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const reLintOpenFiles = () => {
         vscode.workspace.textDocuments.forEach(doc => {
             if (GHERKIN_LANGUAGES.includes(doc.languageId)) {
-                linter.lint(doc);
+                linter.immediateLint(doc);
             }
         });
     };
@@ -87,7 +87,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Initial lint & highlight for all open feature files
     vscode.workspace.textDocuments.forEach(doc => {
-        linter.lint(doc);
+        linter.immediateLint(doc);
     });
     if (vscode.window.activeTextEditor) {
         highlighter.highlight(vscode.window.activeTextEditor);
@@ -104,14 +104,20 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.workspace.onDidOpenTextDocument(doc => {
-            linter.lint(doc);
+            linter.immediateLint(doc);
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument(doc => {
+            linter.immediateLint(doc);
         })
     );
 
     // On text change
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument(e => {
-            linter.lint(e.document);
+            linter.scheduleLint(e.document);
             if (vscode.window.activeTextEditor && e.document === vscode.window.activeTextEditor.document) {
                 highlighter.highlight(vscode.window.activeTextEditor);
             }

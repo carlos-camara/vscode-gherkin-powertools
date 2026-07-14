@@ -213,4 +213,60 @@ Feature: Empty outline
         // Since we mock 'step' in setup(), it will NOT flag UNDEFINED_STEP.
         assert.strictEqual(diagnostics.length, 0);
     });
+
+    test('Concurrency: Older run should not overwrite newer run diagnostics', async () => {
+        const text1 = 'Feature: Race1\n  Scenario: Invalid1\n    Givn something';
+        const doc1 = createMockDocument(text1, 'file:///race.feature');
+        (doc1 as any).version = 1;
+
+        const text2 = 'Feature: Race2\n  Scenario: Valid2\n    Given something';
+        const doc2 = createMockDocument(text2, 'file:///race.feature');
+        (doc2 as any).version = 2; // Simulated version bump
+
+        // We bypass scheduleLint to directly test the async parsing race condition using lint()
+        
+        // Start older request
+        const promise1 = linter.lint(doc1, 1, 1);
+        
+        // Start newer request before older finishes
+        const promise2 = linter.lint(doc2, 2, 2);
+
+        // Wait for both
+        await Promise.all([promise1, promise2]);
+
+        const diagnostics = vscode.languages.getDiagnostics(doc2.uri);
+        // The first run has a syntax error (Givn), the second run is perfectly valid.
+        // If the older run overwrote the newer run, we'd see a diagnostic here.
+        // But since the newer run is valid and version 2 wins, it should be empty.
+        assert.strictEqual(diagnostics.length, 0, 'Older run should not overwrite newer run diagnostics');
+    });
+
+    test('Scheduler: scheduleLint debounces correctly', async () => {
+        const text = 'Feature: Schedule\n  Scenario: Sched\n    Givn something';
+        const doc = createMockDocument(text, 'file:///schedule.feature');
+        
+        // Schedule it with 50ms delay
+        linter.scheduleLint(doc, 50);
+        let diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        assert.strictEqual(diagnostics.length, 0, 'Should not be linted immediately');
+
+        // Wait for it to trigger
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        // Now it should have executed
+        assert.ok(diagnostics.length > 0, 'Should have generated diagnostics after debounce');
+    });
+
+    test('Dispose and clear cancel pending timers', async () => {
+        const text = 'Feature: Timer\n  Scenario: Timer\n    Givn something';
+        const doc = createMockDocument(text, 'file:///timer.feature');
+        
+        linter.scheduleLint(doc, 500);
+        linter.clear(doc);
+        
+        await new Promise(resolve => setTimeout(resolve, 600));
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        assert.strictEqual(diagnostics.length, 0, 'Diagnostics should be empty because clear() cancelled the timer');
+    });
 });
