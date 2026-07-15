@@ -266,7 +266,7 @@ export class GherkinLinter {
                             for (const ruleChild of child.rule.children) {
                                 const ruleScenario = ruleChild.scenario || ruleChild.background;
                                 if (ruleScenario) {
-                                    this.checkSteps(ruleScenario.steps || [], diagnostics, document);
+                                    await this.checkSteps(ruleScenario.steps || [], diagnostics, document);
                                     this.checkScenarioExamples(ruleChild.scenario, diagnostics);
                                     this.checkDescription(ruleScenario, diagnostics, document);
                                 }
@@ -275,7 +275,7 @@ export class GherkinLinter {
                     } else {
                         const scenario = child.scenario || child.background;
                         if (scenario) {
-                            this.checkSteps(scenario.steps || [], diagnostics, document);
+                            await this.checkSteps(scenario.steps || [], diagnostics, document);
                             this.checkScenarioExamples(child.scenario, diagnostics);
                             this.checkDescription(scenario, diagnostics, document);
                         }
@@ -474,13 +474,13 @@ export class GherkinLinter {
         }
     }
 
-    private checkSteps(steps: any[], diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
+    private async checkSteps(steps: any[], diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
         if (this.symbolCache.state !== 'ready') {
             return;
         }
         for (const step of steps) {
             const stepText = step.text.trim();
-            const defs = this.symbolCache.getStepDefinitions(stepText);
+            const defs = await this.symbolCache.getStepDefinitions(stepText);
             if (defs.length !== 1) {
                 const lineIndex = Math.max(0, step.location.line - 1);
                 const lineText = document.lineAt(lineIndex).text;
@@ -516,7 +516,7 @@ export class GherkinLinter {
 
                     diagnostics.push(diagnostic);
                 } else if (defs.length > 1) {
-                    const patterns = defs.map(d => `'${d.patternText}'`).join(', ');
+                    const patterns = defs.map(d => `'${d.rawPattern}'`).join(', ');
                     const diagnostic = new vscode.Diagnostic(
                         range,
                         `Ambiguous step: matches multiple definitions (${patterns})`,

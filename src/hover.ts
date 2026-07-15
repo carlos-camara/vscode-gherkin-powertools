@@ -11,11 +11,11 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
         this.featureCache = featureCache;
     }
 
-    public provideHover(
+    public async provideHover(
         document: vscode.TextDocument,
         position: vscode.Position,
         _token: vscode.CancellationToken
-    ): vscode.ProviderResult<vscode.Hover> {
+    ): Promise<vscode.Hover | undefined> {
 
         // First, check if the user is hovering over a tag
         const tagRange = document.getWordRangeAtPosition(position, /@[^\s@]+/);
@@ -40,10 +40,7 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
         const stepKeyword = match[1].trim();
         const stepText = match[2].trim();
 
-        // Ensure we are actually hovering over the text of the step, not just empty space
-        // Let's just allow it for the whole line for simplicity
-        
-        const stepDef: StepDefinition | null = this.symbolCache.getStepDefinition(stepText);
+        const stepDef: StepDefinition | null = await this.symbolCache.getStepDefinition(stepText);
 
         if (!stepDef) {
             return undefined; // No underlying implementation found
@@ -53,13 +50,19 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
         const hoverContent = new vscode.MarkdownString();
         
         // Add the python function signature
-        if (stepDef.functionSignature) {
-            // Ensure the signature ends with a colon for correct python syntax rendering
-            const sig = stepDef.functionSignature.endsWith(':') ? stepDef.functionSignature : stepDef.functionSignature + ':';
-            hoverContent.appendCodeblock(sig, 'python');
-        } else {
-            // Fallback if we couldn't parse the signature
-            hoverContent.appendCodeblock(`@${stepKeyword.toLowerCase()}('${stepDef.patternText}')\ndef step_impl(context, ...):`, 'python');
+        if (stepDef.functionName) {
+            let sig = `def ${stepDef.functionName}(...):`;
+            if (stepDef.functionRange) {
+                // If we want we could read the actual line, but we can just show a nice format
+            }
+        }
+        
+        // Show matcher type and pattern
+        hoverContent.appendMarkdown(`**Type:** \`${stepDef.matcherType}\`\n\n`);
+        
+        if (stepDef.rawPattern) {
+            const quote = stepDef.rawPattern.includes('\n') ? '"""' : "'";
+            hoverContent.appendCodeblock(`@${stepDef.type}(${quote}${stepDef.rawPattern}${quote})\ndef ${stepDef.functionName || 'step_impl'}(context, ...):`, 'python');
         }
 
         // Add the docstring if it exists

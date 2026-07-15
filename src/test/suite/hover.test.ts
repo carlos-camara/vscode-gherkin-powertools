@@ -11,24 +11,28 @@ suite('Hover Provider Test Suite', () => {
         mockSymbolCache = {
             getStepDefinition: (text: string) => {
                 if (text === 'I login') {
-                    return {
-                        patternText: 'I login',
-                        functionSignature: 'def i_login(context):',
+                    return Promise.resolve({
+                        rawPattern: 'I login',
+                        functionName: 'i_login',
                         documentation: 'Logs the user in',
+                        matcherType: 'parse',
+                        type: 'given',
                         uri: vscode.Uri.file('/fake.py'),
-                        range: new vscode.Range(0, 0, 0, 0)
-                    };
+                        decoratorRange: new vscode.Range(0, 0, 0, 0)
+                    });
                 }
                 if (text === 'I fail') {
-                    return {
-                        patternText: 'I fail',
-                        functionSignature: null,
-                        documentation: null,
+                    return Promise.resolve({
+                        rawPattern: 'I fail',
+                        functionName: undefined,
+                        documentation: undefined,
+                        matcherType: 'parse',
+                        type: 'when',
                         uri: vscode.Uri.file('/fake.py'),
-                        range: new vscode.Range(0, 0, 0, 0)
-                    };
+                        decoratorRange: new vscode.Range(0, 0, 0, 0)
+                    });
                 }
-                return null;
+                return Promise.resolve(null);
             }
         } as any;
 
@@ -58,8 +62,9 @@ suite('Hover Provider Test Suite', () => {
         const result = await provider.provideHover(doc, pos, new vscode.CancellationTokenSource().token) as vscode.Hover;
         assert.ok(result);
         const content = result.contents[0] as vscode.MarkdownString;
-        assert.ok(content.value.includes('def i_login(context):'));
+        assert.ok(content.value.includes('def i_login(context, ...):'));
         assert.ok(content.value.includes('Logs the user in'));
+        assert.ok(content.value.includes('`parse`'));
     });
 
     test('Provides hover for steps without docstring/signature', async () => {

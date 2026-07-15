@@ -36,25 +36,25 @@ def step_impl_when(context, amount):
         const uri = vscode.Uri.file(tempFile);
         await cache.updateFile(uri);
 
-        const patterns = cache.getAllStepPatterns();
+        const patterns = await cache.getAllStepPatterns();
         assert.strictEqual(patterns.length, 2);
         assert.ok(patterns.includes('I have {count} apples'));
         assert.ok(patterns.includes('I eat (?P<amount>\\d+) apples'));
 
         // Test matching
-        const givenDef = cache.getStepDefinition('I have 5 apples');
+        const givenDef = await cache.getStepDefinition('I have 5 apples');
         assert.ok(givenDef);
         assert.strictEqual(givenDef?.documentation, 'Docstring here');
-        assert.strictEqual(givenDef?.functionSignature, 'def step_impl(context, count)');
+        assert.strictEqual(givenDef?.functionName, 'step_impl');
 
-        const whenDef = cache.getStepDefinition('I eat 2 apples');
+        const whenDef = await cache.getStepDefinition('I eat 2 apples');
         assert.ok(whenDef);
-        assert.strictEqual(whenDef?.functionSignature, 'def step_impl_when(context, amount)');
+        assert.strictEqual(whenDef?.functionName, 'step_impl_when');
 
-        const location = cache.findDefinition('I have 3 apples');
-        assert.ok(location);
-        assert.strictEqual(location?.uri.toString(), uri.toString());
-        assert.strictEqual(location?.range.start.line, 1);
+        const locations = await cache.getStepDefinitions('I have 3 apples');
+        assert.strictEqual(locations.length, 1);
+        assert.strictEqual(locations[0].uri.toString(), uri.toString());
+        assert.strictEqual(locations[0].decoratorRange.start.line, 1);
 
         // Test multiple ambiguous definitions
         const ambiguousCode = `
@@ -68,7 +68,7 @@ def general(context): pass
         fs.writeFileSync(ambigFile, ambiguousCode);
         await cache.updateFile(vscode.Uri.file(ambigFile));
 
-        const multipleDefs = cache.getStepDefinitions('I have 10 apples');
+        const multipleDefs = await cache.getStepDefinitions('I have 10 apples');
         assert.strictEqual(multipleDefs.length, 2, 'Should return both matching definitions');
     });
 
@@ -79,10 +79,10 @@ def general(context): pass
         const uri = vscode.Uri.file(tempFile);
         await cache.updateFile(uri);
         
-        assert.strictEqual(cache.getAllStepPatterns().length, 1);
+        assert.strictEqual((await cache.getAllStepPatterns()).length, 1);
         
         cache.removeFile(uri);
-        assert.strictEqual(cache.getAllStepPatterns().length, 0);
+        assert.strictEqual((await cache.getAllStepPatterns()).length, 0);
     });
 
     test('Handles read errors gracefully', async () => {
@@ -94,7 +94,7 @@ def general(context): pass
         // This should trigger the catch block and call removeFile
         await cache.updateFile(uri);
         
-        assert.strictEqual(cache.getAllStepPatterns().length, 0);
+        assert.strictEqual((await cache.getAllStepPatterns()).length, 0);
     });
 
     test('Handles multiline function signatures and docstrings', async () => {
@@ -117,9 +117,9 @@ def step_impl(
         const uri = vscode.Uri.file(tempFile);
         await cache.updateFile(uri);
         
-        const def = cache.getStepDefinition('I have multi');
+        const def = await cache.getStepDefinition('I have multi');
         assert.ok(def);
-        assert.strictEqual(def?.functionSignature, 'def step_impl( context, arg1, arg2 )');
+        assert.strictEqual(def?.functionName, 'step_impl');
         assert.ok(def?.documentation?.includes('Line 1'));
         assert.ok(def?.documentation?.includes('Line 2'));
     });

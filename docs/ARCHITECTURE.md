@@ -35,7 +35,7 @@ graph LR
 | `statistics.ts` | Interactive HTML Webview dashboard displaying heuristic workspace metrics |
 | `codeAction.ts`| Generates quick fixes (💡) for undefined steps or syntax typos |
 | `completion.ts`| Smart IntelliSense autocompletion parsing regex into Snippets |
-| `cache.ts`     | In-memory caching engine that indexes the workspace on startup |
+| `cache.ts`     | Asynchronous caching engine that non-blockingly indexes the workspace via `vscode.workspace.findFiles` |
 | `logger.ts`    | Native VS Code Output Channel for tracing |
 
 
