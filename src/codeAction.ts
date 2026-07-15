@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { dialectService } from './dialect';
 
 export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
     public static readonly providedCodeActionKinds = [
@@ -56,26 +57,23 @@ export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
                     : 'step';
                 
                 let pyKeyword = keyword.toLowerCase().trim();
-                const continuationKeywords = ['and', 'but', '*', 'y', 'pero', 'et', 'mais', 'und', 'aber'];
+                const dialect = dialectService.getDialect(document);
+                
+                const andKeywords = dialect.and.map(k => k.trim().toLowerCase());
+                const butKeywords = dialect.but.map(k => k.trim().toLowerCase());
+                const isContinuation = andKeywords.includes(pyKeyword) || butKeywords.includes(pyKeyword) || pyKeyword === '*';
                 
                 // Resolve semantic keyword if it's a continuation
-                if (continuationKeywords.includes(pyKeyword)) {
-                    const stepLine = diagnostic.range.start.line;
-                    for (let i = stepLine - 1; i >= 0; i--) {
-                        const lineText = document.lineAt(i).text.trim().toLowerCase();
-                        if (lineText.startsWith('given ') || lineText.startsWith('dado ') || lineText.startsWith('soit ') || lineText.startsWith('angenommen ')) {
-                            pyKeyword = 'given'; break;
-                        }
-                        if (lineText.startsWith('when ') || lineText.startsWith('cuando ') || lineText.startsWith('quand ') || lineText.startsWith('wenn ')) {
-                            pyKeyword = 'when'; break;
-                        }
-                        if (lineText.startsWith('then ') || lineText.startsWith('entonces ') || lineText.startsWith('alors ') || lineText.startsWith('dann ')) {
-                            pyKeyword = 'then'; break;
-                        }
-                    }
-                    if (continuationKeywords.includes(pyKeyword)) {
-                        pyKeyword = 'step'; // fallback if no primary keyword found
-                    }
+                if (isContinuation) {
+                    pyKeyword = dialectService.resolveAndBut(document, diagnostic.range.start.line);
+                } else {
+                    const givenKeywords = dialect.given.map(k => k.trim().toLowerCase());
+                    const whenKeywords = dialect.when.map(k => k.trim().toLowerCase());
+                    const thenKeywords = dialect.then.map(k => k.trim().toLowerCase());
+                    if (givenKeywords.includes(pyKeyword)) pyKeyword = 'given';
+                    else if (whenKeywords.includes(pyKeyword)) pyKeyword = 'when';
+                    else if (thenKeywords.includes(pyKeyword)) pyKeyword = 'then';
+                    else pyKeyword = 'step';
                 }
 
                 // Extract step text

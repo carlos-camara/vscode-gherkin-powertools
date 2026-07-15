@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { SymbolCache, FeatureCache, StepDefinition } from './cache';
+import { dialectService } from './dialect';
 
 export class GherkinHoverProvider implements vscode.HoverProvider {
     private symbolCache: SymbolCache;
@@ -29,13 +30,14 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
 
         // Otherwise, check if hovering over a step
         const lineText = document.lineAt(position.line).text;
-        const match = lineText.match(/^\s*(Given|When|Then|And|But)\s+(.*)$/);
+        const dialect = dialectService.getDialect(document);
+        const match = lineText.match(dialectService.getStepRegex(dialect));
 
         if (!match) {
             return undefined;
         }
 
-        const stepKeyword = match[1];
+        const stepKeyword = match[1].trim();
         const stepText = match[2].trim();
 
         // Ensure we are actually hovering over the text of the step, not just empty space

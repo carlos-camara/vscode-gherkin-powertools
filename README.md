@@ -97,7 +97,7 @@ When working in a Python/Behave project, the extension parses your `@given`, `@w
 
 ## Gherkin PowerTools vs Official Cucumber Extension
 
-Gherkin PowerTools focuses on configurable formatting, structural diagnostics and Python/Behave tooling. The [official Cucumber extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) provides broader step-definition language support, localisation and Cucumber Language Server integration.
+Gherkin PowerTools focuses on configurable formatting, structural diagnostics, multi-language support (70+ languages via standard `# language:` headers), and Python/Behave tooling. The [official Cucumber extension](https://marketplace.visualstudio.com/items?itemName=CucumberOpen.cucumber-official) provides broader step-definition language support and Cucumber Language Server integration.
 
 | Feature | Gherkin PowerTools | Official Cucumber Extension |
 |---------|--------------------|-----------------------------|
