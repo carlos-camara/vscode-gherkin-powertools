@@ -1,4 +1,5 @@
 const { defineConfig } = require('@vscode/test-cli');
+const path = require('path');
 
 module.exports = defineConfig([
   {
@@ -13,7 +14,7 @@ module.exports = defineConfig([
       reporterOptions: {
         reporterEnabled: 'spec, mocha-junit-reporter',
         mochaJunitReporterReporterOptions: {
-          mochaFile: 'test-results/unit-test-results.xml'
+          mochaFile: path.join(__dirname, 'test-results', 'unit-test-results.xml')
         }
       }
     }
@@ -30,7 +31,7 @@ module.exports = defineConfig([
       reporterOptions: {
         reporterEnabled: 'spec, mocha-junit-reporter',
         mochaJunitReporterReporterOptions: {
-          mochaFile: 'test-results/e2e-test-results.xml'
+          mochaFile: path.join(__dirname, 'test-results', 'e2e-test-results.xml')
         }
       }
     }

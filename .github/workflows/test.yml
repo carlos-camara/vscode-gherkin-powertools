@@ -68,7 +68,7 @@ jobs:
           github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
         with:
-          files: 'test-results\**\*.xml'
+          files: 'test-results/**/*.xml'
           check_name: "Unit Test Results (${{ matrix.os }})"
           comment_mode: off
           check_run: true
