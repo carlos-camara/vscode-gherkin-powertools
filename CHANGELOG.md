@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.7.3] - 2026-07-16
 
 ### Changed
-- **TypeScript Type-Safety & Parser Architecture Refactor**: Completely centralized the `@cucumber/gherkin` AST parsing logic into a single internal module. 
+- **TypeScript Type-Safety & Parser Architecture Refactor**: Completely centralized the `@cucumber/gherkin` AST parsing logic into a single internal module.
   - **Thread-Safety**: Replaced shared global parser state with fresh deterministic instances per operation, preventing bleed and memory leaks during concurrent linting or formatting.
   - **Strict Type-Safety**: Replaced ambiguous `any` usages across the Linter, Formatter, Statistics, and Outline providers with exact `@cucumber/messages` interface types (`GherkinDocument`, `Feature`, `Scenario`, `Step`, etc.).
   - **Partial AST Fallbacks**: Formalized fallback logic to retrieve and traverse partial AST trees even during severe syntax failures, preserving semantic analysis capabilities.
