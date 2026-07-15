@@ -41,34 +41,27 @@ This extension runs natively in VS Code to format your files, detect structural 
 
 ## Before / After
 
-The formatter uses the Gherkin AST to apply consistent keyword casing, indentation and table alignment.
+The formatter uses the Gherkin AST to apply consistent indentation and table alignment.
 
 **Before**
 ```gherkin
-feature: user authentication
-
-@smoke @regression
-scenario: successful login
-given i am on the login page
-when i enter "admin" as username
-and i enter "secret" as password
-then i should be redirected to dashboard
-  |field  |value |
-  |user   |admin |
+Feature: Tables
+Scenario: Tables
+Given the following users:
+|username|password|
+|user1|pass\|123|
+|admin_user|extremely_long_password|
 ```
 
 **After**
 ```gherkin
-Feature: User Authentication
+Feature: Tables
 
-    @smoke @regression
-    Scenario: Successful login
-        Given I am on the login page
-        When  I enter "admin" as username
-        And   I enter "secret" as password
-        Then  I should be redirected to dashboard
-              | field | value |
-              | user  | admin |
+  Scenario: Tables
+    Given the following users:
+          | username   | password                |
+          | user1      | pass\|123               |
+          | admin_user | extremely_long_password |
 ```
 
 ---
