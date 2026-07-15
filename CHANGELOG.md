@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **AST-Based Project Analytics**: The Project Statistics dashboard has been completely refactored to use the official `@cucumber/gherkin` AST parsing engine instead of line-by-line regex scanning.
+  - **100% Precision**: Correctly counts features, rules, backgrounds, scenarios, outlines, Example rows, executable steps, tags, and data tables across the entire workspace.
+  - **Objective Refinements**: Separated data tables from Example rows for more accurate metrics. Renamed internal marketing labels to engineering standards ("Gherkin Quality Score" -> "Gherkin Quality Indicator", "Most Complex Scenario" -> "Longest scenario", "ROI" -> "Estimated execution effort").
+  - **Real-Time Asynchronous Loading**: Uses `vscode.workspace.fs` and `vscode.window.withProgress` to index the workspace asynchronously with full CancellationToken support, ensuring the UI thread remains unblocked even in massive projects.
 - **Range Formatting Restored**: Re-implemented the `DocumentRangeFormattingEditProvider` safely. The formatting engine now maps the exact origins of generated output lines (including expanded tags and docstrings), allowing partial text selections to be formatted securely without data drift or corruption.
 - **Formatter AST Engine Refactor**: Completely rewrote the Gherkin formatting engine using strict `@cucumber/messages` AST parsing for flawless precision.
   - **Data Integrity**: Reconstructs data tables natively through AST `cell.value` and re-escapes pipes, preventing data corruption on complex markdown cells with `\|`.

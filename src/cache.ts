@@ -231,36 +231,39 @@ export class SymbolCache {
     }
 }
 
+let parserPromise: Promise<any>;
+
+export async function parseFeatureAST(content: string): Promise<any> {
+    if (!parserPromise) {
+        parserPromise = (async () => {
+            const dynamicImport = new Function('specifier', 'return import(specifier)');
+            const gherkin = await dynamicImport('@cucumber/gherkin');
+            const messages = await dynamicImport('@cucumber/messages');
+            return { gherkin, messages };
+        })();
+    }
+    
+    const { gherkin, messages } = await parserPromise;
+    const uuidFn = messages.IdGenerator.uuid();
+    const builder = new gherkin.AstBuilder(uuidFn);
+    const matcher = new gherkin.GherkinClassicTokenMatcher();
+    const parser = new gherkin.Parser(builder, matcher);
+    
+    try {
+        return parser.parse(content);
+    } catch (e) {
+        // If parsing fails due to syntax errors, extract whatever valid AST was built so far
+        return builder.getResult();
+    }
+}
+
 export class FeatureCache {
     private fileTagCounts: Map<string, Map<string, number>> = new Map();
     private globalTagCount: Map<string, number> = new Map();
-    private parserPromise?: Promise<any>;
+
+
     public state: CacheState = 'uninitialized';
     private initPromise: Promise<void> | null = null;
-
-    private async parseFeature(content: string): Promise<any> {
-        if (!this.parserPromise) {
-            this.parserPromise = (async () => {
-                const dynamicImport = new Function('specifier', 'return import(specifier)');
-                const gherkin = await dynamicImport('@cucumber/gherkin');
-                const messages = await dynamicImport('@cucumber/messages');
-                return { gherkin, messages };
-            })();
-        }
-        
-        const { gherkin, messages } = await this.parserPromise;
-        const uuidFn = messages.IdGenerator.uuid();
-        const builder = new gherkin.AstBuilder(uuidFn);
-        const matcher = new gherkin.GherkinClassicTokenMatcher();
-        const parser = new gherkin.Parser(builder, matcher);
-        
-        try {
-            return parser.parse(content);
-        } catch (e) {
-            // If parsing fails due to syntax errors, extract whatever valid AST was built so far
-            return builder.getResult();
-        }
-    }
 
     public initialize(): Promise<void> {
         if (this.state === 'initializing' || this.state === 'ready') {
@@ -288,7 +291,7 @@ export class FeatureCache {
     public async updateFile(uri: vscode.Uri): Promise<void> {
         try {
             const content = await fs.promises.readFile(uri.fsPath, 'utf8');
-            const doc = await this.parseFeature(content);
+            const doc = await parseFeatureAST(content);
             if (!doc) {
                 // If completely unparsable, retain the last valid state
                 return;
