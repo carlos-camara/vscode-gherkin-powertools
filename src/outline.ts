@@ -1,42 +1,19 @@
 import * as vscode from 'vscode';
+import { parseGherkin } from './parser';
+import type { Scenario, Background } from '@cucumber/messages';
 
 /**
  * Provides a Document Symbol tree (Outline) for Gherkin feature files.
  * Uses the official @cucumber/gherkin AST for 100% accuracy.
  */
 export class GherkinDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
-    private parserPromise?: Promise<any>;
-
-    private async getParser() {
-        if (!this.parserPromise) {
-            this.parserPromise = (async () => {
-                const dynamicImport = new Function('specifier', 'return import(specifier)');
-                const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
-                const { IdGenerator } = await dynamicImport('@cucumber/messages');
-                const uuidFn = IdGenerator.uuid();
-                const builder = new AstBuilder(uuidFn);
-                const matcher = new GherkinClassicTokenMatcher();
-                return new Parser(builder, matcher);
-            })();
-        }
-        return this.parserPromise;
-    }
 
     public async provideDocumentSymbols(
         document: vscode.TextDocument,
         _token: vscode.CancellationToken
     ): Promise<vscode.DocumentSymbol[]> {
         const text = document.getText();
-        let gherkinDocument;
-
-        try {
-            const parser = await this.getParser();
-            gherkinDocument = parser.parse(text);
-        } catch (e) {
-            // If there's a fatal parsing error, we can't build a full AST.
-            // But usually @cucumber/gherkin parses as much as it can.
-            return [];
-        }
+        const { document: gherkinDocument } = await parseGherkin(text);
 
         if (!gherkinDocument || !gherkinDocument.feature) {
             return [];
@@ -86,7 +63,7 @@ export class GherkinDocumentSymbolProvider implements vscode.DocumentSymbolProvi
         return symbols;
     }
 
-    private buildScenarioSymbol(node: any, document: vscode.TextDocument, text: string): vscode.DocumentSymbol {
+    private buildScenarioSymbol(node: Scenario | Background, document: vscode.TextDocument, text: string): vscode.DocumentSymbol {
         const symbol = this.createSymbol(
             (node.keyword || 'Background') + ': ' + (node.name || ''),
             node.description || '',

@@ -2,7 +2,7 @@
   "name": "vscode-gherkin-powertools",
   "displayName": "Gherkin PowerTools",
   "description": "Format, lint, and navigate Gherkin (.feature) files in VS Code. Includes dynamic table alignment, real-time syntax checking, and Python/Behave step definition tooling.",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "engines": {
     "vscode": "^1.93.0"
   },

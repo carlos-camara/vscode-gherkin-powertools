@@ -6,9 +6,13 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.7.3] - 2026-07-16
 
 ### Changed
+- **TypeScript Type-Safety & Parser Architecture Refactor**: Completely centralized the `@cucumber/gherkin` AST parsing logic into a single internal module.
+  - **Thread-Safety**: Replaced shared global parser state with fresh deterministic instances per operation, preventing bleed and memory leaks during concurrent linting or formatting.
+  - **Strict Type-Safety**: Replaced ambiguous `any` usages across the Linter, Formatter, Statistics, and Outline providers with exact `@cucumber/messages` interface types (`GherkinDocument`, `Feature`, `Scenario`, `Step`, etc.).
+  - **Partial AST Fallbacks**: Formalized fallback logic to retrieve and traverse partial AST trees even during severe syntax failures, preserving semantic analysis capabilities.
 - **CI/CD Hardening & Cross-Platform E2E**: Refactored all GitHub Actions workflows to adhere to the principle of least privilege, explicitly removing unnecessary write permissions.
   - **Recoverable Releases**: The `release.yml` pipeline is now fully idempotent, capable of securely resuming and fixing a broken release if the VSIX upload fails midway.
   - **Multi-OS UI Testing**: The End-to-End visual test suite now executes natively across `macos-latest`, `windows-latest`, and `ubuntu-latest`.

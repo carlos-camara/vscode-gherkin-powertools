@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { logger } from './logger';
-
+import { parseGherkin } from './parser';
+import type { Tag, Scenario } from '@cucumber/messages';
 export interface StepDefinition {
     type: 'given' | 'when' | 'then' | 'step';
     rawPattern: string;
@@ -231,31 +232,6 @@ export class SymbolCache {
     }
 }
 
-let parserPromise: Promise<any>;
-
-export async function parseFeatureAST(content: string): Promise<any> {
-    if (!parserPromise) {
-        parserPromise = (async () => {
-            const dynamicImport = new Function('specifier', 'return import(specifier)');
-            const gherkin = await dynamicImport('@cucumber/gherkin');
-            const messages = await dynamicImport('@cucumber/messages');
-            return { gherkin, messages };
-        })();
-    }
-    
-    const { gherkin, messages } = await parserPromise;
-    const uuidFn = messages.IdGenerator.uuid();
-    const builder = new gherkin.AstBuilder(uuidFn);
-    const matcher = new gherkin.GherkinClassicTokenMatcher();
-    const parser = new gherkin.Parser(builder, matcher);
-    
-    try {
-        return parser.parse(content);
-    } catch (e) {
-        // If parsing fails due to syntax errors, extract whatever valid AST was built so far
-        return builder.getResult();
-    }
-}
 
 export class FeatureCache {
     private fileTagCounts: Map<string, Map<string, number>> = new Map();
@@ -291,8 +267,8 @@ export class FeatureCache {
     public async updateFile(uri: vscode.Uri): Promise<void> {
         try {
             const content = await fs.promises.readFile(uri.fsPath, 'utf8');
-            const doc = await parseFeatureAST(content);
-            if (!doc) {
+            const { document: doc } = await parseGherkin(content);
+            if (!doc || !doc.feature) {
                 // If completely unparsable, retain the last valid state
                 return;
             }
@@ -303,12 +279,12 @@ export class FeatureCache {
                 tagCounts.set(tag, (tagCounts.get(tag) || 0) + count);
             };
 
-            const processTags = (tags: any[] | undefined): string[] => {
+            const processTags = (tags: readonly Tag[] | undefined): string[] => {
                 if (!tags) return [];
-                return tags.map((t: any) => t.name);
+                return tags.map(t => t.name);
             };
 
-            const traverse = (node: any, inheritedTags: string[]) => {
+            const traverse = (node: Scenario, inheritedTags: string[]) => {
                 const currentTags = processTags(node.tags);
                 const allTags = [...new Set([...inheritedTags, ...currentTags])];
 

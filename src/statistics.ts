@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { parseFeatureAST } from './cache';
+import { parseGherkin } from './parser';
+import type { Tag, Step, Background, Scenario, Rule } from '@cucumber/messages';
 
 export function escapeHtml(unsafe: string) {
     return unsafe
@@ -133,12 +134,12 @@ export async function calculateStatistics(
             if (/^\s*#/.test(line)) stats.totalComments++;
         }
 
-        const doc = await parseFeatureAST(content);
+        const { document: doc } = await parseGherkin(content);
         if (!doc || !doc.feature) return;
 
         stats.totalFeatures++;
 
-        const processTags = (tags: any[]) => {
+        const processTags = (tags: readonly Tag[] | undefined) => {
             if (!tags) return;
             stats.totalTags += tags.length;
             for (const t of tags) {
@@ -146,7 +147,7 @@ export async function calculateStatistics(
             }
         };
 
-        const processSteps = (steps: any[], scenarioName: string) => {
+        const processSteps = (steps: readonly Step[] | undefined, scenarioName: string) => {
             if (!steps) return;
             let currentScenarioSteps = 0;
 
@@ -194,13 +195,13 @@ export async function calculateStatistics(
             }
         };
 
-        const processBackground = (bg: any) => {
+        const processBackground = (bg: Background | undefined) => {
             if (!bg) return;
             stats.totalBackgrounds++;
             processSteps(bg.steps, "Background");
         };
 
-        const processScenario = (sc: any) => {
+        const processScenario = (sc: Scenario | undefined) => {
             if (!sc) return;
             processTags(sc.tags);
             if (sc.examples && sc.examples.length > 0) {
@@ -217,7 +218,7 @@ export async function calculateStatistics(
             processSteps(sc.steps, sc.name || "Unnamed Scenario");
         };
 
-        const processRule = (rule: any) => {
+        const processRule = (rule: Rule | undefined) => {
             if (!rule) return;
             stats.totalRules++;
             processTags(rule.tags);

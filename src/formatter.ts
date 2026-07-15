@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { parseGherkin } from './parser';
 import type { GherkinDocument, Scenario, Background, TableCell, Tag } from '@cucumber/messages';
 
 export interface FormatterOptions {
@@ -99,19 +100,9 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
     }
 
     public async formatGherkin(text: string, options: FormatterOptions, token: vscode.CancellationToken): Promise<FormattedLine[] | null> {
-        const dynamicImport = new Function('specifier', 'return import(specifier)');
-        const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
-        const { IdGenerator } = await dynamicImport('@cucumber/messages');
+        const { document: gherkinDocument, errors } = await parseGherkin(text);
 
-        const uuidFn = IdGenerator.uuid();
-        const builder = new AstBuilder(uuidFn);
-        const matcher = new GherkinClassicTokenMatcher();
-        const parser = new Parser(builder, matcher);
-        
-        let gherkinDocument: GherkinDocument;
-        try {
-            gherkinDocument = parser.parse(text);
-        } catch (e) {
+        if (!gherkinDocument || errors.length > 0) {
             vscode.window.showWarningMessage("Gherkin PowerTools: Cannot format document due to syntax errors.");
             return null;
         }
