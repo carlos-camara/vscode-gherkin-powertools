@@ -111,7 +111,7 @@ Gherkin PowerTools focuses on configurable formatting, structural diagnostics an
 ## Features
 
 ### 1. Formatter
-Auto-indentation, dynamic data table alignment to the preceding step keyword, auto-casing for Gherkin keywords (`given` -> `Given`), and configurable tag wrapping.
+Auto-indentation, dynamic data table alignment to the preceding step keyword, and configurable tag wrapping.
 
 ### 2. Live Diagnostics Linter
 Real-time syntax error detection. Flags missing colons after block keywords, invalid structural nesting (e.g., `Examples` without `Scenario Outline`), unclosed data tables, and **ambiguous steps** where overlapping Python regex decorators collide.

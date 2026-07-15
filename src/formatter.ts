@@ -1,9 +1,20 @@
 import * as vscode from 'vscode';
+import type { GherkinDocument, Feature, Rule, Scenario, Background, Step, Examples, TableRow, TableCell, Tag } from '@cucumber/messages';
+
 export interface FormatterOptions {
     stepIndentation: number;
     alignTableToKeyword: boolean;
     tagsFormat: 'wrap' | 'singleLine';
     emptyLinesBetweenScenarios: number;
+}
+
+interface NodeInfo {
+    type: 'Feature' | 'Rule' | 'Scenario' | 'Background' | 'Step' | 'Examples' | 'TableRow' | 'DocString' | 'FormattedTags' | 'Skip' | 'Comment';
+    indent: number;
+    keyword?: string;
+    cells?: readonly TableCell[];
+    lines?: string[]; // for FormattedTags or DocString content
+    emptyLinesBefore?: number;
 }
 
 export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider {
@@ -21,24 +32,30 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
     public async provideDocumentFormattingEdits(
         document: vscode.TextDocument,
         _options: vscode.FormattingOptions,
-        _token: vscode.CancellationToken
+        token: vscode.CancellationToken
     ): Promise<vscode.TextEdit[]> {
-        const formatOptions = this.getOptions();
+        const options = this.getOptions();
         const text = document.getText();
-        
-        const formattedText = await this.formatGherkin(text, formatOptions);
-        if (!formattedText) return [];
+        const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+        const hasFinalNewline = text.endsWith('\n');
+
+        const formattedText = await this.formatGherkin(text, options, token, eol);
+        if (formattedText === null || token.isCancellationRequested) return [];
+
+        const finalText = hasFinalNewline && !formattedText.endsWith(eol) ? formattedText + eol : formattedText;
+
+        if (finalText === text) {
+            return []; // Idempotent check
+        }
 
         const start = new vscode.Position(0, 0);
         const end = new vscode.Position(document.lineCount, 0);
         const range = new vscode.Range(start, end);
 
-        return [vscode.TextEdit.replace(range, formattedText + '\n')];
+        return [vscode.TextEdit.replace(range, finalText)];
     }
 
-
-
-    public async formatGherkin(text: string, options: FormatterOptions): Promise<string | null> {
+    public async formatGherkin(text: string, options: FormatterOptions, token: vscode.CancellationToken, eol: string = '\n'): Promise<string | null> {
         const dynamicImport = new Function('specifier', 'return import(specifier)');
         const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
         const { IdGenerator } = await dynamicImport('@cucumber/messages');
@@ -48,196 +65,270 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         const matcher = new GherkinClassicTokenMatcher();
         const parser = new Parser(builder, matcher);
         
-        let gherkinDocument;
+        let gherkinDocument: GherkinDocument;
         try {
             gherkinDocument = parser.parse(text);
         } catch (e) {
-            // If syntax is invalid, we refuse to format to avoid breaking the document.
-            // This is standard behavior for AST-based formatters like Prettier.
             vscode.window.showWarningMessage("Gherkin PowerTools: Cannot format document due to syntax errors.");
             return null;
         }
 
-        const astMap = new Map<number, { type: string, indent: number, extra?: any }>();
-        this.buildASTMap(gherkinDocument.feature, options, astMap);
-        
-        if (gherkinDocument.comments) {
-            gherkinDocument.comments.forEach((c: any) => {
-                astMap.set(c.location.line, { type: 'Comment', indent: -1 }); // Indent depends on context
-            });
-        }
+        const astMap = new Map<number, NodeInfo>();
+        this.buildASTMap(gherkinDocument, options, astMap);
 
         const lines = text.split(/\r?\n/);
-        const result: string[] = [];
-        let inDocString = false;
-        let docStringIndent = 0;
-        let tableLines: { line: string, indent: number }[] = [];
+        const out: string[] = [];
+        let tableRows: { cells: readonly TableCell[], indent: number }[] = [];
 
         for (let i = 0; i < lines.length; i++) {
-            const lineNum = i + 1; // AST uses 1-based indexing
+            if (token.isCancellationRequested) return null;
+
+            const lineNum = i + 1;
             const rawLine = lines[i];
             const trimmedLine = rawLine.trim();
+            const node = astMap.get(lineNum);
 
-            if (trimmedLine === '') {
-                if (!inDocString && result.length > 0 && result[result.length - 1].trim() !== '') {
-                    // Only preserve one empty line outside docstrings
-                    result.push('');
-                } else if (inDocString) {
-                    result.push('');
-                }
-                continue;
-            }
-
-            const nodeInfo = astMap.get(lineNum);
-
-            // Handle DocStrings
-            if (trimmedLine.startsWith('"""')) {
-                if (!inDocString) {
-                    inDocString = true;
-                    docStringIndent = nodeInfo ? nodeInfo.indent : 0;
-                    result.push(' '.repeat(docStringIndent) + trimmedLine);
-                } else {
-                    inDocString = false;
-                    result.push(' '.repeat(docStringIndent) + trimmedLine);
-                }
-                continue;
-            }
-
-            if (inDocString) {
-                result.push(' '.repeat(docStringIndent) + rawLine.trimStart());
-                continue;
-            }
-
-            // Handle Tables
-            if (nodeInfo && nodeInfo.type === 'TableRow') {
-                tableLines.push({ line: trimmedLine, indent: nodeInfo.indent });
-                
-                // If next line is not a table row, align and flush
-                const nextNode = astMap.get(lineNum + 1);
-                const isNextLineTable = (nextNode && nextNode.type === 'TableRow') || (lines[i+1] && lines[i+1].trim().startsWith('|'));
-                
-                if (!isNextLineTable) {
-                    result.push(...this.alignTable(tableLines));
-                    tableLines = [];
-                }
-                continue;
-            }
-
-            // Handle other mapped lines
-            if (nodeInfo) {
-                // Ensure scenario blocks have empty lines before them
-                if (['Feature', 'Scenario', 'Rule'].includes(nodeInfo.type) && result.length > 0) {
-                    const lastLine = result[result.length - 1];
-                    if (lastLine.trim() !== '' && !lastLine.trim().startsWith('@')) {
-                        for (let j = 0; j < options.emptyLinesBetweenScenarios; j++) {
-                            result.push('');
-                        }
+            // 1. Enforce empty lines before blocks
+            if (node && node.emptyLinesBefore !== undefined) {
+                if (out.length > 0) {
+                    let blankCount = 0;
+                    for (let j = out.length - 1; j >= 0; j--) {
+                        if (out[j].trim() === '') blankCount++;
+                        else break;
+                    }
+                    if (blankCount > node.emptyLinesBefore) {
+                        for (let j = 0; j < blankCount - node.emptyLinesBefore; j++) out.pop();
+                    } else if (blankCount < node.emptyLinesBefore) {
+                        for (let j = 0; j < node.emptyLinesBefore - blankCount; j++) out.push('');
                     }
                 }
+            }
 
-                if (nodeInfo.type === 'Comment') {
-                    // Find context indent
+            // 2. Skip marked lines (e.g. DocString contents or duplicate tag lines)
+            if (node && node.type === 'Skip') continue;
+
+            // 3. Handle raw empty lines
+            if (trimmedLine === '') {
+                // Preserve at most 1 empty line in the middle of blocks (e.g. between steps)
+                if (out.length > 0 && out[out.length - 1].trim() !== '') {
+                    out.push('');
+                }
+                continue;
+            }
+
+            // 4. Handle Tables
+            if (node && node.type === 'TableRow' && node.cells) {
+                tableRows.push({ cells: node.cells, indent: node.indent });
+                const nextNode = astMap.get(lineNum + 1);
+                if (!nextNode || nextNode.type !== 'TableRow') {
+                    out.push(...this.alignTable(tableRows));
+                    tableRows.length = 0;
+                }
+                continue;
+            }
+
+            // 5. Handle Mapped Nodes
+            if (node) {
+                if (node.type === 'FormattedTags' && node.lines) {
+                    out.push(...node.lines);
+                    continue;
+                }
+
+                if (node.type === 'DocString' && node.keyword && node.lines !== undefined) {
+                    out.push(' '.repeat(node.indent) + node.keyword);
+                    node.lines.forEach(cl => {
+                        out.push(cl === '' ? '' : ' '.repeat(node.indent) + cl);
+                    });
+                    out.push(' '.repeat(node.indent) + node.keyword);
+                    continue;
+                }
+
+                if (node.type === 'Comment') {
                     let contextIndent = 0;
                     for (let j = lineNum; j <= lines.length; j++) {
-                        if (astMap.has(j) && astMap.get(j)!.type !== 'Comment') {
-                            contextIndent = astMap.get(j)!.indent;
+                        const nextNode = astMap.get(j);
+                        if (nextNode && nextNode.type !== 'Comment' && nextNode.type !== 'Skip' && nextNode.type !== 'FormattedTags') {
+                            contextIndent = nextNode.indent;
                             break;
                         }
                     }
-                    result.push(' '.repeat(contextIndent) + trimmedLine);
-                } else if (nodeInfo.type === 'Tag') {
-                    // Tags are handled separately for wrapping if needed, but for simplicity here we just indent
-                    result.push(' '.repeat(nodeInfo.indent) + trimmedLine);
-                } else {
-                    result.push(' '.repeat(nodeInfo.indent) + trimmedLine);
+                    out.push(' '.repeat(contextIndent) + trimmedLine);
+                    continue;
                 }
+
+                // Handle standard nodes (Feature, Rule, Scenario, Background, Step, Examples)
+                let textToAppend = trimmedLine;
+                out.push(' '.repeat(node.indent) + textToAppend);
+
             } else {
-                // Unmapped line (could be a description line under a Scenario or Feature)
-                // Default to 2 spaces or align to the parent
-                result.push('  ' + trimmedLine);
+                // 6. Handle unmapped lines (Descriptions)
+                let parentIndent = 0;
+                for (let j = lineNum - 1; j > 0; j--) {
+                    const pNode = astMap.get(j);
+                    if (pNode && pNode.type !== 'Comment' && pNode.type !== 'Skip' && pNode.type !== 'FormattedTags') {
+                        parentIndent = pNode.indent;
+                        break;
+                    }
+                }
+                out.push(' '.repeat(parentIndent + 2) + trimmedLine);
             }
         }
 
-        // Clean up trailing empty lines
-        while (result.length > 0 && result[result.length - 1].trim() === '') {
-            result.pop();
+        // Clean trailing empty lines to let the finalNewline logic take over
+        while (out.length > 0 && out[out.length - 1].trim() === '') {
+            out.pop();
         }
 
-        return result.join('\n');
+        return out.join(eol);
     }
 
-    private buildASTMap(feature: any, options: FormatterOptions, map: Map<number, any>) {
-        if (!feature) return;
+    private buildASTMap(document: GherkinDocument, options: FormatterOptions, map: Map<number, NodeInfo>) {
+        if (!document.feature) return;
 
-        map.set(feature.location.line, { type: 'Feature', indent: 0 });
-        feature.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent: 0 }));
-        
-        feature.children?.forEach((child: any) => {
+        this.processTags(document.feature.tags, 0, options, map);
+        this.markEmptyLinesBefore(document.feature.tags, document.feature.location.line, 0, map);
+
+        map.set(document.feature.location.line, { type: 'Feature', indent: 0, keyword: document.feature.keyword, emptyLinesBefore: map.get(document.feature.location.line)?.emptyLinesBefore });
+
+        document.feature.children?.forEach(child => {
             if (child.rule) {
-                map.set(child.rule.location.line, { type: 'Rule', indent: 2 });
-                child.rule.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent: 2 }));
-                child.rule.children?.forEach((rc: any) => {
+                this.processTags(child.rule.tags, 2, options, map);
+                this.markEmptyLinesBefore(child.rule.tags, child.rule.location.line, options.emptyLinesBetweenScenarios, map);
+                map.set(child.rule.location.line, { type: 'Rule', indent: 2, keyword: child.rule.keyword, emptyLinesBefore: map.get(child.rule.location.line)?.emptyLinesBefore });
+
+                child.rule.children?.forEach(rc => {
                     this.mapScenario(rc.background || rc.scenario, 4, options, map);
                 });
             } else {
                 this.mapScenario(child.background || child.scenario, 2, options, map);
             }
         });
+
+        document.comments?.forEach(c => {
+            map.set(c.location.line, { type: 'Comment', indent: -1 });
+        });
     }
 
-    private mapScenario(scenario: any, indent: number, options: FormatterOptions, map: Map<number, any>) {
+    private mapScenario(scenario: Scenario | Background | undefined, indent: number, options: FormatterOptions, map: Map<number, NodeInfo>) {
         if (!scenario) return;
-        map.set(scenario.location.line, { type: 'Scenario', indent });
-        scenario.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent }));
+
+        const tags = 'tags' in scenario ? scenario.tags : undefined;
         
-        scenario.steps?.forEach((step: any) => {
-            const stepIndent = options.stepIndentation;
-            map.set(step.location.line, { type: 'Step', indent: stepIndent });
+        this.processTags(tags, indent, options, map);
+        this.markEmptyLinesBefore(tags, scenario.location.line, options.emptyLinesBetweenScenarios, map);
+        
+        map.set(scenario.location.line, { 
+            type: 'Background' in scenario ? 'Background' : 'Scenario', 
+            indent, 
+            keyword: scenario.keyword,
+            emptyLinesBefore: map.get(scenario.location.line)?.emptyLinesBefore
+        });
+
+        scenario.steps?.forEach(step => {
+            const stepIndent = indent + options.stepIndentation;
+            map.set(step.location.line, { type: 'Step', indent: stepIndent, keyword: step.keyword });
             
             if (step.dataTable) {
-                // AST step keyword includes trailing space e.g. "Given "
-                const tableIndent = options.alignTableToKeyword ? stepIndent + (step.keyword.length || 6) : stepIndent + 2;
-                step.dataTable.rows.forEach((r: any) => map.set(r.location.line, { type: 'TableRow', indent: tableIndent }));
+                const tableIndent = options.alignTableToKeyword ? stepIndent + (step.keyword?.length || 6) : stepIndent + 2;
+                step.dataTable.rows?.forEach(r => map.set(r.location.line, { type: 'TableRow', indent: tableIndent, cells: r.cells }));
             }
             if (step.docString) {
-                map.set(step.docString.location.line, { type: 'DocStringDelimiter', indent: stepIndent + 2 });
+                const startLine = step.docString.location.line;
+                const contentLines = step.docString.content.split(/\r?\n/);
+                const endLine = startLine + contentLines.length + 1;
+                
+                map.set(startLine, { 
+                    type: 'DocString', 
+                    indent: stepIndent + 2, 
+                    keyword: step.docString.delimiter,
+                    lines: contentLines
+                });
+                
+                for (let j = startLine + 1; j <= endLine; j++) {
+                    map.set(j, { type: 'Skip', indent: 0 });
+                }
             }
         });
 
-        scenario.examples?.forEach((ex: any) => {
-            const examplesIndent = options.stepIndentation;
-            map.set(ex.location.line, { type: 'Examples', indent: examplesIndent });
-            ex.tags?.forEach((t: any) => map.set(t.location.line, { type: 'Tag', indent: examplesIndent }));
-            
-            const tableIndent = examplesIndent + 2; // Old formatter typically indented tables under examples
-            if (ex.tableHeader) map.set(ex.tableHeader.location.line, { type: 'TableRow', indent: tableIndent });
-            ex.tableBody?.forEach((r: any) => map.set(r.location.line, { type: 'TableRow', indent: tableIndent }));
-        });
+        if ('examples' in scenario && scenario.examples) {
+            scenario.examples.forEach(ex => {
+                const examplesIndent = indent + options.stepIndentation;
+                this.processTags(ex.tags, examplesIndent, options, map);
+                this.markEmptyLinesBefore(ex.tags, ex.location.line, options.emptyLinesBetweenScenarios, map);
+
+                map.set(ex.location.line, { type: 'Examples', indent: examplesIndent, keyword: ex.keyword, emptyLinesBefore: map.get(ex.location.line)?.emptyLinesBefore });
+                
+                const tableIndent = examplesIndent + 2;
+                if (ex.tableHeader) {
+                    map.set(ex.tableHeader.location.line, { type: 'TableRow', indent: tableIndent, cells: ex.tableHeader.cells });
+                }
+                ex.tableBody?.forEach(r => map.set(r.location.line, { type: 'TableRow', indent: tableIndent, cells: r.cells }));
+            });
+        }
     }
 
-    private alignTable(tableLines: { line: string, indent: number }[]): string[] {
-        const columnWidths: number[] = [];
-        const parsedRows = tableLines.map(t => {
-            const cols = t.line.split('|');
-            cols.shift();
-            cols.pop();
-            return cols.map(c => c.trim());
+    private processTags(tags: readonly Tag[] | undefined, indent: number, options: FormatterOptions, map: Map<number, NodeInfo>) {
+        if (!tags || tags.length === 0) return;
+        
+        const tagLines = Array.from(new Set(tags.map(t => t.location.line))).sort((a,b) => a - b);
+        const tagNames = tags.map(t => t.name).sort();
+        const formattedTagLines: string[] = [];
+        const indentStr = ' '.repeat(indent);
+        
+        if (options.tagsFormat === 'singleLine') {
+            formattedTagLines.push(indentStr + tagNames.join(' '));
+        } else {
+            let currentLine = indentStr;
+            for (const tag of tagNames) {
+                if (currentLine.length + 1 + tag.length > 80 && currentLine.trim().length > 0) {
+                    formattedTagLines.push(currentLine);
+                    currentLine = indentStr + tag;
+                } else {
+                    currentLine = currentLine.trim().length === 0 ? currentLine + tag : currentLine + ' ' + tag;
+                }
+            }
+            if (currentLine.trim().length > 0) {
+                formattedTagLines.push(currentLine);
+            }
+        }
+        
+        for (let i = 0; i < tagLines.length; i++) {
+            const line = tagLines[i];
+            if (i === 0) {
+                map.set(line, { type: 'FormattedTags', indent, lines: formattedTagLines });
+            } else {
+                map.set(line, { type: 'Skip', indent: 0 });
+            }
+        }
+    }
+
+    private markEmptyLinesBefore(tags: readonly Tag[] | undefined, keywordLine: number, lines: number, map: Map<number, NodeInfo>) {
+        const firstLine = tags && tags.length > 0 ? Math.min(...tags.map(t => t.location.line)) : keywordLine;
+        const existing = map.get(firstLine) || { type: 'Skip', indent: 0 };
+        existing.emptyLinesBefore = lines;
+        map.set(firstLine, existing);
+    }
+
+    private alignTable(tableRows: { cells: readonly TableCell[], indent: number }[]): string[] {
+        const colWidths: number[] = [];
+        const escapedRows = tableRows.map(r => {
+            return r.cells.map(c => {
+                return c.value.replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, '\\n');
+            });
         });
 
-        parsedRows.forEach(row => {
-            row.forEach((col, idx) => {
-                if (!columnWidths[idx] || col.length > columnWidths[idx]) {
-                    columnWidths[idx] = col.length;
+        escapedRows.forEach(row => {
+            row.forEach((cellStr, idx) => {
+                if (!colWidths[idx] || cellStr.length > colWidths[idx]) {
+                    colWidths[idx] = cellStr.length;
                 }
             });
         });
 
-        return parsedRows.map((row, rowIdx) => {
-            const padding = ' '.repeat(tableLines[rowIdx].indent);
-            const paddedCols = row.map((col, idx) => {
-                return col.padEnd(columnWidths[idx], ' ');
-            });
-            return padding + '| ' + paddedCols.join(' | ') + ' |';
+        return escapedRows.map((row, rowIdx) => {
+            const indentStr = ' '.repeat(tableRows[rowIdx].indent);
+            const paddedCells = row.map((cellStr, idx) => cellStr.padEnd(colWidths[idx], ' '));
+            return indentStr + '| ' + paddedCells.join(' | ') + ' |';
         });
     }
 }
