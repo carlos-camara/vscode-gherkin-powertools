@@ -1,0 +1,45 @@
+---
+name: 📚 Docs Audit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-docs:
+    name: Lint & Build Docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 🔍 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 📦 Install MkDocs
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material pymdown-extensions
+
+      - name: 🔨 Build MkDocs (Strict)
+        run: mkdocs build --strict
