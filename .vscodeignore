@@ -20,3 +20,9 @@ assets/*.webp
 assets/*.mp4
 .github/**
 mkdocs.yml
+site/**
+test-results/**
+.c8rc.json
+.vscode-test.js
+esbuild.js
+*.vsix
