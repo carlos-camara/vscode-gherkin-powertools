@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatically detects dialect via the `# language: <lang>` header.
   - Syntax Highlighting, Hover, Auto-completion, Code Actions, Go-To Definition, and Formatting seamlessly adapt to the document's locale.
   - Dynamically resolves `And` / `But` continuations in all supported languages by parsing preceding step context.
+- **Context-Aware Autocompletion**: The `CompletionProvider` is now context-aware! It strictly filters Python suggestions based on the semantic step keyword typed (e.g., `Given` only suggests `@given` steps) and resolves the root context of `And`/`But` chains. Regex capture groups and Behave placeholders (`{param:d}`) are securely translated into VS Code Snippet tab stops.
+- **Asynchronous Non-Blocking Workspace Indexing**: The `SymbolCache` has been completely rewritten using `vscode.workspace.findFiles` to index `.py` steps asynchronously without blocking the UI thread. Added public settings `gherkinPowerTools.behave.stepGlobs` and `gherkinPowerTools.behave.ignoreGlobs` to tune directory coverage securely.
 
 ## [1.7.2] - 2026-07-15
 
