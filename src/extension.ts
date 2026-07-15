@@ -137,6 +137,10 @@ export async function activate(context: vscode.ExtensionContext) {
                 { language }, 
                 formatter
             ),
+            vscode.languages.registerDocumentRangeFormattingEditProvider(
+                { language }, 
+                formatter
+            ),
 
             vscode.languages.registerDocumentSymbolProvider(
                 { language },

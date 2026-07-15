@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Range Formatting Restored**: Re-implemented the `DocumentRangeFormattingEditProvider` safely. The formatting engine now maps the exact origins of generated output lines (including expanded tags and docstrings), allowing partial text selections to be formatted securely without data drift or corruption.
 - **Formatter AST Engine Refactor**: Completely rewrote the Gherkin formatting engine using strict `@cucumber/messages` AST parsing for flawless precision.
   - **Data Integrity**: Reconstructs data tables natively through AST `cell.value` and re-escapes pipes, preventing data corruption on complex markdown cells with `\|`.
   - **Idempotency**: Formatting a perfectly formatted document now returns zero text edits, keeping your Git and Undo stacks clean.
@@ -27,7 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Fixed
-- **Range Formatting Data Corruption**: Safely removed `DocumentRangeFormattingEditProvider` because it conflicted with Gherkin's AST line-shifting algorithms, potentially causing data corruption during partial text selection formatting. Format Document (entire file) remains the supported and stable method.
 - **Deterministic Cache Initialization**: Fixed a critical race condition during extension startup where files were linted against an empty cache, causing false-positive `UNDEFINED_STEP` errors. Cache initialization is now governed by a strict asynchronous state machine.
 - **Stale Asynchronous Diagnostics**: Implemented a per-URI debounce mechanism (250ms) and request tracker for the Linter to eliminate a race condition where rapid typing caused outdated parsing results to overwrite newer diagnostic states.
 
@@ -37,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.7.1] - 2026-07-13
 
-### Performance ⚡️
+### Performance
 - **Turbocharged Activation (Esbuild)**: Migrated the build system from standard TypeScript (`tsc`) to **Esbuild**. The extension now bundles all source code and dependencies into a single minified `extension.js` file, slashing the `.vsix` payload size and dropping activation times to a flat 0ms.
 
 ### Added
@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.7.0] - 2026-07-10
 
-### ✨ Features
+### Features
 - **Hover Provider (Documentation Preview)**:
   - Displays the Python function signature and docstring in a rich tooltip when hovering over a Gherkin step.
   - Automatically parses multiline function definitions and docstrings in Python to provide accurate context without switching files.
@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Symbol Cache**: Dramatically improved the performance of the "Go To Definition" feature in large projects. The extension now builds an in-memory index of all Python step definitions upon activation and dynamically updates it when files are modified, reducing lookup times to 0 milliseconds and eliminating continuous disk I/O.
-- **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes (💡) for Gherkin files.
+- **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes for Gherkin files.
   - **Undefined Steps**: Integrates with the Symbol Cache. If a step is not found in Python, a Quick Fix lets you automatically generate an empty Python step definition in your `steps/` directory.
   - **Syntax Error Auto-Corrections**: If you miss a colon on a block keyword (`Feature`, `Scenario`) or misspell a step keyword (`Givn`), Quick Fixes will offer to instantly auto-correct them.
   - **Structure Auto-Corrections**: If you add `Examples:` under a standard `Scenario`, a Quick Fix will offer to convert it to a `Scenario Outline`.
@@ -85,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added — Omega Squeeze (Project Analytics V6)
 - **Project Analytics**: Completely redesigned the `Gherkin: Show Project Statistics` dashboard with a premium glassmorphism interface and animated dynamic numbers.
-- **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes (💡) for Gherkin files.
+- **Code Actions (Quick Fixes)**: The extension now provides VS Code Quick Fixes for Gherkin files.
   - **Undefined Steps**: Integrates with the Symbol Cache. If a step is not found in Python, a Quick Fix lets you automatically generate an empty Python step definition in your `steps/` directory.
   - **Syntax Error Auto-Corrections**: If you miss a colon on a block keyword (`Feature`, `Scenario`) or misspell a step keyword (`Givn`), Quick Fixes will offer to instantly auto-correct them.
   - **Structure Auto-Corrections**: If you add `Examples:` under a standard `Scenario`, a Quick Fix will offer to convert it to a `Scenario Outline`.
