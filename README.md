@@ -86,12 +86,15 @@ Core formatting and syntax features operate directly on standard Gherkin `.featu
 - Syntax Highlighting
 
 ### Python / Behave Specific
-When working in a Python/Behave project, the extension parses your `@given`, `@when`, and `@then` decorators to enable:
+When working in a Python/Behave project, the extension builds a non-blocking, asynchronous **In-Memory Symbol Cache** using your `@given`, `@when`, and `@then` decorators to enable:
 - Go To Definition (`Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux)
 - Autocomplete (Step suggestions based on Python definitions)
-- Hover (Displays the Python Docstring of the step)
+- Hover (Displays the Python Docstring, raw pattern, parsed matcher, and signature of the step)
+- Ambiguous Step Detection (Linter flags steps with multiple definitions)
 
-> **Note:** Behave tooling is designed for conventional step decorators and `steps/` directory layouts. Dynamically generated decorators or complex multiline patterns may not be detected.
+You can explicitly configure which directories to index using the `gherkinPowerTools.behave.stepGlobs` and `gherkinPowerTools.behave.ignoreGlobs` settings to avoid indexing unnecessary files.
+
+> **Note:** Behave tooling supports multi-line decorators, exact strings, and regex placeholders. Highly dynamic generated decorators may not be fully detected.
 
 ---
 

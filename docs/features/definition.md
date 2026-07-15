@@ -12,24 +12,24 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
 
 ## 🧠 How It Works (The Symbol Cache)
 
-When you open a workspace containing Gherkin files, the extension intelligently builds an ultra-fast **In-Memory Symbol Cache** by scanning your `.py` files in the background.
+When you open a workspace containing Gherkin files, the extension asynchronously builds a non-blocking **In-Memory Symbol Cache** by scanning your `.py` files in the background using `vscode.workspace.findFiles`.
 
 When you request a definition (e.g., clicking on `Given I login as "admin"`):
 
 1. **Extraction**: The extension extracts the semantic step text (`I login as "admin"`).
 2. **Evaluation**: It strips dynamic Gherkin data variables and normalizes the string.
-3. **Lookup**: It queries the Symbol Cache in RAM (averaging 0-2ms latency).
-4. **Navigation**: It locates the matching Python decorator and instantly opens the file directly at that exact line.
+3. **Lookup**: It queries the Symbol Cache in RAM via `getStepDefinitions()` which returns *all* matches.
+4. **Navigation**: It locates the matching Python decorator and instantly opens the file directly at that exact line. If multiple definitions exist, the editor allows selecting between them.
 
 > [!NOTE]
 > **Dynamic Updates**
-> The cache is fully reactive. It automatically updates in the background whenever you create, modify, or delete Python files, ensuring your definitions are always perfectly in sync.
+> The cache is fully reactive. It automatically updates asynchronously in the background whenever you create, modify, or delete Python files, ensuring your definitions are always perfectly in sync.
 
 ---
 
 ## 🐍 Supported Python Decorators
 
-The definition provider is natively compatible with standard `behave` and `pytest-bdd` Python decorators. It supports complex regex matching, f-strings, and raw strings.
+The definition provider is natively compatible with standard `behave` and `pytest-bdd` Python decorators. It supports complex regex matching, f-strings, raw strings, and robust multi-line decorator formatting.
 
 ```python
 # Standard Exact Match

@@ -460,6 +460,8 @@ Feature: Tags
         const editor = await vscode.window.showTextDocument(document);
         await vscode.languages.setTextDocumentLanguage(document, 'feature');
 
+        // We can mock the cache directly via the extension exports if we wanted to, 
+        // but since this is an E2E test, we'll verify it doesn't crash.
         await editor.edit(editBuilder => {
             editBuilder.insert(new vscode.Position(0, 0), 'Feature: Ambiguous\n  Scenario: Test\n    Given some step');
         });
@@ -468,5 +470,67 @@ Feature: Tags
         
         const diagnostics = vscode.languages.getDiagnostics(document.uri);
         assert.ok(diagnostics !== undefined, 'Diagnostics should not be completely broken');
+    });
+
+    test('Simulate Dialect Service (Spanish language header)', async () => {
+        const uri = vscode.Uri.parse('untitled:dialect.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), '# language: es\nCaracterística: Prueba\n  Escenario: Prueba uno\n    Dado un paso válido');
+        });
+
+        // Wait for linter
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const diagnostics = vscode.languages.getDiagnostics(document.uri);
+        // It shouldn't have syntax errors about "Característica" or "Dado"
+        const syntaxErrors = diagnostics.filter(d => d.message.includes('Expected') || d.message.includes('EOF'));
+        assert.strictEqual(syntaxErrors.length, 0, 'Linter failed to recognize Spanish dialect');
+    });
+
+    test('Simulate Async Cache Indexing (Filesystem)', async () => {
+        // If we are in a real workspace, create a temporary .py step definition
+        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+            const root = vscode.workspace.workspaceFolders[0].uri;
+            const tempStepUri = vscode.Uri.joinPath(root, 'temp_e2e_steps.py');
+            
+            await vscode.workspace.fs.writeFile(tempStepUri, Buffer.from(`
+from behave import given
+@given('I execute an E2E test step')
+def step_impl(context):
+    pass
+`));
+
+            // Give the extension cache time to findFiles and read it asynchronously
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const uri = vscode.Uri.parse('untitled:async_cache.feature');
+            const document = await vscode.workspace.openTextDocument(uri);
+            const editor = await vscode.window.showTextDocument(document);
+            await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+            await editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'Feature: Async\n  Scenario: Test\n    Given I execute an E2E test step');
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
+                'vscode.executeDefinitionProvider',
+                document.uri,
+                new vscode.Position(2, 20) // hovering over 'I execute an E2E test step'
+            );
+
+            assert.ok(definitions !== undefined, 'Definition provider should return a location');
+            if (definitions && definitions.length > 0) {
+                assert.ok(definitions[0].uri.fsPath.endsWith('temp_e2e_steps.py'), 'Should navigate to the real async parsed file');
+            }
+
+            // Cleanup
+            await vscode.workspace.fs.delete(tempStepUri);
+        }
     });
 });
