@@ -14,7 +14,7 @@ export interface StepDefinition {
     uri: vscode.Uri;
 }
 
-export type CacheState = 'uninitialized' | 'initializing' | 'ready' | 'failed';
+type CacheState = 'uninitialized' | 'initializing' | 'ready' | 'failed';
 
 export class SymbolCache {
     // Map of file URI string to a list of step definitions in that file
