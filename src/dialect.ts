@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
+
 import type { Dialect } from '@cucumber/gherkin';
 
 const dialects = require('@cucumber/gherkin/dist/gherkin-languages.json');

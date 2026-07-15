@@ -37,7 +37,7 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
             return undefined;
         }
 
-        const stepKeyword = match[1].trim();
+
         const stepText = match[2].trim();
 
         const stepDef: StepDefinition | null = await this.symbolCache.getStepDefinition(stepText);
@@ -51,7 +51,6 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
         
         // Add the python function signature
         if (stepDef.functionName) {
-            let sig = `def ${stepDef.functionName}(...):`;
             if (stepDef.functionRange) {
                 // If we want we could read the actual line, but we can just show a nice format
             }
