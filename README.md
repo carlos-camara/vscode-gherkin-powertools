@@ -131,7 +131,7 @@ Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:
 Use `Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
 
 ### 5. Autocomplete
-- **Steps:** Suggests steps as you type based on your Python step definitions. Converts Behave placeholders into VS Code tab-stops.
+- **Steps:** Context-aware! Suggests steps as you type based on your Python step definitions, strictly filtering by the active `Given`/`When`/`Then` context and intelligently resolving `And`/`But` chains. Converts regex capture groups and Behave placeholders into VS Code tab-stops.
 - **Parameters:** When typing inside a `Scenario Outline`, typing `<` automatically parses the underlying `Examples` table and provides an IntelliSense dropdown with the available column headers. Selecting one inserts it with the closing `>` bracket.
 
 ### 6. Hover

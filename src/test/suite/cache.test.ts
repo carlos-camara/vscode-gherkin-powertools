@@ -36,10 +36,10 @@ def step_impl_when(context, amount):
         const uri = vscode.Uri.file(tempFile);
         await cache.updateFile(uri);
 
-        const patterns = await cache.getAllStepPatterns();
-        assert.strictEqual(patterns.length, 2);
-        assert.ok(patterns.includes('I have {count} apples'));
-        assert.ok(patterns.includes('I eat (?P<amount>\\d+) apples'));
+        const definitions = await cache.getAllStepDefinitions();
+        assert.strictEqual(definitions.length, 2);
+        assert.ok(definitions.find(d => d.rawPattern === 'I have {count} apples'));
+        assert.ok(definitions.find(d => d.rawPattern === 'I eat (?P<amount>\\d+) apples'));
 
         // Test matching
         const givenDef = await cache.getStepDefinition('I have 5 apples');
@@ -79,10 +79,10 @@ def general(context): pass
         const uri = vscode.Uri.file(tempFile);
         await cache.updateFile(uri);
         
-        assert.strictEqual((await cache.getAllStepPatterns()).length, 1);
+        assert.strictEqual((await cache.getAllStepDefinitions()).length, 1);
         
         cache.removeFile(uri);
-        assert.strictEqual((await cache.getAllStepPatterns()).length, 0);
+        assert.strictEqual((await cache.getAllStepDefinitions()).length, 0);
     });
 
     test('Handles read errors gracefully', async () => {
@@ -94,7 +94,7 @@ def general(context): pass
         // This should trigger the catch block and call removeFile
         await cache.updateFile(uri);
         
-        assert.strictEqual((await cache.getAllStepPatterns()).length, 0);
+        assert.strictEqual((await cache.getAllStepDefinitions()).length, 0);
     });
 
     test('Handles multiline function signatures and docstrings', async () => {

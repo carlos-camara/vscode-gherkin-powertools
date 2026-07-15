@@ -3,14 +3,17 @@ import * as vscode from 'vscode';
 import { GherkinCompletionProvider } from '../../completion';
 import { SymbolCache, StepDefinition } from '../../cache';
 
+let docVersion = 0;
 function createMockDocument(text: string, lineIndex: number): [vscode.TextDocument, vscode.Position] {
     const lines = text.split('\n');
+    docVersion++;
     const doc = {
         languageId: 'feature',
+        version: docVersion,
         getText: () => text,
         lineAt: (lineOrPos: any) => ({ text: lines[typeof lineOrPos === 'number' ? lineOrPos : lineOrPos.line] }),
         lineCount: lines.length,
-        uri: vscode.Uri.parse('file:///mock.feature')
+        uri: vscode.Uri.parse(`file:///mock_${docVersion}.feature`)
     } as any as vscode.TextDocument;
     
     // Position at the end of the specified line
@@ -28,60 +31,149 @@ suite('Completion Test Suite', () => {
         // Mock the cache with some step definitions
         const steps: StepDefinition[] = [
             {
-                rawPattern: 'I have {count} apples',
-                regex: /I have {count} apples/,
+                type: 'given',
+                rawPattern: 'I have {count:d} apples',
+                regex: /I have {count:d} apples/,
                 decoratorRange: new vscode.Range(0, 0, 0, 0)
             } as any,
             {
+                type: 'when',
                 rawPattern: 'I eat (?P<amount>\\d+) apples',
                 regex: /dummy/,
                 decoratorRange: new vscode.Range(1, 0, 1, 0)
+            } as any,
+            {
+                type: 'then',
+                rawPattern: 'I should have {count} apples',
+                regex: /dummy/,
+                decoratorRange: new vscode.Range(2, 0, 2, 0)
+            } as any,
+            {
+                type: 'step', // generic step
+                rawPattern: 'generic step',
+                regex: /dummy/,
+                decoratorRange: new vscode.Range(3, 0, 3, 0)
+            } as any,
+            {
+                type: 'given',
+                rawPattern: 'duplicate pattern',
+                regex: /dummy/,
+                decoratorRange: new vscode.Range(4, 0, 4, 0)
+            } as any,
+            {
+                type: 'given', // deliberate duplicate to test filtering
+                rawPattern: 'duplicate pattern',
+                regex: /dummy/,
+                decoratorRange: new vscode.Range(5, 0, 5, 0)
             } as any
         ];
         
         // Override the cache method for testing
-        mockCache.getAllStepPatterns = () => Promise.resolve(steps.map(s => s.rawPattern));
+        mockCache.getAllStepDefinitions = () => Promise.resolve(steps);
         
         provider = new GherkinCompletionProvider(mockCache);
     });
 
-    test('Provides completion items for Given step', async () => {
+    test('Provides Given completions and generic steps, but not When/Then', async () => {
         const text = `
 Feature: Test
   Scenario: Test
     Given I ha
         `.trim();
-        // Line index 2 is "    Given I ha"
         const [doc, pos] = createMockDocument(text, 2);
         
         const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext) as vscode.CompletionItem[];
         
         assert.ok(completions);
-        assert.strictEqual(completions.length, 2);
+        // Should return "I have {count:d} apples", "generic step", "duplicate pattern" (only one)
+        assert.strictEqual(completions.length, 3);
         
-        // Check first completion snippet conversion for {count}
-        const item1 = completions.find(c => c.filterText === 'I have {count} apples');
-        assert.ok(item1);
-        assert.ok(item1.insertText instanceof vscode.SnippetString);
-        assert.strictEqual(item1.insertText.value, 'I have \${1:count} apples');
+        const labels = completions.map(c => c.filterText);
+        assert.ok(labels.includes('I have {count:d} apples'));
+        assert.ok(labels.includes('generic step'));
+        assert.ok(labels.includes('duplicate pattern'));
         
-        // Check second completion snippet conversion for (?P<amount>\d+)
-        const item2 = completions.find(c => c.filterText === 'I eat (?P<amount>\\d+) apples');
-        assert.ok(item2);
-        assert.ok(item2.insertText instanceof vscode.SnippetString);
-        assert.strictEqual(item2.insertText.value, 'I eat \${1:amount} apples');
+        // Ensure snippet formatting
+        const item1 = completions.find(c => c.filterText === 'I have {count:d} apples');
+        assert.ok(item1?.insertText instanceof vscode.SnippetString);
+        assert.strictEqual(item1.insertText.value, 'I have ${1:count} apples');
     });
 
-    test('Does not provide completions without a keyword', async () => {
+    test('Provides When completions and resolves regex placeholders', async () => {
         const text = `
 Feature: Test
   Scenario: Test
-    I ha
+    When I ea
         `.trim();
         const [doc, pos] = createMockDocument(text, 2);
         
-        const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext);
-        assert.strictEqual(completions, undefined);
+        const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext) as vscode.CompletionItem[];
+        assert.ok(completions);
+        assert.strictEqual(completions.length, 2); // When + step
+        
+        const labels = completions.map(c => c.filterText);
+        assert.ok(labels.includes('I eat (?P<amount>\\d+) apples'));
+        assert.ok(labels.includes('generic step'));
+        
+        const item = completions.find(c => c.filterText === 'I eat (?P<amount>\\d+) apples');
+        assert.ok(item?.insertText instanceof vscode.SnippetString);
+        assert.strictEqual(item.insertText.value, 'I eat ${1:amount} apples');
+    });
+
+    test('Resolves And context from previous step', async () => {
+        const text = `
+Feature: Test
+  Scenario: Test
+    When I eat (?P<amount>\\d+) apples
+    And I s
+        `.trim();
+        const [doc, pos] = createMockDocument(text, 3);
+        
+        const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext) as vscode.CompletionItem[];
+        assert.ok(completions);
+        // And follows a When, so it should suggest When steps + generic steps
+        assert.strictEqual(completions.length, 2);
+        
+        const labels = completions.map(c => c.filterText);
+        assert.ok(labels.includes('I eat (?P<amount>\\d+) apples'));
+    });
+
+    test('Supports localized keywords (Spanish) via Dialect Service', async () => {
+        const text = `
+# language: es
+Característica: Prueba
+  Escenario: Prueba
+    Cuando I ea
+        `.trim();
+        const [doc, pos] = createMockDocument(text, 3);
+        
+        const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext) as vscode.CompletionItem[];
+        assert.ok(completions);
+        
+        // "Cuando" is "When"
+        assert.strictEqual(completions.length, 2);
+        const labels = completions.map(c => c.filterText);
+        assert.ok(labels.includes('I eat (?P<amount>\\d+) apples'));
+    });
+
+    test('Ranks exact textual prefixes higher', async () => {
+        const text = `
+Feature: Test
+  Scenario: Test
+    Given duplicate p
+        `.trim();
+        const [doc, pos] = createMockDocument(text, 2);
+        
+        const completions = await provider.provideCompletionItems(doc, pos, {} as vscode.CancellationToken, {} as vscode.CompletionContext) as vscode.CompletionItem[];
+        assert.ok(completions);
+        
+        const dupItem = completions.find(c => c.filterText === 'duplicate pattern');
+        assert.ok(dupItem);
+        assert.strictEqual(dupItem.sortText, '0_duplicate pattern');
+        
+        const genItem = completions.find(c => c.filterText === 'generic step');
+        assert.ok(genItem);
+        assert.strictEqual(genItem.sortText, '1_generic step');
     });
 
     test('Provides parameter completions for Scenario Outline Examples', async () => {

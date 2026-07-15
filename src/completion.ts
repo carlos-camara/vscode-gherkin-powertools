@@ -13,11 +13,11 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
     public async provideCompletionItems(
         document: vscode.TextDocument,
         position: vscode.Position,
-        _token: vscode.CancellationToken,
+        token: vscode.CancellationToken,
         _context: vscode.CompletionContext
     ): Promise<vscode.CompletionItem[] | vscode.CompletionList | undefined> {
         
-        const linePrefix = document.lineAt(position).text.substr(0, position.character);
+        const linePrefix = document.lineAt(position).text.substring(0, position.character);
         const dialect = dialectService.getDialect(document);
         
         // Check if we are inside a parameter typing state: e.g. "Given I do <fo"
@@ -61,6 +61,7 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
         }
 
         const keywordPrefix = match[1];
+        const typedText = linePrefix.substring(keywordPrefix.length);
 
         // Range to replace (everything after the keyword up to the cursor)
         const replaceRange = new vscode.Range(
@@ -70,18 +71,49 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
             position.character
         );
 
-        const patterns = await this.symbolCache.getAllStepPatterns();
-        const completionItems: vscode.CompletionItem[] = [];
+        // Determine semantic type of the current step
+        const kw = keywordPrefix.trim();
+        let semanticType: 'given' | 'when' | 'then' | 'step' = 'step';
+        
+        if (dialect.given.includes(kw) || dialect.given.includes(kw + ' ')) semanticType = 'given';
+        else if (dialect.when.includes(kw) || dialect.when.includes(kw + ' ')) semanticType = 'when';
+        else if (dialect.then.includes(kw) || dialect.then.includes(kw + ' ')) semanticType = 'then';
+        else if (dialect.and.includes(kw) || dialect.and.includes(kw + ' ') || 
+                 dialect.but.includes(kw) || dialect.but.includes(kw + ' ') || 
+                 kw === '*') {
+            semanticType = dialectService.resolveAndBut(document, position.line);
+        }
 
-        for (const pattern of patterns) {
+        const definitions = await this.symbolCache.getAllStepDefinitions();
+        const completionItems: vscode.CompletionItem[] = [];
+        const seenPatterns = new Set<string>();
+
+        for (const def of definitions) {
+            if (token.isCancellationRequested) {
+                return undefined;
+            }
+
+            // Filter by decorator type
+            if (def.type !== semanticType && def.type !== 'step') {
+                continue;
+            }
+
+            const pattern = def.rawPattern;
+
+            // Avoid duplicates
+            if (seenPatterns.has(pattern)) {
+                continue;
+            }
+            seenPatterns.add(pattern);
+
             const item = new vscode.CompletionItem(pattern, vscode.CompletionItemKind.Snippet);
             
-            // Convert Behave parameters {param} and regex (?P<param>.*) to Snippets ${1:param}
+            // Convert Behave parameters {param} or {param:d} and regex (?P<param>.*) to Snippets ${1:param}
             let snippetString = pattern;
             let counter = 1;
 
-            // Replace {param} -> ${1:param}
-            snippetString = snippetString.replace(/\{([^}]+)\}/g, (_match, paramName) => {
+            // Replace {param} or {param:type} -> ${1:param}
+            snippetString = snippetString.replace(/\{([^}:]+)(?::[^}]+)?\}/g, (_match, paramName) => {
                 return `\${${counter++}:${paramName}}`;
             });
 
@@ -91,7 +123,7 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
             });
 
             item.insertText = new vscode.SnippetString(snippetString);
-            item.detail = 'Python Step Definition';
+            item.detail = `Python @${def.type} Definition`;
             
             // Set the range to replace the entire typed text after the keyword
             item.range = replaceRange;
@@ -99,8 +131,12 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
             // Allow VS Code to filter by matching what the user typed against the full pattern
             item.filterText = pattern;
             
-            // Add a sort text to put them alphabetically
-            item.sortText = pattern;
+            // Rank exact textual prefixes higher than fuzzy matches
+            if (pattern.startsWith(typedText)) {
+                item.sortText = '0_' + pattern;
+            } else {
+                item.sortText = '1_' + pattern;
+            }
             
             completionItems.push(item);
         }

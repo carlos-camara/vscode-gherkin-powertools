@@ -8,8 +8,10 @@ Tired of memorizing the exact wording of your Python step definitions? The exten
 
 ### How it Works
 1. **Instant Trigger**: The moment you type a Gherkin keyword followed by a space (e.g. `Given`), the IntelliSense menu appears.
-2. **Interactive Variables**: If your Python step uses variables (like `{username}` or `(?P<role>.*)`), they are instantly transformed into VS Code **Snippet Variables**.
-3. **Tab-to-Fill**: Select the suggestion, and your cursor will automatically land on the first variable. Fill it in, hit <kbd>Tab</kbd>, and jump straight to the next one!
+2. **Context-Aware Filtering**: The extension strictly filters suggestions to match your context. If you type `When`, you will only see `@when` and generic `@step` suggestions.
+3. **Smart `And`/`But` Resolution**: Typing `And` or `But` dynamically scans upward to inherit the context of the preceding primary step.
+4. **Interactive Variables**: If your Python step uses variables (like `{username:d}` or `(?P<role>.*)`), they are instantly transformed into VS Code **Snippet Variables**.
+5. **Tab-to-Fill**: Select the suggestion, and your cursor will automatically land on the first variable. Fill it in, hit <kbd>Tab</kbd>, and jump straight to the next one!
 
 ### 📊 Scenario Outline Parameter Autocompletion
 
