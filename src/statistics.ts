@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { dialectService } from './dialect';
 
 export function escapeHtml(unsafe: string): string {
     return unsafe
@@ -96,23 +97,9 @@ export async function calculateStatistics(): Promise<GherkinStats> {
         maxStepsInScenario: 0
     };
 
-    const featureRegex = /^\s*(Feature|Característica|Fonction|Funktionalität):/i;
-    const ruleRegex = /^\s*(Rule|Regla|Règle|Regel):/i;
-    const backgroundRegex = /^\s*(Background|Antecedentes|Contexte|Hintergrund):/i;
-    const scenarioOutlineRegex = /^\s*(Scenario Outline|Esquema del escenario|Plan du scénario|Szenariogrundriss):\s*(.*)/i;
-    const scenarioRegex = /^\s*(Scenario|Escenario|Scénario|Szenario):\s*(.*)/i;
-    const tagRegex = /@[^\s@]+/g;
     const commentRegex = /^\s*#/;
     const dataRowRegex = /^\s*\|.*\|\s*$/;
     const emptyLineRegex = /^\s*$/;
-    
-    const givenRegex = /^\s*(Given|Dado|Dada|Dados|Dadas|Soit|Angenommen|Gegeben sei|Gegeben seien)\s/i;
-    const whenRegex = /^\s*(When|Cuando|Quand|Wenn)\s/i;
-    const thenRegex = /^\s*(Then|Entonces|Alors|Dann)\s/i;
-    const andRegex = /^\s*(And|Y|E|Et|Und)\s/i;
-    const butRegex = /^\s*(But|Pero|Mais|Aber)\s/i;
-
-    const stepKeywordRegex = /^\s*(Given|When|Then|And|But|Dado|Cuando|Entonces|Y|Pero)\s+(.*)/i;
     
     // Archetype Regex
     const uiRegex = /click|button|page|browser|url|navigate/i;
@@ -130,6 +117,26 @@ export async function calculateStatistics(): Promise<GherkinStats> {
         let currentScenarioSteps = 0;
         let currentScenarioName = "";
 
+        const dialect = dialectService.detectDialect(text);
+        
+        const toRegex = (keywords: readonly string[]) => new RegExp(`^\\s*(?:${keywords.map(k => k.trim()).filter(k => k.length > 0).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}):`, 'i');
+        const toStepRegex = (keywords: readonly string[]) => new RegExp(`^\\s*(?:${keywords.filter(k => k.length > 0).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'i');
+
+        const featureRegex = toRegex(dialect.feature);
+        const ruleRegex = toRegex(dialect.rule);
+        const backgroundRegex = toRegex(dialect.background);
+        const scenarioOutlineRegex = new RegExp(`^\\s*(?:${dialect.scenarioOutline.map(k => k.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&')).join('|')}):\\s*(.*)`, 'i');
+        const scenarioRegex = new RegExp(`^\\s*(?:${dialect.scenario.map(k => k.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&')).join('|')}):\\s*(.*)`, 'i');
+        
+        const givenRegex = toStepRegex(dialect.given);
+        const whenRegex = toStepRegex(dialect.when);
+        const thenRegex = toStepRegex(dialect.then);
+        const andRegex = toStepRegex(dialect.and);
+        const butRegex = toStepRegex(dialect.but);
+
+        const stepKeywordRegex = dialectService.getStepRegex(dialect);
+        const tagRegex = /@[^\\s@]+/g;
+
         for (const line of lines) {
             if (emptyLineRegex.test(line)) { stats.totalEmptyLines++; continue; }
             
@@ -141,14 +148,14 @@ export async function calculateStatistics(): Promise<GherkinStats> {
                 if (currentScenarioSteps > stats.maxStepsInScenario) { stats.maxStepsInScenario = currentScenarioSteps; stats.longestScenarioName = currentScenarioName; }
                 currentScenarioSteps = 0;
                 const match = line.match(scenarioOutlineRegex);
-                if (match && match[2]) currentScenarioName = match[2].trim();
+                if (match && match[1]) currentScenarioName = match[1].trim();
             }
             else if (scenarioRegex.test(line)) {
                 stats.totalScenarios++;
                 if (currentScenarioSteps > stats.maxStepsInScenario) { stats.maxStepsInScenario = currentScenarioSteps; stats.longestScenarioName = currentScenarioName; }
                 currentScenarioSteps = 0;
                 const match = line.match(scenarioRegex);
-                if (match && match[2]) currentScenarioName = match[2].trim();
+                if (match && match[1]) currentScenarioName = match[1].trim();
             }
             else if (givenRegex.test(line)) { stats.totalGiven++; stats.totalSteps++; currentScenarioSteps++; }
             else if (whenRegex.test(line)) { stats.totalWhen++; stats.totalSteps++; currentScenarioSteps++; }

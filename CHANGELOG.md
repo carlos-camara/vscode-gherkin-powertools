@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Idempotency**: Formatting a perfectly formatted document now returns zero text edits, keeping your Git and Undo stacks clean.
   - **Encoding Preservation**: Dynamically detects and preserves exact `CRLF` or `LF` encodings and final newlines natively.
   - **DocString Perfection**: Properly preserves internal spacing for multi-line blocks like JSON payloads, while shifting the base indentation relatively.
+- **Universal Multilingual Support (DialectService)**: Centralized all keyword parsing to use the official `@cucumber/gherkin` dialect database. The extension now natively understands translated keywords (e.g., `Dado`, `Angenommen`, `Soit`) for English, Spanish, French, German, and all other 70+ languages supported by Cucumber.
+  - Automatically detects dialect via the `# language: <lang>` header.
+  - Syntax Highlighting, Hover, Auto-completion, Code Actions, Go-To Definition, and Formatting seamlessly adapt to the document's locale.
+  - Dynamically resolves `And` / `But` continuations in all supported languages by parsing preceding step context.
 
 ## [1.7.2] - 2026-07-15
 

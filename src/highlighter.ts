@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { dialectService } from './dialect';
 
 /**
  * Custom Syntax Highlighter for Gherkin documents.
@@ -8,12 +9,6 @@ export class GherkinHighlighter {
     private structureDecoration: vscode.TextEditorDecorationType;
     private actionDecoration: vscode.TextEditorDecorationType;
     private tagDecoration: vscode.TextEditorDecorationType;
-
-    // Regex for structural keywords (Feature, Scenario, Rule, etc.)
-    private structureRegex = /^(Feature|Característica|Fonction|Funktionalität|Scenario Outline|Esquema del escenario|Plan du scénario|Szenariogrundriss|Scenario|Escenario|Scénario|Szenario|Background|Antecedentes|Contexte|Hintergrund|Rule|Regla|Règle|Regel|Examples|Ejemplos|Exemples|Beispiele):?/im;
-
-    // Regex for action keywords (Given, When, Then, And, But, *)
-    private actionRegex = /^(Given|Dado|Soit|Angenommen|When|Cuando|Quand|Wenn|Then|Entonces|Alors|Dann|And|Y|Et|Und|But|Pero|Mais|Aber|\*)\s/im;
 
     constructor() {
         // Professional VS Code Native Purple for Structure
@@ -49,6 +44,10 @@ export class GherkinHighlighter {
             return;
         }
 
+        const dialect = dialectService.getDialect(document);
+        const structureRegex = dialectService.getStructureRegex(dialect);
+        const actionRegex = dialectService.getStepRegex(dialect);
+
         const structureRanges: vscode.Range[] = [];
         const actionRanges: vscode.Range[] = [];
         const tagRanges: vscode.Range[] = [];
@@ -78,9 +77,9 @@ export class GherkinHighlighter {
             }
 
             // Check Structure Keywords
-            const structureMatch = trimmedLine.match(this.structureRegex);
+            const structureMatch = trimmedLine.match(structureRegex);
             if (structureMatch) {
-                const keyword = structureMatch[0];
+                const keyword = structureMatch[1];
                 const start = line.indexOf(keyword);
                 const end = start + keyword.length;
                 structureRanges.push(new vscode.Range(i, start, i, end));
@@ -88,7 +87,7 @@ export class GherkinHighlighter {
             }
 
             // Check Action Keywords
-            const actionMatch = trimmedLine.match(this.actionRegex);
+            const actionMatch = trimmedLine.match(actionRegex);
             if (actionMatch) {
                 const keyword = actionMatch[1]; // Just the word, not the space
                 const start = line.indexOf(keyword);

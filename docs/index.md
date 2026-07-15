@@ -18,7 +18,7 @@ Gherkin PowerTools focuses on:
 - 🔍 **Live Diagnostics** — Real-time syntax validation as you type
 - 🧭 **Navigation & Context** — `Cmd+Click` definition jumps, and Hover for step documentation and Tag Blast Radius.
 - 📊 **Statistics Dashboard** — Visual metrics across your entire BDD project
-- 🌐 **Multi-language i18n** — English, Spanish, French, German keyword support
+- 🌐 **Multi-language i18n** — Native support for 70+ languages (English, Spanish, French, German, etc.) via official Cucumber dialects
 
 ## Quick Start
 

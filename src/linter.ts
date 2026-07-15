@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { SymbolCache } from './cache';
+import { dialectService } from './dialect';
 
 /**
  * Diagnostic Provider that acts as a realtime Linter for Gherkin files.
@@ -83,6 +84,7 @@ export class GherkinLinter {
 
         const diagnostics: vscode.Diagnostic[] = [];
         const text = document.getText();
+        const dialect = dialectService.getDialect(document);
         let gherkinDocument: any = null;
 
         try {
@@ -119,7 +121,7 @@ export class GherkinLinter {
                     if (gotMatch) {
                         const gotText = gotMatch[1];
                         
-                        const blockKeywords = ['Feature', 'Rule', 'Background', 'Scenario Outline', 'Scenario Template', 'Scenario', 'Examples', 'Scenarios'];
+                        const blockKeywords = dialectService.getBlockKeywords(dialect);
                         const startsWithBlockKeyword = blockKeywords.find(k => gotText.startsWith(k));
                         
                         if (startsWithBlockKeyword && !gotText.startsWith(startsWithBlockKeyword + ':')) {
@@ -130,7 +132,8 @@ export class GherkinLinter {
                             endChar = startChar + startsWithBlockKeyword.length;
                         } else {
                             const firstWord = gotText.split(/\s+/)[0];
-                            const validKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples', 'Given', 'When', 'Then', 'And', 'But'];
+                            const stepKeywords = dialectService.getStepKeywords(dialect);
+                            const validKeywords = [...blockKeywords, ...stepKeywords];
                             
                             let bestMatch = '';
                             let lowestDistance = 999;
@@ -162,7 +165,7 @@ export class GherkinLinter {
                                 endChar = startChar + firstWord.length;
                             } else {
                                 if (message.includes('expected:')) {
-                                    message = 'Invalid Gherkin syntax. Expected a valid keyword (Feature, Scenario, Given, When, Then, etc.)';
+                                    message = `Invalid Gherkin syntax. Expected a valid keyword in ${dialect.name} (${validKeywords.slice(0, 5).join(', ')}, etc.)`;
                                 } else {
                                     message = message.replace(/^(\d+:\d+):\s*/, '');
                                 }
@@ -221,7 +224,8 @@ export class GherkinLinter {
                         }
                     } else {
                         if (message.includes('expected:')) {
-                            message = 'Invalid Gherkin syntax. Expected a valid keyword (Feature, Scenario, Given, When, Then, etc.)';
+                            const validKeywords = [...dialectService.getBlockKeywords(dialect), ...dialectService.getStepKeywords(dialect)];
+                            message = `Invalid Gherkin syntax. Expected a valid keyword in ${dialect.name} (${validKeywords.slice(0, 5).join(', ')}, etc.)`;
                         } else {
                             message = message.replace(/^(\d+:\d+):\s*/, '');
                         }
