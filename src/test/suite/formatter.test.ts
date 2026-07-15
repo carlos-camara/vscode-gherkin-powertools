@@ -223,6 +223,56 @@ suite('Formatter Test Suite', () => {
         
         assert.strictEqual(result1, result2);
     });
+
+    test('Format feature with language header (i18n)', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            '# language: es',
+            'Característica: Inicio de sesión',
+            'Escenario: Éxito',
+            'Dado que estoy en la página de inicio'
+        ].join('\n');
+
+        const result = await runFormat(formatter, unformatted);
+        const formatted = result.split('\n');
+
+        assert.strictEqual(formatted[0].trim(), '# language: es'); // Comments might inherit indent from next node, which might be 0, but trim to be safe
+        assert.strictEqual(formatted[1], 'Característica: Inicio de sesión');
+        assert.strictEqual(formatted[2], '');
+        assert.strictEqual(formatted[3], '  Escenario: Éxito');
+        assert.strictEqual(formatted[4], '    Dado que estoy en la página de inicio');
+    });
+
+    test('Format with custom options (no table alignment, custom step indentation)', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario: S',
+            'Given data:',
+            '|col1|col2|',
+            '|val1|extremely_long_val2|'
+        ].join('\n');
+
+        const customOptions: FormatterOptions = {
+            stepIndentation: 4, // 2 spaces for scenario + 4 for step = 6 spaces
+            alignTableToKeyword: false, // Do not align table to "Given"
+            tagsFormat: 'wrap',
+            emptyLinesBetweenScenarios: 1
+        };
+
+        const resultLines = await formatter.formatGherkin(unformatted, customOptions, { isCancellationRequested: false } as vscode.CancellationToken);
+        const result = resultLines ? resultLines.map(l => l.text).join('\n') : '';
+        const formatted = result.split('\n');
+
+        assert.strictEqual(formatted[0], 'Feature: F');
+        assert.strictEqual(formatted[1], ''); // emptyLineBetweenScenarios
+        assert.strictEqual(formatted[2], '  Scenario: S');
+        assert.strictEqual(formatted[3], '      Given data:');
+        
+        // Table should have its own 6 spaces instead of keyword alignment
+        assert.strictEqual(formatted[4], '        | col1 | col2                |');
+        assert.strictEqual(formatted[5], '        | val1 | extremely_long_val2 |');
+    });
 });
 
 suite('Formatter VS Code API Wrapper Tests', () => {
@@ -343,5 +393,32 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         const result = await runRangeFormat(formatter, unformatted, 4, 4);
         // It should yield an empty line followed by the properly indented Scenario
         assert.strictEqual(result, '\n    Scenario: S2');
+    });
+
+    test('Range formatting: syntax errors fallback gracefully', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Scenario: S', // Missing Feature keyword causes fatal AST parser error
+            'Given 1'
+        ].join('\n');
+        
+        // Since formatting fails on invalid syntax, it should return original unformatted slice
+        const result = await runRangeFormat(formatter, unformatted, 1, 1);
+        assert.strictEqual(result, 'Given 1');
+    });
+
+    test('Range formatting: selection partially inside a Table', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario: S',
+            'Given users:',
+            '|u1|p1|',
+            '|u2|p2|'
+        ].join('\n');
+        
+        // select lines 3 and 4 (header and first row only)
+        const result = await runRangeFormat(formatter, unformatted, 3, 4);
+        assert.strictEqual(result, '            | u1 | p1 |\n            | u2 | p2 |');
     });
 });
