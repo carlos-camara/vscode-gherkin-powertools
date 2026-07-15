@@ -8,7 +8,8 @@ on:
 
 permissions:
   contents: read
-  checks: write # Required for publish-unit-test-result-action to post check runs
+  # Required for publish-unit-test-result-action to post check runs
+  checks: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,7 +35,8 @@ jobs:
         uses: actions/cache@v6
         with:
           path: .vscode-test
-          key: ${{ runner.os }}-${{ runner.arch }}-vscode-test-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-vscode-test-${{
+            hashFiles('package-lock.json') }}
 
       - name: 🎭 Run End-to-End Tests (Linux)
         if: runner.os == 'Linux'
@@ -45,7 +47,10 @@ jobs:
         run: npm run test:e2e
 
       - name: 📝 Publish E2E Test Results (Linux)
-        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'Linux' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: "test-results/e2e-test-results.xml"
@@ -54,7 +59,10 @@ jobs:
           check_run: true
 
       - name: 📝 Publish E2E Test Results (Windows)
-        if: always() && runner.os == 'Windows' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'Windows' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
         with:
           files: "test-results/e2e-test-results.xml"
@@ -63,7 +71,10 @@ jobs:
           check_run: true
 
       - name: 📝 Publish E2E Test Results (macOS)
-        if: always() && runner.os == 'macOS' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'macOS' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action/macos@v2
         with:
           files: "test-results/e2e-test-results.xml"

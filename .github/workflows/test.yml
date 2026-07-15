@@ -9,8 +9,10 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write # Required for report-coverage to update the PR comment
-  checks: write # Required for publish-unit-test-result-action to post check runs
+  # Required for report-coverage to update the PR comment
+  pull-requests: write
+  # Required for publish-unit-test-result-action to post check runs
+  checks: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,7 +50,10 @@ jobs:
           pr-number: ${{ github.event.pull_request.number }}
 
       - name: 📝 Publish Unit Test Results (Linux)
-        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'Linux' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: "test-results/unit-test-results.xml"
@@ -57,7 +62,10 @@ jobs:
           check_run: true
 
       - name: 📝 Publish Unit Test Results (Windows)
-        if: always() && runner.os == 'Windows' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'Windows' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
         with:
           files: "test-results/unit-test-results.xml"
@@ -66,7 +74,10 @@ jobs:
           check_run: true
 
       - name: 📝 Publish Unit Test Results (macOS)
-        if: always() && runner.os == 'macOS' && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'macOS' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action/macos@v2
         with:
           files: "test-results/unit-test-results.xml"
