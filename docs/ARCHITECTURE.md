@@ -27,7 +27,7 @@ graph LR
 | Module | Responsibility |
 |--------|---------------|
 | `extension.ts` | Entry point. Bundled via **Esbuild** for fast activation. Registers all commands, providers, and diagnostics. |
-| `formatter.ts` | Core formatting engine: indentation, table alignment, auto-casing, tag wrapping |
+| `formatter.ts` | Core formatting engine: indentation, table alignment, tag wrapping |
 | `highlighter.ts` | Custom semantic syntax highlighting via `createTextEditorDecorationType` |
 | `linter.ts` | Real-time syntax checking via `@cucumber/gherkin` AST, with fallback text scanning. |
 | `definition.ts` | Go-To-Definition provider: accesses `cache.ts` for instant lookups |

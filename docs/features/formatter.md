@@ -26,8 +26,7 @@ Data tables and `Examples` blocks (using pipes `|`) are dynamically padded. The 
           | 2  | test     | read  |
 ```
 
-### Auto-Casing & Keyword Normalization
-Automatically capitalizes Gherkin keywords (`given` → `Given`, `scenario outline` → `Scenario Outline`) to enforce strict standardization across your suite.
+
 
 ### Intelligent Tag Wrapping
 Keeps your files clean by intelligently wrapping long lists of `@tags` that exceed 80 characters. It respects logical grouping and indents them correctly above the Scenario or Feature block.
