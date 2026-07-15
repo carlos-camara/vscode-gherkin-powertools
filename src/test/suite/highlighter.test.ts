@@ -24,7 +24,7 @@ suite('Highlighter Test Suite', () => {
 
         // We can't easily mock the active text editor in an end-to-end test without opening a real window,
         // but we can open one!
-        const editor = await vscode.window.showTextDocument(doc);
+        await vscode.window.showTextDocument(doc);
         
         // Create a duck-typed mock TextEditor
         const decorationsMap = new Map<vscode.TextEditorDecorationType, vscode.Range[]>();

@@ -145,7 +145,7 @@ suite('Statistics Core Logic Test Suite', () => {
           | b    |
         `;
         
-        const doc = await vscode.workspace.openTextDocument({ language: 'feature', content: docContent });
+        await vscode.workspace.openTextDocument({ language: 'feature', content: docContent });
         
         const stats = await calculateStatistics();
         assert.ok(stats);

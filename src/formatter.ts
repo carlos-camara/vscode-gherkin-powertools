@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { GherkinDocument, Feature, Rule, Scenario, Background, Step, Examples, TableRow, TableCell, Tag } from '@cucumber/messages';
+import type { GherkinDocument, Scenario, Background, TableCell, Tag } from '@cucumber/messages';
 
 export interface FormatterOptions {
     stepIndentation: number;
