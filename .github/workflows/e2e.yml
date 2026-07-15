@@ -45,7 +45,10 @@ jobs:
         run: npm run test:e2e
 
       - name: 📝 Publish E2E Test Results
-        if: always() && github.event_name == 'pull_request'
+        if: >
+          always() &&
+          runner.os == 'Linux' &&
+          github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: "test-results/e2e-test-results.xml"
