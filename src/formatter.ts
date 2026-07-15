@@ -17,7 +17,7 @@ interface NodeInfo {
     emptyLinesBefore?: number;
 }
 
-export interface FormattedLine {
+interface FormattedLine {
     text: string;
     originalLine: number;
 }
