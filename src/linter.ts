@@ -75,8 +75,8 @@ export class GherkinLinter {
             const location = error.location;
             if (location && typeof location.line === 'number') {
                 // AST locations are 1-indexed, VS Code positions are 0-indexed
-                const lineIndex = Math.max(0, location.line - 1);
-                const lineText = document.lineAt(lineIndex).text;
+                const lineIndex = Math.min(Math.max(0, location.line - 1), document.lineCount > 0 ? document.lineCount - 1 : 0);
+                const lineText = document.lineCount > 0 ? document.lineAt(lineIndex).text : '';
                 
                 // Column from AST is 1-indexed. If not present or 0, default to first non-whitespace char.
                 let startChar = location.column ? Math.max(0, location.column - 1) : 0;
