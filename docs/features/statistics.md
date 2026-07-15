@@ -1,6 +1,6 @@
 # 📊 Project Analytics Dashboard
 
-Stop flying blind. Get instant, enterprise-grade BDD analytics about your entire project with the **Omega Squeeze** statistics dashboard.
+Stop flying blind. Get instant, enterprise-grade BDD analytics about your entire project with the project statistics dashboard.
 
 > [!TIP]
 > **How to Launch**
@@ -10,28 +10,30 @@ Stop flying blind. Get instant, enterprise-grade BDD analytics about your entire
 
 ---
 
-## 🏆 The Gherkin Quality Score (GQS)
-The dashboard acts as an automated Quality Auditor for your BDD suite. It calculates a proprietary score from **0 to 100** based on strict BDD best practices:
+## 🏆 The Gherkin Quality Indicator
+The dashboard acts as an automated Quality Auditor for your BDD suite. It calculates a heuristic score from **0 to 100** based on strict BDD best practices:
 
 - **+ Background Reuse**: Earn points for actively using `Background` blocks to eliminate precondition repetition.
-- **+ Table Parametrization**: Earn points for using `Scenario Outline` with `Examples` tables to condense testing permutations.
-- **+ Documentation Density**: Earn points for having a high ratio of explanatory comments (`#`).
+- **+ Data Density**: Earn points for using `Scenario Outline` with `Examples` and Data Tables to condense testing permutations.
+- **+ Documentation**: Earn points for having a high ratio of explanatory comments (`#`).
 - **- Complexity Penalty**: Lose points if your scenarios are excessively long (penalizes average lengths of >12 steps per scenario).
 
+Formulas for the indicators are documented via tooltips when hovering over the respective items in the dashboard!
+
 ## 🧠 Scenario Intelligence & Archetypes
-- **Scenario Intelligence**: Tracks vocabulary richness, average step conciseness, data density, and actively flags the "Most Complex Scenario" in your suite so you know exactly where to refactor.
+- **Scenario Intelligence**: Tracks vocabulary richness, average step conciseness, data density, and actively flags the "Longest scenario" in your suite so you know exactly where to refactor.
 - **Behavioral Archetypes**: Scans and classifies your step vocabulary to determine if your project is heavily focused on UI testing, API operations, or Database manipulation.
 - **Step Execution Breakdown**: Real-time progress bars charting the exact distribution of `Given`, `When`, `Then`, and `And`/`But` usages across the suite.
 
-## 🚀 Execution & Automation ROI
+## 🚀 Estimated Execution Effort
 Stop guessing the value of your automated tests. The dashboard now calculates:
 
-- **Total Executable Tests**: It doesn't just count scenarios. It mathematically calculates every single test permutation by multiplying `Scenario Outline` execution rows.
-- **Automation ROI**: Calculates the estimated manual hours saved by your suite every test run (assuming an industry baseline of 5 minutes per manual test execution).
+- **Executable Tests**: It doesn't just count scenarios. It mathematically calculates every single test permutation by parsing `Scenario Outline` execution rows.
+- **Estimated Execution Effort**: Calculates the estimated manual hours saved by your suite every test run (assuming an industry baseline of 5 minutes per manual test execution).
 
 ## 🏷️ Tags & Step Intelligence
 - **Top Tags Leaderboard**: Scans and indexes every tag in your workspace, displaying an interactive leaderboard of the most frequently used elements (`@smoke`, `@regression`, etc.).
-- **Code Density**: Tracks total lines of Gherkin code versus empty formatting lines to monitor file spacing health.
+- **Reusability Index**: Compares total written steps against the number of uniquely instantiated step definitions.
 
 ---
 
@@ -39,7 +41,7 @@ Stop guessing the value of your automated tests. The dashboard now calculates:
 
 The dashboard is rendered as an interactive, fully responsive **HTML Webview** inside VS Code. It features a premium glassmorphism UI built with raw HTML and CSS animations.
 
-When triggered, the extension deeply parses all `.feature` files in the workspace (including unsaved buffers) through the `@cucumber/gherkin` AST, aggregates the data in memory, and paints the dashboard without any external dependencies or telemetry.
+When triggered, the extension deeply parses all `.feature` files in the workspace (including unsaved buffers) through the `@cucumber/gherkin` and `@cucumber/messages` AST, leveraging asynchronous parsing with cancellation support to prevent UI blocking. It aggregates the data in memory and paints the dashboard without any external dependencies or telemetry.
 
 ### 🔒 Webview Security
 Following strict enterprise security standards, the Webview implements a robust Content Security Policy (CSP).
