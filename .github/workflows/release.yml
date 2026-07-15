@@ -24,35 +24,71 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🏷️ Determine Version
-        id: version
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: ⚙️ Setup and Build
+        uses: ./.github/actions/setup-build
+
+      - name: 🧪 Validate Tests
+        run: |
+          xvfb-run -a npm run test
+          xvfb-run -a npm run test:e2e
+
+      - name: 🏷️ Determine Version and Tag
+        id: vars
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "Release $TAG already exists. Skipping release."
-            echo "is_new_version=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "New version detected: $TAG."
-            echo "is_new_version=true" >> "$GITHUB_OUTPUT"
-            echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: ⚙️ Setup and Build
-        if: steps.version.outputs.is_new_version == 'true'
-        uses: ./.github/actions/setup-build
+          VSIX="gherkin-powertools-$VERSION.vsix"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "vsix=$VSIX" >> "$GITHUB_OUTPUT"
 
       - name: 📦 Package VSIX
-        if: steps.version.outputs.is_new_version == 'true'
-        run: npx -y @vscode/vsce package --out "gherkin-powertools-${{ steps.version.outputs.tag_name }}.vsix"
+        run: |
+          npx vsce package --out ${{ steps.vars.outputs.vsix }}
+          npx vsce ls
 
-      - name: 🚀 Create GitHub Release
-        if: steps.version.outputs.is_new_version == 'true'
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.version.outputs.tag_name }}
-          target_commitish: ${{ github.sha }}
-          files: gherkin-powertools-*.vsix
-          generate_release_notes: true
+      - name: 🛡️ Verify VSIX
+        run: |
+          if [ ! -s "${{ steps.vars.outputs.vsix }}" ]; then
+            echo "Error: VSIX file is missing or empty!"
+            exit 1
+          fi
+
+      - name: 🏷️ Ensure Git Tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.vars.outputs.tag }}"
+          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists."
+          else
+            echo "Creating tag $TAG..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+      - name: 🚀 Ensure GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.vars.outputs.tag }}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists."
+          else
+            echo "Creating release $TAG..."
+            gh release create "$TAG" --generate-notes
+          fi
+
+      - name: 📎 Upload VSIX Asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.vars.outputs.tag }}"
+          VSIX="${{ steps.vars.outputs.vsix }}"
+          if gh release view "$TAG" --json assets -q ".assets[].name" | grep -qx "$VSIX"; then
+            echo "Asset $VSIX already uploaded to release $TAG."
+          else
+            echo "Uploading asset $VSIX to release $TAG..."
+            gh release upload "$TAG" "$VSIX" --clobber
+          fi
