@@ -9,11 +9,11 @@ suite('Definition Provider Test Suite', () => {
     setup(() => {
         // We'll mock the cache with a simple stub
         mockCache = {
-            findDefinition: (text: string) => {
+            getStepDefinitions: (text: string) => {
                 if (text === 'I login') {
-                    return Promise.resolve(new vscode.Location(vscode.Uri.file('/fake/path.py'), new vscode.Position(0, 0)));
+                    return Promise.resolve([{ uri: vscode.Uri.file('/fake/path.py'), decoratorRange: new vscode.Range(0, 0, 0, 0) }] as any);
                 }
-                return Promise.resolve(null);
+                return Promise.resolve([]);
             }
         } as any;
     });
@@ -29,9 +29,10 @@ suite('Definition Provider Test Suite', () => {
         const token = new vscode.CancellationTokenSource().token;
         const pos = new vscode.Position(0, 7); // inside 'I login'
         
-        const result = await provider.provideDefinition(doc, pos, token);
+        const result = await provider.provideDefinition(doc, pos, token) as vscode.Location[];
         assert.ok(result);
-        assert.strictEqual(result?.uri.fsPath.endsWith('path.py'), true);
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].uri.fsPath.endsWith('path.py'), true);
     });
 
     test('Returns null for non-step line', async () => {

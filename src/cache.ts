@@ -1,13 +1,17 @@
 import * as vscode from 'vscode';
-import { logger } from './logger';
 import * as fs from 'fs';
+import { logger } from './logger';
 
 export interface StepDefinition {
+    type: 'given' | 'when' | 'then' | 'step';
+    rawPattern: string;
+    matcherType: 'parse' | 'cfparse' | 're';
     regex: RegExp;
-    location: vscode.Location;
-    patternText: string;
-    functionSignature?: string;
+    decoratorRange: vscode.Range;
+    functionRange?: vscode.Range;
+    functionName?: string;
     documentation?: string;
+    uri: vscode.Uri;
 }
 
 export type CacheState = 'uninitialized' | 'initializing' | 'ready' | 'failed';
@@ -26,10 +30,16 @@ export class SymbolCache {
         this.state = 'initializing';
         this.initPromise = (async () => {
             try {
-                const stepFiles = await vscode.workspace.findFiles('**/steps/**/*.py', '**/node_modules/**');
-                for (const file of stepFiles) {
-                    await this.updateFile(file);
-                }
+                const config = vscode.workspace.getConfiguration('gherkinPowerTools.behave');
+                const stepGlobs = config.get<string[]>('stepGlobs', ['**/steps/**/*.py', '**/features/steps/**/*.py']);
+                const ignoreGlobs = config.get<string[]>('ignoreGlobs', ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**']);
+
+                const globPattern = stepGlobs.length > 1 ? `{${stepGlobs.join(',')}}` : stepGlobs[0];
+                const excludePattern = ignoreGlobs.length > 1 ? `{${ignoreGlobs.join(',')}}` : ignoreGlobs[0];
+
+                const stepFiles = await vscode.workspace.findFiles(globPattern, excludePattern);
+                await Promise.all(stepFiles.map(file => this.updateFile(file)));
+
                 this.state = 'ready';
                 logger.info(`Gherkin PowerTools: Symbol cache initialized with ${stepFiles.length} files.`);
             } catch (err) {
@@ -43,77 +53,120 @@ export class SymbolCache {
 
     public async updateFile(uri: vscode.Uri): Promise<void> {
         try {
-            const content = await fs.promises.readFile(uri.fsPath, 'utf8');
+            const rawBytes = await vscode.workspace.fs.readFile(uri);
+            const content = new TextDecoder('utf8').decode(rawBytes);
             const lines = content.split(/\r?\n/);
             const definitions: StepDefinition[] = [];
 
             for (let i = 0; i < lines.length; i++) {
-                const pyLine = lines[i].trim();
+                const pyLine = lines[i];
+                const pyLineTrimmed = pyLine.trim();
 
                 // Look for Behave decorators: @given('...'), @when(r"..."), etc.
-                const decoratorMatch = pyLine.match(/^@(given|when|then|step)\s*\(\s*(?:r|u|f|b)?(['"])(.*?)\2/i);
+                const decoratorMatch = pyLineTrimmed.match(/^@(given|when|then|step)\s*\(\s*(?:r|u|f|b)?(['"])(.*)$/i);
                 if (decoratorMatch) {
-                    const patternText = decoratorMatch[3];
-                    
-                    // Convert Behave pattern to JS RegExp
-                    // Replace {variable} or (?P<variable>...) with .*
-                    let regexPattern = patternText
-                        .replace(/\{[^}]*\}/g, '.*')
-                        .replace(/\(\?P<[^>]+>.*?\)/g, '.*');
+                    const stepType = decoratorMatch[1].toLowerCase() as 'given'|'when'|'then'|'step';
+                    const quoteChar = decoratorMatch[2];
+                    let rawPattern = decoratorMatch[3];
+                    let startLine = i;
+                    let endLine = i;
 
-                    // Escape special regex characters except .*
-                    regexPattern = regexPattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\\\.\\\*/g, '.*');
+                    // Support multiline decorators
+                    if (!rawPattern.endsWith(quoteChar + ')') && !rawPattern.endsWith(quoteChar)) {
+                        let foundEnd = false;
+                        for (let m = i + 1; m < Math.min(i + 10, lines.length); m++) {
+                            const nLine = lines[m];
+                            rawPattern += '\n' + nLine;
+                            if (nLine.includes(quoteChar)) {
+                                foundEnd = true;
+                                endLine = m;
+                                break;
+                            }
+                        }
+                        if (foundEnd) {
+                            const closingIdx = rawPattern.lastIndexOf(quoteChar);
+                            if (closingIdx !== -1) {
+                                rawPattern = rawPattern.substring(0, closingIdx);
+                            }
+                        }
+                    } else {
+                        // It's on a single line. Trim the closing quote and paren.
+                        rawPattern = rawPattern.replace(new RegExp(`${quoteChar}\\)?\\s*$`), '');
+                    }
 
-                    // Prevent exponential backtracking (ReDoS) by collapsing consecutive .*
+                    let matcherType: 'parse' | 'cfparse' | 're' = 'parse';
+                    if (pyLineTrimmed.match(/@(given|when|then|step)\s*\(\s*re\./i) || rawPattern.includes('(?P<')) {
+                        matcherType = 're';
+                    } else if (rawPattern.includes('{') && rawPattern.includes('}')) {
+                        matcherType = 'parse';
+                    }
+
+                    let regexPattern = rawPattern;
+                    if (matcherType === 're') {
+                        regexPattern = regexPattern.replace(/\(\?P<[^>]+>/g, '(');
+                    } else {
+                        // Escape regex characters and replace \{param\} with .*
+                        regexPattern = regexPattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\\\{[^}]+\\\}/g, '.*');
+                    }
+
+                    // Prevent exponential backtracking
                     regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');
 
-                    let functionSignature: string | undefined;
+                    const decoratorStartCol = lines[startLine].indexOf('@' + decoratorMatch[1]);
+                    const decoratorEndCol = lines[endLine].length;
+                    const decoratorRange = new vscode.Range(startLine, Math.max(0, decoratorStartCol), endLine, decoratorEndCol);
+
+                    let functionName: string | undefined;
+                    let functionRange: vscode.Range | undefined;
                     let documentation: string | undefined;
 
-                    // Look ahead for function signature and docstring (up to 15 lines)
-                    for (let j = i + 1; j < Math.min(i + 15, lines.length); j++) {
+                    for (let j = endLine + 1; j < Math.min(endLine + 15, lines.length); j++) {
                         const aheadLine = lines[j].trim();
-                        if (!functionSignature && aheadLine.startsWith('def ')) {
-                            functionSignature = aheadLine;
-                            let currentLineIdx = j;
-                            
-                            // If it doesn't end with a colon, it might be a multiline signature
-                            while (!functionSignature.endsWith(':') && currentLineIdx + 1 < lines.length) {
-                                currentLineIdx++;
-                                const nextLine = lines[currentLineIdx].trim();
-                                functionSignature += ' ' + nextLine;
-                            }
-
-                            if (functionSignature.endsWith(':')) {
-                                functionSignature = functionSignature.slice(0, -1);
-                            }
-                            
-                            // Now look for docstring directly after def
-                            for (let k = currentLineIdx + 1; k < Math.min(currentLineIdx + 10, lines.length); k++) {
-                                const docLine = lines[k].trim();
-                                if (docLine.startsWith('"""') || docLine.startsWith("'''")) {
-                                    const quote = docLine.substring(0, 3);
-                                    let doc = docLine.substring(3);
-                                    if (doc.endsWith(quote) && docLine.length > 3) {
-                                        documentation = doc.slice(0, -3).trim();
-                                        break; // single line docstring
-                                    } else {
-                                        // multi-line docstring
-                                        let fullDoc = doc + '\n';
-                                        for (let m = k + 1; m < lines.length; m++) {
-                                            const mLine = lines[m];
-                                            const mTrimmed = mLine.trim();
-                                            if (mTrimmed.endsWith(quote)) {
-                                                fullDoc += mLine.substring(0, mLine.lastIndexOf(quote));
-                                                break;
+                        if (!functionName && aheadLine.startsWith('def ')) {
+                            const defMatch = aheadLine.match(/^def\s+([a-zA-Z0-9_]+)\s*\(/);
+                            if (defMatch) {
+                                functionName = defMatch[1];
+                                const defStartLine = j;
+                                const defStartCol = lines[j].indexOf('def ');
+                                
+                                let currentLineIdx = j;
+                                let functionSignature = aheadLine;
+                                while (!functionSignature.endsWith(':') && currentLineIdx + 1 < lines.length) {
+                                    currentLineIdx++;
+                                    const nextLine = lines[currentLineIdx].trim();
+                                    functionSignature += ' ' + nextLine;
+                                }
+                                
+                                functionRange = new vscode.Range(
+                                    defStartLine, Math.max(0, defStartCol),
+                                    currentLineIdx, lines[currentLineIdx].length
+                                );
+                                
+                                for (let k = currentLineIdx + 1; k < Math.min(currentLineIdx + 10, lines.length); k++) {
+                                    const docLine = lines[k].trim();
+                                    if (docLine.startsWith('"""') || docLine.startsWith("'''")) {
+                                        const quote = docLine.substring(0, 3);
+                                        let doc = docLine.substring(3);
+                                        if (doc.endsWith(quote) && docLine.length > 3) {
+                                            documentation = doc.slice(0, -3).trim();
+                                            break;
+                                        } else {
+                                            let fullDoc = doc + '\n';
+                                            for (let m = k + 1; m < lines.length; m++) {
+                                                const mLine = lines[m];
+                                                const mTrimmed = mLine.trim();
+                                                if (mTrimmed.endsWith(quote)) {
+                                                    fullDoc += mLine.substring(0, mLine.lastIndexOf(quote));
+                                                    break;
+                                                }
+                                                fullDoc += mLine + '\n';
                                             }
-                                            fullDoc += mLine + '\n';
+                                            documentation = fullDoc.trim();
+                                            break;
                                         }
-                                        documentation = fullDoc.trim();
+                                    } else if (docLine !== '') {
                                         break;
                                     }
-                                } else if (docLine !== '') {
-                                    break; // not a docstring if it's some other code
                                 }
                             }
                             break;
@@ -123,17 +176,18 @@ export class SymbolCache {
                     try {
                         const regex = new RegExp('^' + regexPattern + '$', 'i');
                         definitions.push({
+                            type: stepType,
+                            rawPattern,
+                            matcherType,
                             regex,
-                            location: new vscode.Location(
-                                uri,
-                                new vscode.Position(i, pyLine.indexOf(decoratorMatch[1]) - 1)
-                            ),
-                            patternText,
-                            functionSignature,
-                            documentation
+                            decoratorRange,
+                            functionRange,
+                            functionName,
+                            documentation,
+                            uri
                         });
                     } catch (e) {
-                        // Ignore invalid regex generated from python string
+                        // Ignore invalid regex
                     }
                 }
             }
@@ -141,7 +195,7 @@ export class SymbolCache {
             this.cache.set(uri.toString(), definitions);
         } catch (err) {
             logger.error(`Error updating cache for file ${uri.fsPath}:`, err);
-            this.removeFile(uri); // Remove if file cannot be read
+            this.removeFile(uri);
         }
     }
 
@@ -149,7 +203,8 @@ export class SymbolCache {
         this.cache.delete(uri.toString());
     }
 
-    public getStepDefinitions(stepText: string): StepDefinition[] {
+    public async getStepDefinitions(stepText: string): Promise<StepDefinition[]> {
+        await this.initialize();
         const matches: StepDefinition[] = [];
         for (const [_, definitions] of this.cache) {
             for (const def of definitions) {
@@ -161,21 +216,17 @@ export class SymbolCache {
         return matches;
     }
 
-    public getStepDefinition(stepText: string): StepDefinition | null {
-        const matches = this.getStepDefinitions(stepText);
+    public async getStepDefinition(stepText: string): Promise<StepDefinition | null> {
+        const matches = await this.getStepDefinitions(stepText);
         return matches.length > 0 ? matches[0] : null;
     }
 
-    public findDefinition(stepText: string): vscode.Location | null {
-        const def = this.getStepDefinition(stepText);
-        return def ? def.location : null;
-    }
-
-    public getAllStepPatterns(): string[] {
+    public async getAllStepPatterns(): Promise<string[]> {
+        await this.initialize();
         const patterns = new Set<string>();
         for (const [_, definitions] of this.cache) {
             for (const def of definitions) {
-                patterns.add(def.patternText);
+                patterns.add(def.rawPattern);
             }
         }
         return Array.from(patterns).sort();

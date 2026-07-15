@@ -28,19 +28,19 @@ suite('Completion Test Suite', () => {
         // Mock the cache with some step definitions
         const steps: StepDefinition[] = [
             {
-                patternText: 'I have {count} apples',
+                rawPattern: 'I have {count} apples',
                 regex: /I have {count} apples/,
-                location: new vscode.Location(vscode.Uri.parse('file:///steps.py'), new vscode.Position(0, 0))
-            },
+                decoratorRange: new vscode.Range(0, 0, 0, 0)
+            } as any,
             {
-                patternText: 'I eat (?P<amount>\\d+) apples',
+                rawPattern: 'I eat (?P<amount>\\d+) apples',
                 regex: /dummy/,
-                location: new vscode.Location(vscode.Uri.parse('file:///steps.py'), new vscode.Position(1, 0))
-            }
+                decoratorRange: new vscode.Range(1, 0, 1, 0)
+            } as any
         ];
         
         // Override the cache method for testing
-        mockCache.getAllStepPatterns = () => steps.map(s => s.patternText);
+        mockCache.getAllStepPatterns = () => Promise.resolve(steps.map(s => s.rawPattern));
         
         provider = new GherkinCompletionProvider(mockCache);
     });

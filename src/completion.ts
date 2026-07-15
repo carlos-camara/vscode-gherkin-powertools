@@ -10,12 +10,12 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
         this.symbolCache = symbolCache;
     }
 
-    public provideCompletionItems(
+    public async provideCompletionItems(
         document: vscode.TextDocument,
         position: vscode.Position,
         _token: vscode.CancellationToken,
         _context: vscode.CompletionContext
-    ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
+    ): Promise<vscode.CompletionItem[] | vscode.CompletionList | undefined> {
         
         const linePrefix = document.lineAt(position).text.substr(0, position.character);
         const dialect = dialectService.getDialect(document);
@@ -70,7 +70,7 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
             position.character
         );
 
-        const patterns = this.symbolCache.getAllStepPatterns();
+        const patterns = await this.symbolCache.getAllStepPatterns();
         const completionItems: vscode.CompletionItem[] = [];
 
         for (const pattern of patterns) {

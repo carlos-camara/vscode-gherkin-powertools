@@ -20,9 +20,8 @@ suite('Linter Test Suite', () => {
 
     setup(() => {
         mockCache = new SymbolCache();
-        mockCache.findDefinition = () => new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0));
         mockCache.getStepDefinitions = (stepText) => {
-            return [{ patternText: stepText, regex: new RegExp(stepText), location: new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0)) }];
+            return Promise.resolve([{ rawPattern: stepText, regex: new RegExp(stepText), decoratorRange: new vscode.Range(0,0,0,0) } as any]);
         };
         mockCache.state = 'ready';
         linter = new GherkinLinter(mockCache);
@@ -74,7 +73,7 @@ Feature Invalid
     });
 
     test('Undefined step should generate a diagnostic', async () => {
-        mockCache.getStepDefinitions = () => [];
+        mockCache.getStepDefinitions = () => Promise.resolve([]);
 
         const text = `
 Feature: Test
@@ -91,12 +90,12 @@ Feature: Test
     test('Ambiguous step should generate a diagnostic', async () => {
         mockCache.getStepDefinitions = (stepText) => {
             if (stepText === 'an ambiguous step') {
-                return [
-                    { patternText: 'an ambiguous (.*)', regex: /^an ambiguous (.*)$/, location: new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0)) },
-                    { patternText: 'an (.*) step', regex: /^an (.*) step$/, location: new vscode.Location(vscode.Uri.parse('file:///mock2.py'), new vscode.Position(0,0)) }
-                ];
+                return Promise.resolve([
+                    { rawPattern: 'an ambiguous (.*)', regex: /^an ambiguous (.*)$/, decoratorRange: new vscode.Range(0,0,0,0) },
+                    { rawPattern: 'an (.*) step', regex: /^an (.*) step$/, decoratorRange: new vscode.Range(0,0,0,0) }
+                ] as any);
             }
-            return [{ patternText: stepText, regex: new RegExp(stepText), location: new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0)) }];
+            return Promise.resolve([{ rawPattern: stepText, regex: new RegExp(stepText), decoratorRange: new vscode.Range(0,0,0,0) }] as any);
         };
 
         const text = `
@@ -115,7 +114,7 @@ Feature: Test
     });
 
     test('Scenario with Examples should generate SCENARIO_WITH_EXAMPLES', async () => {
-        mockCache.findDefinition = () => new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0));
+
         
         const text = `
 Feature: Test
@@ -133,7 +132,7 @@ Feature: Test
     });
 
     test('Inconsistent table cell count should generate a diagnostic', async () => {
-        mockCache.findDefinition = () => new vscode.Location(vscode.Uri.parse('file:///mock.py'), new vscode.Position(0,0));
+
         
         const text = `
 Feature: Test

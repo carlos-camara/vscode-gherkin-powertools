@@ -74,6 +74,30 @@
           "type": "number",
           "default": 1,
           "description": "Number of empty lines to enforce between Scenario/Rule/Background blocks."
+        },
+        "gherkinPowerTools.behave.stepGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/steps/**/*.py",
+            "**/features/steps/**/*.py"
+          ],
+          "description": "Glob patterns to locate Python/Behave step definition files."
+        },
+        "gherkinPowerTools.behave.ignoreGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.venv/**",
+            "**/venv/**",
+            "**/env/**"
+          ],
+          "description": "Glob patterns to ignore when locating Python/Behave step definition files."
         }
       }
     },

@@ -13,7 +13,7 @@ export class GherkinDefinitionProvider implements vscode.DefinitionProvider {
         document: vscode.TextDocument,
         position: vscode.Position,
         token: vscode.CancellationToken
-    ): Promise<vscode.Location | null> {
+    ): Promise<vscode.Location | vscode.Location[] | null> {
 
         const lineText = document.lineAt(position.line).text.trim();
         const dialect = dialectService.getDialect(document);
@@ -31,7 +31,9 @@ export class GherkinDefinitionProvider implements vscode.DefinitionProvider {
             return null;
         }
 
-        // Query the in-memory Symbol Cache instantly
-        return this.cache.findDefinition(stepText);
+        const matches = await this.cache.getStepDefinitions(stepText);
+        if (matches.length === 0) return null;
+
+        return matches.map(def => new vscode.Location(def.uri, def.decoratorRange.start));
     }
 }
