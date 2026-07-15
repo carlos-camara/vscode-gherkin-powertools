@@ -47,14 +47,29 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-number: ${{ github.event.pull_request.number }}
 
-      - name: 📝 Publish Unit Test Results
-        if: >
-          always() &&
-          runner.os == 'Linux' &&
-          github.event_name == 'pull_request'
+      - name: 📝 Publish Unit Test Results (Linux)
+        if: always() && runner.os == 'Linux' && github.event_name == 'pull_request'
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: "test-results/unit-test-results.xml"
-          check_name: "Unit Test Results"
+          check_name: "Unit Test Results (${{ matrix.os }})"
+          comment_mode: off
+          check_run: true
+
+      - name: 📝 Publish Unit Test Results (Windows)
+        if: always() && runner.os == 'Windows' && github.event_name == 'pull_request'
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
+        with:
+          files: "test-results/unit-test-results.xml"
+          check_name: "Unit Test Results (${{ matrix.os }})"
+          comment_mode: off
+          check_run: true
+
+      - name: 📝 Publish Unit Test Results (macOS)
+        if: always() && runner.os == 'macOS' && github.event_name == 'pull_request'
+        uses: EnricoMi/publish-unit-test-result-action/macos@v2
+        with:
+          files: "test-results/unit-test-results.xml"
+          check_name: "Unit Test Results (${{ matrix.os }})"
           comment_mode: off
           check_run: true
