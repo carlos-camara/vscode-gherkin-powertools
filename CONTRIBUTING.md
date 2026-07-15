@@ -1,6 +1,6 @@
 # Contributing to Gherkin PowerTools
 
-Thank you for your interest in contributing to **Gherkin PowerTools**! This document explains our architecture, how to set up the project locally, and how to submit your contributions.
+Contributions to **Gherkin PowerTools** are welcome. This document explains the architecture, local project setup, and submission process.
 
 ---
 
@@ -22,7 +22,7 @@ Here is a breakdown of the core modules located in the `src/` directory:
 
 ## 🛠️ Local Setup
 
-1. **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) (v16+) and [npm](https://www.npmjs.com/) installed.
+1. **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) (v22+) and [npm](https://www.npmjs.com/) installed.
 2. **Clone the repository**:
    ```bash
    git clone https://github.com/carlos-camara/vscode-gherkin-powertools.git
@@ -30,7 +30,7 @@ Here is a breakdown of the core modules located in the `src/` directory:
    ```
 3. **Install dependencies**:
    ```bash
-   npm install
+   npm ci
    ```
 4. **Compile the TypeScript code**:
    ```bash
@@ -44,7 +44,7 @@ Here is a breakdown of the core modules located in the `src/` directory:
 
 ## 🧪 Testing
 
-We use the official `@vscode/test-electron` framework coupled with Mocha to run tests. Our tests are split into two categories to maximize efficiency and reliability:
+The official `@vscode/test-electron` framework coupled with Mocha is used to run tests. Tests are split into two categories to maximize efficiency and reliability:
 
 ### Unit Tests
 To run ultra-fast unit tests that validate the AST processor and algorithms:
@@ -64,13 +64,13 @@ npm run test:e2e
 ```
 
 > [!IMPORTANT]
-> Always ensure that all tests pass before submitting a Pull Request. If you are adding a new feature, please add a corresponding test case in the `test/` directory.
+> Always ensure that all tests pass before submitting a Pull Request. If you are adding a new feature, please add a corresponding test case in the `src/test/` directory.
 
 ---
 
 ## 🤖 CI/CD Pipeline
 
-Our CI/CD pipeline leverages reusable GitHub Actions from the [qa-hub-actions](https://github.com/carlos-camara/qa-hub-actions) repository. This ensures consistency across quality checks. Specifically, coverage reporting and other QA gates are handled externally by these actions.
+The CI/CD pipeline leverages reusable GitHub Actions from the [qa-hub-actions](https://github.com/carlos-camara/qa-hub-actions) repository. This ensures consistency across quality checks. Specifically, coverage reporting and other QA gates are handled externally by these actions.
 
 ---
 
@@ -97,4 +97,4 @@ This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root dir
 4. Push to the branch: `git push origin feature/my-new-feature`
 5. Open a Pull Request against the `main` branch.
 
-We look forward to reviewing your code!
+Code reviews will be conducted on all submissions.

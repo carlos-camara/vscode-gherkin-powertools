@@ -109,7 +109,7 @@ Gherkin PowerTools focuses on configurable formatting, structural diagnostics, m
 ### 1. Formatter
 Auto-indentation, dynamic data table alignment to the preceding step keyword, and configurable tag wrapping.
 
-### 2. Live Diagnostics Linter
+### 2. Linter
 Real-time syntax error detection. Flags missing colons after block keywords, invalid structural nesting (e.g., `Examples` without `Scenario Outline`), unclosed data tables, and **ambiguous steps** where overlapping Python regex decorators collide.
 
 ### 3. Quick Fixes (Code Actions)
@@ -120,18 +120,18 @@ Apply auto-corrections (`Cmd+.` / `Ctrl+.`) over diagnostic warnings:
 - Close malformed data table rows.
 - **Undefined Steps**: Generate safe, syntax-compliant Python step definitions (`@given`, `@when`, `@then`) automatically. Escapes strings and intelligently resolves `And`/`But` back to the parent keyword.
 
-### 4. Behave Navigation (Go To Definition)
+### 4. Go To Definition
 Use `Cmd+Click` on macOS or `Ctrl+Click` on Windows and Linux on any step to jump to its Python `@given`, `@when`, or `@then` implementation.
 
-### 5. Autocomplete
+### 5. Autocomplete & Snippets
 - **Steps:** Context-aware! Suggests steps as you type based on your Python step definitions, strictly filtering by the active `Given`/`When`/`Then` context and intelligently resolving `And`/`But` chains. Converts regex capture groups and Behave placeholders into VS Code tab-stops.
 - **Parameters:** When typing inside a `Scenario Outline`, typing `<` automatically parses the underlying `Examples` table and provides an IntelliSense dropdown with the available column headers. Selecting one inserts it with the closing `>` bracket.
 
-### 6. Hover
+### 6. Hover Preview
 - **Steps:** Hover over any step to view the underlying Python function signature and its associated Docstring.
 - **Tags:** Hover over any Gherkin tag (`@tag`) to view its "Blast Radius" (the exact number of scenarios and outline examples across the entire workspace affected by that tag).
 
-### 7. Dashboard
+### 7. Statistics Dashboard
 An HTML webview displaying heuristic workspace metrics, including a Gherkin quality indicator, scenario complexity signals and tag distribution.
 
 ### 8. Workspace Analytics
@@ -168,7 +168,7 @@ For architecture overviews and feature deep-dives, see the [Documentation Websit
 
 ## Contributing
 
-Bug reports, feature requests, and code contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
+Bug reports, feature requests, and code contributions are welcome. See [CONTRIBUTING.md](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/CONTRIBUTING.md) to get started.
 
 <p>
   <a href="https://github.com/carlos-camara/vscode-gherkin-powertools/actions/workflows/test.yml">
@@ -183,6 +183,6 @@ Bug reports, feature requests, and code contributions are welcome. See [CONTRIBU
 
 ## License
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](./LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/LICENSE)
 
-Licensed under the [MIT License](./LICENSE) - © [Carlos Camara](https://github.com/carlos-camara).
+Licensed under the [MIT License](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/LICENSE) - © [Carlos Camara](https://github.com/carlos-camara).

@@ -5,7 +5,15 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
 
 permissions:
   contents: read
