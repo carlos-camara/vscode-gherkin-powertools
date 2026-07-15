@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **CI/CD Hardening & Cross-Platform E2E**: Refactored all GitHub Actions workflows to adhere to the principle of least privilege, explicitly removing unnecessary write permissions. 
+  - **Recoverable Releases**: The `release.yml` pipeline is now fully idempotent, capable of securely resuming and fixing a broken release if the VSIX upload fails midway.
+  - **Multi-OS UI Testing**: The End-to-End visual test suite now executes natively across `macos-latest`, `windows-latest`, and `ubuntu-latest`.
+  - **Native Check Runs**: Switched test reporting from noisy PR comments to silent, native GitHub Check Runs.
+
 ### Added
 - **AST-Based Project Analytics**: The Project Statistics dashboard has been completely refactored to use the official `@cucumber/gherkin` AST parsing engine instead of line-by-line regex scanning.
   - **100% Precision**: Correctly counts features, rules, backgrounds, scenarios, outlines, Example rows, executable steps, tags, and data tables across the entire workspace.
