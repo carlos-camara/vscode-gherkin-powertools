@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { SymbolCache } from './cache';
 import { dialectService } from './dialect';
+import { parseGherkin } from './parser';
+import type { GherkinDocument, Feature, Scenario, Step, Background, Rule, TableCell } from '@cucumber/messages';
 
 /**
  * Diagnostic Provider that acts as a realtime Linter for Gherkin files.
@@ -8,7 +10,6 @@ import { dialectService } from './dialect';
  */
 export class GherkinLinter {
     private diagnosticCollection: vscode.DiagnosticCollection;
-    private cucumberModulesPromise?: Promise<any>;
     private symbolCache: SymbolCache;
     private pendingRequests: Map<string, { timer?: NodeJS.Timeout, requestId: number }> = new Map();
     private nextRequestId: number = 0;
@@ -16,26 +17,6 @@ export class GherkinLinter {
     constructor(symbolCache: SymbolCache) {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection('gherkin');
         this.symbolCache = symbolCache;
-    }
-
-    private async getCucumberModules() {
-        if (!this.cucumberModulesPromise) {
-            this.cucumberModulesPromise = (async () => {
-                const dynamicImport = new Function('specifier', 'return import(specifier)');
-                const gherkin = await dynamicImport('@cucumber/gherkin');
-                const messages = await dynamicImport('@cucumber/messages');
-                return { gherkin, messages };
-            })();
-        }
-        return this.cucumberModulesPromise;
-    }
-
-    private async getParser() {
-        const { gherkin, messages } = await this.getCucumberModules();
-        const uuidFn = messages.IdGenerator.uuid();
-        const builder = new gherkin.AstBuilder(uuidFn);
-        const matcher = new gherkin.GherkinClassicTokenMatcher();
-        return new gherkin.Parser(builder, matcher);
     }
 
     /**
@@ -85,28 +66,24 @@ export class GherkinLinter {
         const diagnostics: vscode.Diagnostic[] = [];
         const text = document.getText();
         const dialect = dialectService.getDialect(document);
-        let gherkinDocument: any = null;
-
-        try {
-            const parser = await this.getParser();
-            // We parse the document to catch syntax errors
-            gherkinDocument = parser.parse(text);
-        } catch (e: any) {
-            // @cucumber/gherkin throws an array of errors for syntax issues
-            const errors = Array.isArray(e.errors) ? e.errors : [e];
-            
-            for (const error of errors) {
-                if (error.location && typeof error.location.line === 'number') {
-                    // AST locations are 1-indexed, VS Code positions are 0-indexed
-                    const lineIndex = Math.max(0, error.location.line - 1);
-                    const lineText = document.lineAt(lineIndex).text;
-                    
-                    // Column from AST is 1-indexed. If not present or 0, default to first non-whitespace char.
-                    let startChar = error.location.column ? Math.max(0, error.location.column - 1) : 0;
-                    if (startChar === 0) {
-                        const firstWordMatch = lineText.match(/\S+/);
-                        startChar = firstWordMatch ? lineText.indexOf(firstWordMatch[0]) : 0;
-                    }
+        let gherkinDocument: GherkinDocument | null = null;
+        const result = await parseGherkin(text);
+        gherkinDocument = result.document;
+        const errors = result.errors;
+        
+        for (const error of errors) {
+            const location = error.location;
+            if (location && typeof location.line === 'number') {
+                // AST locations are 1-indexed, VS Code positions are 0-indexed
+                const lineIndex = Math.max(0, location.line - 1);
+                const lineText = document.lineAt(lineIndex).text;
+                
+                // Column from AST is 1-indexed. If not present or 0, default to first non-whitespace char.
+                let startChar = location.column ? Math.max(0, location.column - 1) : 0;
+                if (startChar === 0) {
+                    const firstWordMatch = lineText.match(/\S+/);
+                    startChar = firstWordMatch ? lineText.indexOf(firstWordMatch[0]) : 0;
+                }
                     
                     // Try to highlight the word at the error column, or just the rest of the line
                     const matchRest = lineText.substring(startChar).match(/\S+/);
@@ -253,7 +230,7 @@ export class GherkinLinter {
                     diagnostics.push(diagnostic);
                 }
             }
-        }
+
 
         // If parsed successfully, check for undefined steps and semantic issues
         if (gherkinDocument && gherkinDocument.feature) {
@@ -474,7 +451,7 @@ export class GherkinLinter {
         }
     }
 
-    private async checkSteps(steps: any[], diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
+    private async checkSteps(steps: readonly Step[], diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
         if (this.symbolCache.state !== 'ready') {
             return;
         }
