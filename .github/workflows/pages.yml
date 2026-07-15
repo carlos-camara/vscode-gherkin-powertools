@@ -2,16 +2,14 @@
 name: 🌐 Deploy Docs to Pages
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  pages: write # Required to deploy to GitHub Pages
+  id-token: write # Required for GitHub Pages deployment authentication
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

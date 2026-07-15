@@ -4,13 +4,18 @@ name: 🏷️ PR Labeler
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   label:
     name: Auto Labeler
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write # Required to apply labels to Pull Requests
     steps:
       - name: 🔍 Checkout PR Code
         uses: actions/checkout@v7
