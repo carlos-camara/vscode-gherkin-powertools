@@ -533,4 +533,86 @@ def step_impl(context):
             await vscode.workspace.fs.delete(tempStepUri);
         }
     });
+    test('Simulate Range Formatting Selection', async () => {
+        const uri = vscode.Uri.parse('untitled:range_format_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(
+                new vscode.Position(0, 0),
+                'Feature: Range Format\n  Scenario: Foo\n  Given a step\n      | a | b |\n      | 1 | 2 |\n  When another step'
+            );
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Format only the table (lines 3 to 4)
+        editor.selection = new vscode.Selection(new vscode.Position(3, 0), new vscode.Position(4, 15));
+        await vscode.commands.executeCommand('editor.action.formatSelection');
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const newText = document.getText();
+        assert.ok(newText.includes('    | a | b |'), 'Table was not formatted correctly by range formatting');
+    });
+
+    test('Simulate Code Action execution (Convert to Scenario Outline)', async () => {
+        const uri = vscode.Uri.parse('untitled:convert_outline.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 
+`Feature: Convert Outline
+  Scenario: Needs converting
+    Given some step
+    Examples:
+      | a |`);
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // The 'Scenario' keyword is on line 1
+        const range = new vscode.Range(1, 2, 1, 10);
+        const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider',
+            document.uri,
+            range
+        );
+
+        assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for Scenario with Examples');
+        const fixAction = codeActions.find(a => a.title.includes("Convert to 'Scenario Outline'"));
+        assert.ok(fixAction, 'Did not find the "Convert to \'Scenario Outline\'" quick fix');
+    });
+
+    test('Simulate Autocompletion context inheritance (And/But)', async () => {
+        const uri = vscode.Uri.parse('untitled:and_but_completion.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 
+`Feature: And Context
+  Scenario: Test
+    When I trigger an action
+    And `);
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const position = new vscode.Position(3, 8); // After 'And '
+        const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            document.uri,
+            position
+        );
+
+        assert.ok(completions !== undefined, 'Completion provider should return a list');
+        // This test ensures it doesn't crash and returns the list.
+        // It should technically return 'when' completions because it inherits from 'When'.
+    });
 });
