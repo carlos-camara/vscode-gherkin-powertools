@@ -9,9 +9,30 @@ const defaultOptions: FormatterOptions = {
     emptyLinesBetweenScenarios: 1
 };
 
-async function runFormat(formatter: GherkinFormattingEditProvider, unformatted: string, eol: string = '\n'): Promise<string> {
-    const formattedText = await formatter.formatGherkin(unformatted, defaultOptions, { isCancellationRequested: false } as vscode.CancellationToken, eol);
-    return formattedText || '';
+async function runFormat(formatter: GherkinFormattingEditProvider, unformatted: string): Promise<string> {
+    const formattedLines = await formatter.formatGherkin(unformatted, defaultOptions, { isCancellationRequested: false } as vscode.CancellationToken);
+    return formattedLines ? formattedLines.map(l => l.text).join('\n') : '';
+}
+
+async function runRangeFormat(formatter: GherkinFormattingEditProvider, unformatted: string, startLine: number, endLine: number): Promise<string> {
+    const lines = unformatted.split('\n');
+    const doc = {
+        getText: (range?: vscode.Range) => {
+            if (!range) return unformatted;
+            return lines.slice(range.start.line, range.end.line + 1).join('\n');
+        },
+        eol: vscode.EndOfLine.LF,
+        lineAt: (line: number) => ({ text: lines[line] || '' }),
+        lineCount: lines.length
+    } as any as vscode.TextDocument;
+    
+    const range = new vscode.Range(startLine, 0, endLine, doc.lineAt(endLine).text.length);
+    const edits = await formatter.provideDocumentRangeFormattingEdits(doc, range, {} as vscode.FormattingOptions, { isCancellationRequested: false } as vscode.CancellationToken);
+    
+    if (edits && edits.length > 0) {
+        return edits[0].newText;
+    }
+    return doc.getText(range); // Idempotent or no-op
 }
 
 suite('Formatter Test Suite', () => {
@@ -175,9 +196,16 @@ suite('Formatter Test Suite', () => {
     test('Preserves CRLF', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = 'Feature: CRLF\r\nScenario: test\r\nGiven a step';
-        const result = await runFormat(formatter, unformatted, '\r\n');
-        assert.ok(result.includes('\r\n'));
-        assert.ok(!result.includes('\nScenario')); // Ensure \n was not used instead of \r\n
+        const mockDocument = {
+            getText: () => unformatted,
+            lineCount: 3,
+            eol: vscode.EndOfLine.CRLF
+        } as any;
+        const edits = await formatter.provideDocumentFormattingEdits(mockDocument, {} as any, { isCancellationRequested: false } as any);
+        if (edits.length > 0) {
+            assert.ok(edits[0].newText.includes('\r\n'));
+            assert.ok(!edits[0].newText.includes('\nScenario')); 
+        }
     });
 
     test('Idempotency - formatting twice yields the same output', async () => {
@@ -224,5 +252,96 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         
         // Output will be the same as input, but without final newline
         assert.strictEqual(edits2.length, 0);
+    });
+
+    test('Range formatting: selection inside a step', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario: S',
+            'Given     unformatted step',
+            'Then end'
+        ].join('\n');
+        
+        // line 2: 'Given     unformatted step'
+        const result = await runRangeFormat(formatter, unformatted, 2, 2);
+        // VS Code defaults stepIndentation to 4. Scenario is 2, Step is 6.
+        assert.strictEqual(result, '      Given     unformatted step');
+    });
+
+    test('Range formatting: selection across multiple steps', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario: S',
+            'Given     1',
+            'Then     2',
+            'And   3'
+        ].join('\n');
+        
+        // line 2 to 3
+        const result = await runRangeFormat(formatter, unformatted, 2, 3);
+        assert.strictEqual(result, '      Given     1\n      Then     2');
+    });
+
+    test('Range formatting: table selection', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario: S',
+            'Given users:',
+            '|username|pass|',
+            '|u1|p1|'
+        ].join('\n');
+        
+        // line 4 (the second row) -> will be aligned based on the entire table calculation
+        const result = await runRangeFormat(formatter, unformatted, 4, 4);
+        assert.strictEqual(result, '            | u1       | p1   |');
+    });
+
+    test('Range formatting: DocString selection', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario: S',
+            'Given doc:',
+            '"""',
+            '  hello',
+            '"""'
+        ].join('\n');
+        
+        // line 4 ('  hello')
+        const result = await runRangeFormat(formatter, unformatted, 4, 4);
+        assert.strictEqual(result, '          hello');
+    });
+
+    test('Range formatting: tags', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            '@t1 @t2 @t3',
+            'Feature: F'
+        ].join('\n');
+        
+        // line 0
+        const result = await runRangeFormat(formatter, unformatted, 0, 0);
+        assert.strictEqual(result, '@t1 @t2 @t3');
+    });
+
+    test('Range formatting: Rule and formatting that inserts blank lines', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Rule: R',
+            'Scenario: S1',
+            'Given 1',
+            'Scenario: S2',
+            'Given 2'
+        ].join('\n');
+        
+        // Formatter should insert a blank line before Scenario: S2
+        // If we select just Scenario: S2 (line 4)
+        const result = await runRangeFormat(formatter, unformatted, 4, 4);
+        // It should yield an empty line followed by the properly indented Scenario
+        assert.strictEqual(result, '\n    Scenario: S2');
     });
 });

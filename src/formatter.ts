@@ -17,7 +17,12 @@ interface NodeInfo {
     emptyLinesBefore?: number;
 }
 
-export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider {
+export interface FormattedLine {
+    text: string;
+    originalLine: number;
+}
+
+export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider {
     
     private getOptions(): FormatterOptions {
         const config = vscode.workspace.getConfiguration('gherkinPowerTools');
@@ -39,9 +44,10 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
         const hasFinalNewline = text.endsWith('\n');
 
-        const formattedText = await this.formatGherkin(text, options, token, eol);
-        if (formattedText === null || token.isCancellationRequested) return [];
+        const formattedLines = await this.formatGherkin(text, options, token);
+        if (formattedLines === null || token.isCancellationRequested) return [];
 
+        const formattedText = formattedLines.map(l => l.text).join(eol);
         const finalText = hasFinalNewline && !formattedText.endsWith(eol) ? formattedText + eol : formattedText;
 
         if (finalText === text) {
@@ -55,7 +61,44 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         return [vscode.TextEdit.replace(range, finalText)];
     }
 
-    public async formatGherkin(text: string, options: FormatterOptions, token: vscode.CancellationToken, eol: string = '\n'): Promise<string | null> {
+    public async provideDocumentRangeFormattingEdits(
+        document: vscode.TextDocument,
+        range: vscode.Range,
+        _options: vscode.FormattingOptions,
+        token: vscode.CancellationToken
+    ): Promise<vscode.TextEdit[]> {
+        const options = this.getOptions();
+        const text = document.getText();
+        const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+
+        const formattedLines = await this.formatGherkin(text, options, token);
+        if (formattedLines === null || token.isCancellationRequested) return [];
+
+        const startLineOriginal = range.start.line + 1; // 1-indexed
+        const endLineOriginal = range.end.line + 1; // 1-indexed
+
+        const filteredLines = formattedLines.filter(l => l.originalLine >= startLineOriginal && l.originalLine <= endLineOriginal);
+        if (filteredLines.length === 0) {
+            return [];
+        }
+
+        const replacementText = filteredLines.map(l => l.text).join(eol);
+        
+        // Construct the full-line exact replacement range
+        const replacementRange = new vscode.Range(
+            new vscode.Position(range.start.line, 0),
+            new vscode.Position(range.end.line, document.lineAt(range.end.line).text.length)
+        );
+
+        const originalTextRange = document.getText(replacementRange);
+        if (originalTextRange === replacementText) {
+            return [];
+        }
+
+        return [vscode.TextEdit.replace(replacementRange, replacementText)];
+    }
+
+    public async formatGherkin(text: string, options: FormatterOptions, token: vscode.CancellationToken): Promise<FormattedLine[] | null> {
         const dynamicImport = new Function('specifier', 'return import(specifier)');
         const { AstBuilder, GherkinClassicTokenMatcher, Parser } = await dynamicImport('@cucumber/gherkin');
         const { IdGenerator } = await dynamicImport('@cucumber/messages');
@@ -77,8 +120,8 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         this.buildASTMap(gherkinDocument, options, astMap);
 
         const lines = text.split(/\r?\n/);
-        const out: string[] = [];
-        let tableRows: { cells: readonly TableCell[], indent: number }[] = [];
+        const out: FormattedLine[] = [];
+        let tableRows: { cells: readonly TableCell[], indent: number, originalLine: number }[] = [];
 
         for (let i = 0; i < lines.length; i++) {
             if (token.isCancellationRequested) return null;
@@ -93,13 +136,13 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
                 if (out.length > 0) {
                     let blankCount = 0;
                     for (let j = out.length - 1; j >= 0; j--) {
-                        if (out[j].trim() === '') blankCount++;
+                        if (out[j].text.trim() === '') blankCount++;
                         else break;
                     }
                     if (blankCount > node.emptyLinesBefore) {
                         for (let j = 0; j < blankCount - node.emptyLinesBefore; j++) out.pop();
                     } else if (blankCount < node.emptyLinesBefore) {
-                        for (let j = 0; j < node.emptyLinesBefore - blankCount; j++) out.push('');
+                        for (let j = 0; j < node.emptyLinesBefore - blankCount; j++) out.push({ text: '', originalLine: lineNum });
                     }
                 }
             }
@@ -110,18 +153,19 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
             // 3. Handle raw empty lines
             if (trimmedLine === '') {
                 // Preserve at most 1 empty line in the middle of blocks (e.g. between steps)
-                if (out.length > 0 && out[out.length - 1].trim() !== '') {
-                    out.push('');
+                if (out.length > 0 && out[out.length - 1].text.trim() !== '') {
+                    out.push({ text: '', originalLine: lineNum });
                 }
                 continue;
             }
 
             // 4. Handle Tables
             if (node && node.type === 'TableRow' && node.cells) {
-                tableRows.push({ cells: node.cells, indent: node.indent });
+                tableRows.push({ cells: node.cells, indent: node.indent, originalLine: lineNum });
                 const nextNode = astMap.get(lineNum + 1);
                 if (!nextNode || nextNode.type !== 'TableRow') {
-                    out.push(...this.alignTable(tableRows));
+                    const aligned = this.alignTable(tableRows);
+                    aligned.forEach((text, idx) => out.push({ text, originalLine: tableRows[idx].originalLine }));
                     tableRows.length = 0;
                 }
                 continue;
@@ -130,16 +174,18 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
             // 5. Handle Mapped Nodes
             if (node) {
                 if (node.type === 'FormattedTags' && node.lines) {
-                    out.push(...node.lines);
+                    // Tag formatting could expand to multiple lines. Assign them all to the first line.
+                    node.lines.forEach(text => out.push({ text, originalLine: lineNum }));
                     continue;
                 }
 
                 if (node.type === 'DocString' && node.keyword && node.lines !== undefined) {
-                    out.push(' '.repeat(node.indent) + node.keyword);
-                    node.lines.forEach(cl => {
-                        out.push(cl === '' ? '' : ' '.repeat(node.indent) + cl);
+                    out.push({ text: ' '.repeat(node.indent) + node.keyword, originalLine: lineNum });
+                    node.lines.forEach((cl, idx) => {
+                        out.push({ text: cl === '' ? '' : ' '.repeat(node.indent) + cl, originalLine: lineNum + 1 + idx });
                     });
-                    out.push(' '.repeat(node.indent) + node.keyword);
+                    // End delimiter line number is lineNum + lines.length + 1
+                    out.push({ text: ' '.repeat(node.indent) + node.keyword, originalLine: lineNum + node.lines.length + 1 });
                     continue;
                 }
 
@@ -152,13 +198,13 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
                             break;
                         }
                     }
-                    out.push(' '.repeat(contextIndent) + trimmedLine);
+                    out.push({ text: ' '.repeat(contextIndent) + trimmedLine, originalLine: lineNum });
                     continue;
                 }
 
                 // Handle standard nodes (Feature, Rule, Scenario, Background, Step, Examples)
                 let textToAppend = trimmedLine;
-                out.push(' '.repeat(node.indent) + textToAppend);
+                out.push({ text: ' '.repeat(node.indent) + textToAppend, originalLine: lineNum });
 
             } else {
                 // 6. Handle unmapped lines (Descriptions)
@@ -170,16 +216,16 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
                         break;
                     }
                 }
-                out.push(' '.repeat(parentIndent + 2) + trimmedLine);
+                out.push({ text: ' '.repeat(parentIndent + 2) + trimmedLine, originalLine: lineNum });
             }
         }
 
-        // Clean trailing empty lines to let the finalNewline logic take over
-        while (out.length > 0 && out[out.length - 1].trim() === '') {
+        // Clean trailing empty lines
+        while (out.length > 0 && out[out.length - 1].text.trim() === '') {
             out.pop();
         }
 
-        return out.join(eol);
+        return out;
     }
 
     private buildASTMap(document: GherkinDocument, options: FormatterOptions, map: Map<number, NodeInfo>) {
