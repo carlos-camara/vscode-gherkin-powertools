@@ -1,4 +1,4 @@
-import type { GherkinDocument, ParseError } from '@cucumber/messages';
+import type { GherkinDocument } from '@cucumber/messages';
 
 export interface ParseResult {
     document: GherkinDocument | null;

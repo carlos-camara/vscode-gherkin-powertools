@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { SymbolCache } from './cache';
 import { dialectService } from './dialect';
 import { parseGherkin } from './parser';
-import type { GherkinDocument, Feature, Scenario, Step, Background, Rule, TableCell } from '@cucumber/messages';
+import type { GherkinDocument, Step } from '@cucumber/messages';
 
 /**
  * Diagnostic Provider that acts as a realtime Linter for Gherkin files.
