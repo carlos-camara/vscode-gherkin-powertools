@@ -221,15 +221,13 @@ export class SymbolCache {
         return matches.length > 0 ? matches[0] : null;
     }
 
-    public async getAllStepPatterns(): Promise<string[]> {
+    public async getAllStepDefinitions(): Promise<StepDefinition[]> {
         await this.initialize();
-        const patterns = new Set<string>();
-        for (const [_, definitions] of this.cache) {
-            for (const def of definitions) {
-                patterns.add(def.rawPattern);
-            }
+        const definitions: StepDefinition[] = [];
+        for (const [_, defs] of this.cache) {
+            definitions.push(...defs);
         }
-        return Array.from(patterns).sort();
+        return definitions;
     }
 }
 
