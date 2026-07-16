@@ -58,8 +58,8 @@ When working within a `Scenario Outline` or `Scenario Template`, you frequently 
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="background: #1f2937; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; line-height: 20px; text-align: center;">3</span>
-      <span style="color: #374151; font-size: 13px; padding-top: 2px;">Press 
-        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Tab</kbd> or 
+      <span style="color: #374151; font-size: 13px; padding-top: 2px;">Press
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Tab</kbd> or
         <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Enter</kbd> to expand the block instantly.
       </span>
     </div>

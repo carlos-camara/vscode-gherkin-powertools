@@ -24,10 +24,10 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
-      <span style="color: #374151; font-size: 13px;">Python functions must be decorated with 
-        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@given</code>, 
-        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@when</code>, 
-        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@then</code>, or 
+      <span style="color: #374151; font-size: 13px;">Python functions must be decorated with
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@given</code>,
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@when</code>,
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@then</code>, or
         <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@step</code>.
       </span>
     </div>

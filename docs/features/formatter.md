@@ -11,24 +11,24 @@ The core feature of Gherkin PowerTools. Powered by the official `@cucumber/gherk
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
       <span style="color: #374151; font-size: 13px;">
-        <strong style="color: #111827;">Full Document</strong>: 
-        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Shift+Alt+F</kbd> (Windows/Linux) or 
+        <strong style="color: #111827;">Full Document</strong>:
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Shift+Alt+F</kbd> (Windows/Linux) or
         <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⇧⌥F</kbd> (macOS).
       </span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
       <span style="color: #374151; font-size: 13px;">
-        <strong style="color: #111827;">Selection Only</strong>: Highlight text → 
-        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Cmd+K Cmd+F</kbd> / 
+        <strong style="color: #111827;">Selection Only</strong>: Highlight text →
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Cmd+K Cmd+F</kbd> /
         <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+K Ctrl+F</kbd>.
       </span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
       <span style="color: #374151; font-size: 13px;">
-        <strong style="color: #111827;">On Save</strong>: Enable 
-        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">editor.formatOnSave</code> in your 
+        <strong style="color: #111827;">On Save</strong>: Enable
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">editor.formatOnSave</code> in your
         <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">settings.json</code> (see <a href="../configuration.md">Configuration</a>).
       </span>
     </div>
