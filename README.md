@@ -53,10 +53,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![Formatting Data Tables](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif)
-
-<br/>
-
+![Formatting Data Tables](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif)<br/>
 **📖 Read the full documentation on [Formatter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/formatter.html)**
 
 </div>
@@ -66,10 +63,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![Linting and Diagnostics](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif)
-
-<br/>
-
+![Linting and Diagnostics](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif)<br/>
 **📖 Read the full documentation on [Linter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html)**
 
 </div>
@@ -79,10 +73,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![One-Click Auto-Corrections](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/auto-corrections.gif)
-
-<br/>
-
+![One-Click Auto-Corrections](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/auto-corrections.gif)<br/>
 **📖 Read the full documentation on [Auto-Corrections](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html#auto-corrections)**
 
 </div>
@@ -92,10 +83,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![IntelliSense Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif)
-
-<br/>
-
+![IntelliSense Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif)<br/>
 **📖 Read the full documentation on [Autocomplete & Snippets](https://carlos-camara.github.io/vscode-gherkin-powertools/features/snippets.html)**
 
 </div>
@@ -105,10 +93,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![Hover on Tags](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)
-
-<br/>
-
+![Hover on Tags](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)<br/>
 **📖 Read the full documentation on [Hover Preview](https://carlos-camara.github.io/vscode-gherkin-powertools/features/hover.html)**
 
 </div>
@@ -118,10 +103,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![Go To Definition for Behave](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif)
-
-<br/>
-
+![Go To Definition for Behave](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif)<br/>
 **📖 Read the full documentation on [Go To Definition](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html)**
 
 </div>
@@ -131,10 +113,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![Outline Provider Demo](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif)
-
-<br/>
-
+![Outline Provider Demo](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif)<br/>
 **📖 Read the full documentation on [Outline Provider](https://carlos-camara.github.io/vscode-gherkin-powertools/features/outline.html)**
 
 </div>
@@ -144,10 +123,7 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![Project QA Statistics Dashboard](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/dashboard.gif)
-
-<br/>
-
+![Project QA Statistics Dashboard](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/dashboard.gif)<br/>
 **📖 Read the full documentation on [Statistics Dashboard](https://carlos-camara.github.io/vscode-gherkin-powertools/features/statistics.html)**
 
 </div>
