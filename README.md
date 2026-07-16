@@ -55,9 +55,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![Formatting Data Tables](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Formatter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/formatter.html)
+**📖 Read the full documentation on [Formatter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/formatter.html)**
+
+</div>
 
 ### 🛡️ Real-Time Syntax Guardian
 **Catch typos before they break your build.** Our strict, real-time AST linter silently watches your back, highlighting missing colons and malformed tables exactly when you type them. Shift-left your BDD workflow today.
@@ -66,9 +68,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![Linting and Diagnostics](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Linter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html)
+**📖 Read the full documentation on [Linter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html)**
+
+</div>
 
 ### 🪄 One-Click Auto-Corrections
 **Don't break your typing flow.** Misspelled a keyword? Forgot punctuation? Just hit `Cmd+.` and let intelligent auto-corrections fix your Gherkin syntax in a fraction of a second.
@@ -77,9 +81,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![One-Click Auto-Corrections](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/auto-corrections.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Auto-Corrections](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html#auto-corrections)
+**📖 Read the full documentation on [Auto-Corrections](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html#auto-corrections)**
+
+</div>
 
 ### 🧠 Smart Autocompletion (IntelliSense)
 **Type less, test more.** Forget memorizing exact step definitions. The extension parses your Python codebase and offers context-aware IntelliSense for your Gherkin steps, complete with interactive Tab-to-Fill variables.
@@ -88,9 +94,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![IntelliSense Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Autocomplete & Snippets](https://carlos-camara.github.io/vscode-gherkin-powertools/features/snippets.html)
+**📖 Read the full documentation on [Autocomplete & Snippets](https://carlos-camara.github.io/vscode-gherkin-powertools/features/snippets.html)**
+
+</div>
 
 ### 💥 Intelligent Hover Tooltips
 **Context at your fingertips.** Hover over any Gherkin `@tag` to instantly see its "Blast Radius" (how many scenarios across the workspace it impacts). Hover over any step to reveal its exact Python function signature and docstrings without leaving the feature file!
@@ -99,9 +107,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![Hover on Tags](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Hover Preview](https://carlos-camara.github.io/vscode-gherkin-powertools/features/hover.html)
+**📖 Read the full documentation on [Hover Preview](https://carlos-camara.github.io/vscode-gherkin-powertools/features/hover.html)**
+
+</div>
 
 ### 🐍 Seamless Python Step Navigation
 **Navigate your test suite at the speed of thought.** Cmd-Click any Gherkin step to instantly jump to its Python definition, trigger context-aware autocomplete, or hover to read the underlying code without ever switching tabs.
@@ -110,9 +120,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![Go To Definition for Behave](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Go To Definition](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html)
+**📖 Read the full documentation on [Go To Definition](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html)**
+
+</div>
 
 ### 🗺️ Outline Provider & Structure Navigation
 **Never get lost in massive feature files.** The AST-powered outline perfectly mirrors your file's semantic structure (Features, Rules, Scenarios), letting you instantly navigate massive test suites.
@@ -121,9 +133,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![Outline Provider Demo](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Outline Provider](https://carlos-camara.github.io/vscode-gherkin-powertools/features/outline.html)
+**📖 Read the full documentation on [Outline Provider](https://carlos-camara.github.io/vscode-gherkin-powertools/features/outline.html)**
+
+</div>
 
 ### 📈 Project Health Dashboard
 **Understand your testing surface at a glance.** Generate heuristic analytics to visualize tag distribution, pinpoint overgrown scenarios, and measure your total QA effort right from your editor.
@@ -132,9 +146,11 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 ![Project QA Statistics Dashboard](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/dashboard.gif)
 
-</div>
+<br/>
 
-> 📖 Read the full documentation on [Statistics Dashboard](https://carlos-camara.github.io/vscode-gherkin-powertools/features/statistics.html)
+**📖 Read the full documentation on [Statistics Dashboard](https://carlos-camara.github.io/vscode-gherkin-powertools/features/statistics.html)**
+
+</div>
 
 ---
 
