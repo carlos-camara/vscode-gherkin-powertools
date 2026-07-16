@@ -23,7 +23,7 @@ export class SymbolCache {
     public state: CacheState = 'uninitialized';
     private initPromise: Promise<void> | null = null;
 
-    public initialize(): Promise<void> {
+    public initialize(config: import('./configuration').BehaveConfiguration): Promise<void> {
         if (this.state === 'initializing' || this.state === 'ready') {
             return this.initPromise!;
         }
@@ -31,12 +31,8 @@ export class SymbolCache {
         this.state = 'initializing';
         this.initPromise = (async () => {
             try {
-                const config = vscode.workspace.getConfiguration('gherkinPowerTools.behave');
-                const stepGlobs = config.get<string[]>('stepGlobs', ['**/steps/**/*.py', '**/features/steps/**/*.py']);
-                const ignoreGlobs = config.get<string[]>('ignoreGlobs', ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**']);
-
-                const globPattern = stepGlobs.length > 1 ? `{${stepGlobs.join(',')}}` : stepGlobs[0];
-                const excludePattern = ignoreGlobs.length > 1 ? `{${ignoreGlobs.join(',')}}` : ignoreGlobs[0];
+                const globPattern = config.stepGlobPattern;
+                const excludePattern = config.ignoreGlobPattern;
 
                 const stepFiles = await vscode.workspace.findFiles(globPattern, excludePattern);
                 await Promise.all(stepFiles.map(file => this.updateFile(file)));
@@ -50,6 +46,12 @@ export class SymbolCache {
         })();
         
         return this.initPromise;
+    }
+
+    public clear(): void {
+        this.cache.clear();
+        this.state = 'uninitialized';
+        this.initPromise = null;
     }
 
     public async updateFile(uri: vscode.Uri): Promise<void> {

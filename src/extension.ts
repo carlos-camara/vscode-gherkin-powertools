@@ -6,6 +6,8 @@ import { GherkinHighlighter } from './highlighter';
 import { showStatisticsDashboard } from './statistics';
 import { GherkinDefinitionProvider } from './definition';
 import { SymbolCache, FeatureCache } from './cache';
+import { StepWatcherManager } from './watcher';
+import { getBehaveConfiguration } from './configuration';
 import { logger } from './logger';
 import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 import { GherkinCompletionProvider } from './completion';
@@ -27,14 +29,13 @@ export async function activate(context: vscode.ExtensionContext) {
     
     // Initialize Symbol Cache for definitions
     const symbolCache = new SymbolCache();
-    const symbolInit = symbolCache.initialize();
 
     // Initialize Feature Cache for workspace-wide tag statistics
     const featureCache = new FeatureCache();
     const featureInit = featureCache.initialize();
 
     // Deterministic activation: wait for caches to initialize
-    await Promise.all([symbolInit, featureInit]);
+    await Promise.all([featureInit]);
 
     const linter = new GherkinLinter(symbolCache);
 
@@ -46,12 +47,18 @@ export async function activate(context: vscode.ExtensionContext) {
         });
     };
 
-    // Watch for changes in Python step files
-    const watcher = vscode.workspace.createFileSystemWatcher('**/steps/**/*.py');
-    watcher.onDidCreate(async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); });
-    watcher.onDidChange(async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); });
-    watcher.onDidDelete(uri => { symbolCache.removeFile(uri); reLintOpenFiles(); });
-    context.subscriptions.push(watcher);
+    // Watch for changes in Python step files via the unified manager
+    const stepWatcherManager = new StepWatcherManager(symbolCache, reLintOpenFiles);
+    await stepWatcherManager.initialize();
+    context.subscriptions.push(stepWatcherManager);
+
+    // Listen to configuration changes affecting globs
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(async e => {
+        if (e.affectsConfiguration('gherkinPowerTools.behave.stepGlobs') || 
+            e.affectsConfiguration('gherkinPowerTools.behave.ignoreGlobs')) {
+            await stepWatcherManager.rebuild();
+        }
+    }));
     
     // Watch for changes in feature files to update tag statistics
     const featureWatcher = vscode.workspace.createFileSystemWatcher('**/*.feature');
