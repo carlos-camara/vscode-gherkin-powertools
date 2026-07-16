@@ -20,7 +20,7 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
   <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
-      <span style="color: #374151; font-size: 13px;">Python step implementation files must be located inside a directory named <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">steps/</code> (at any nesting depth).</span>
+      <span style="color: #374151; font-size: 13px;">Python step implementation files must match the patterns defined in <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.stepGlobs</code> (default: <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">**/steps/**/*.py</code>).</span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
@@ -49,10 +49,10 @@ When you request a definition (e.g., clicking on `Given I login as "admin"`):
 <div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
   <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
     <span style="font-size: 16px;">💡</span>
-    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Dynamic Updates</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Dynamic Updates & Hot-Reload</span>
   </div>
   <div style="background-color: #ffffff; padding: 14px 16px;">
-    <span style="color: #374151; font-size: 13px;">The cache is fully reactive. It automatically updates asynchronously in the background whenever you create, modify, or delete Python files, ensuring your definitions are always perfectly in sync.</span>
+    <span style="color: #374151; font-size: 13px;">The cache is fully reactive. It automatically updates asynchronously in the background whenever you create, modify, or delete Python files matching your configured globs — ensuring your definitions are always perfectly in sync. If you change <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">stepGlobs</code> or <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">ignoreGlobs</code> in your settings, the extension automatically rebuilds its index without requiring a window reload.</span>
   </div>
 </div>
 

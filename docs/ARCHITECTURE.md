@@ -22,6 +22,10 @@ graph LR
     A --> I[completion.ts]
     A --> J[cache.ts]
     A --> K[logger.ts]
+    A --> L[watcher.ts]
+    L --> J
+    L --> M[configuration.ts]
+    J --> M
 ```
 
 | Module | Responsibility |
@@ -36,6 +40,8 @@ graph LR
 | `codeAction.ts`| Generates quick fixes (💡) for undefined steps or syntax typos |
 | `completion.ts`| Smart IntelliSense autocompletion parsing regex into Snippets |
 | `cache.ts`     | Asynchronous caching engine that non-blockingly indexes the workspace via `vscode.workspace.findFiles` |
+| `configuration.ts` | Centralizes reading of `stepGlobs`/`ignoreGlobs` settings and provides glob-to-regex filtering for ignored files |
+| `watcher.ts`   | Manages per-glob `FileSystemWatcher` lifecycle with debounced events and hot-reload support on config changes |
 | `logger.ts`    | Native VS Code Output Channel for tracing |
 
 
