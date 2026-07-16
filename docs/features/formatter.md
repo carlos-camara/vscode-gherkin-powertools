@@ -2,14 +2,30 @@
 
 The core feature of Gherkin PowerTools. Powered by the official `@cucumber/gherkin` Abstract Syntax Tree (AST) parser, the robust formatting engine analyzes your Gherkin syntax with mathematical precision and aligns it automatically. It transforms messy, unreadable tests into a pristine, standardized format instantly.
 
-> [!TIP]
-> **How to Trigger Formatting**
->
-> - **Full Document**: `Shift+Alt+F` (Windows/Linux) or `⇧⌥F` (macOS).
-> - **Selection Only**: Highlight text → `Cmd+K Cmd+F` / `Ctrl+K Ctrl+F`.
-> - **On Save**: Enable `editor.formatOnSave` in your `settings.json` (see [Configuration](../configuration.md)).
+<div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
+  <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 16px;">💡</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">How to Trigger Formatting</span>
+  </div>
+  <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">Full Document</strong>: <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Shift+Alt+F</kbd> (Windows/Linux) or <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⇧⌥F</kbd> (macOS).</span>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">Selection Only</strong>: Highlight text → <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Cmd+K Cmd+F</kbd> / <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+K Ctrl+F</kbd>.</span>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">On Save</strong>: Enable <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">editor.formatOnSave</code> in your <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">settings.json</code> (see <a href="../configuration.md">Configuration</a>).</span>
+    </div>
+  </div>
+</div>
 
----
+<div align="center">
+  <img src="../../assets/formatter.gif" alt="Formatter Demonstration" width="600" />
+</div>
 
 ## ✨ Formatting Capabilities
 
@@ -43,5 +59,3 @@ Fully supports formatting in **English**, **Spanish**, **French**, and **German*
 | When | Cuando | Quand | Wenn |
 | Then | Entonces | Alors | Dann |
 | Scenario | Escenario | Scénario | Szenario |
-
-![Formatter Demonstration](../assets/formatter.webp)

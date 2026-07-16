@@ -6,6 +6,8 @@ Writing Gherkin should be error-free before you even execute your test suite. Th
 
 The built-in linter monitors your `.feature` files **in real-time** using the official `@cucumber/gherkin` AST Parser. If you mistype a keyword, use invalid syntax, or violate Gherkin semantics, the editor immediately underlines the exact offending token and provides an explanation in the Problems panel.
 
+
+
 ## 🛡️ What It Detects
 
 | Diagnostic | Rule Description | Example |
@@ -34,6 +36,10 @@ The Linter integrates deeply with VS Code's **Quick Fix** system (the yellow lig
 
 When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+.` (Windows/Linux) to trigger an auto-correction:
 
+<div align="center">
+  <img src="../../assets/linter.gif" alt="Linter Demonstration" width="600" />
+</div>
+
 - **Insert missing ':'**: When a block keyword (`Feature`, `Scenario`, etc.) is missing a colon, this action instantly appends it.
 - **Dynamic Keyword Auto-Complete**: Start typing a keyword (e.g., `whe`, `give`, `scen`) and the extension uses prefix-matching to suggest the full keyword (`When`, `Given`, `Scenario`) instantly.
 - **Advanced Typo Correction (Levenshtein Distance)**: If you misspell a keyword with mixed letters (e.g., `Givn`, `Wehn`, `Fature`), our built-in Levenshtein distance algorithm automatically calculates the closest valid Gherkin keyword and offers a one-click fix to replace it.
@@ -45,12 +51,29 @@ When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+
   It intelligently escapes strings containing quotes or emojis, guarantees collision-free function names
   (e.g. `def step_impl_1(context)`), and resolves `And` and `But` keywords by scanning upwards
   to inherit the correct preceding decorator.
-> [!TIP]
-> **Integration Ecosystem**
->
-> Diagnostics appear natively in:
-> - **Editor Gutter** — Red and yellow underlines on the offending lines.
-> - **Problems Panel** — Accessible via `Ctrl+Shift+M` / `Cmd+Shift+M`.
-> - **Minimap** — Color-coded highlights in the scroll bar for rapid scanning.
 
-![Linter Demonstration](../assets/linter.webp)
+<div align="center">
+  <img src="../../assets/create-step.gif" alt="Create Empty Step Definition Demo" width="600" />
+</div>
+
+<div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
+  <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 16px;">💡</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Integration Ecosystem</span>
+  </div>
+  <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+    <p style="color: #374151; font-size: 13px; margin: 0 0 6px 0;">Diagnostics appear natively in:</p>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">Editor Gutter</strong> — Red and yellow underlines on the offending lines.</span>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">Problems Panel</strong> — Accessible via <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+M</kbd> / <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧M</kbd>.</span>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">Minimap</strong> — Color-coded highlights in the scroll bar for rapid scanning.</span>
+    </div>
+  </div>
+</div>

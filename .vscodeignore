@@ -18,6 +18,8 @@ coverage/**
 docs/**
 assets/*.webp
 assets/*.mp4
+assets/*.gif
+assets/*.webm
 .github/**
 mkdocs.yml
 site/**

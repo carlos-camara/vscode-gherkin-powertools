@@ -3,12 +3,14 @@
 
 All notable changes to the "vscode-gherkin-powertools" extension will be documented in this file.
 
+🔗 **[Read the full release notes on GitHub](https://github.com/carlos-camara/vscode-gherkin-powertools/releases)**
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.7.3] - 2026-07-16
 
-### Changed
+### 🛠️ Changed
 - **TypeScript Type-Safety & Parser Architecture Refactor**: Completely centralized the `@cucumber/gherkin` AST parsing logic into a single internal module.
   - **Thread-Safety**: Replaced shared global parser state with fresh deterministic instances per operation, preventing bleed and memory leaks during concurrent linting or formatting.
   - **Strict Type-Safety**: Replaced ambiguous `any` usages across the Linter, Formatter, Statistics, and Outline providers with exact `@cucumber/messages` interface types (`GherkinDocument`, `Feature`, `Scenario`, `Step`, etc.).
@@ -18,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Multi-OS UI Testing**: The End-to-End visual test suite now executes natively across `macos-latest`, `windows-latest`, and `ubuntu-latest`.
   - **Native Check Runs**: Switched test reporting from noisy PR comments to silent, native GitHub Check Runs.
 
-### Added
+### 🚀 Added
 - **AST-Based Project Analytics**: The Project Statistics dashboard has been completely refactored to use the official `@cucumber/gherkin` AST parsing engine instead of line-by-line regex scanning.
   - **100% Precision**: Correctly counts features, rules, backgrounds, scenarios, outlines, Example rows, executable steps, tags, and data tables across the entire workspace.
   - **Objective Refinements**: Separated data tables from Example rows for more accurate metrics. Renamed internal marketing labels to engineering standards ("Gherkin Quality Score" -> "Gherkin Quality Indicator", "Most Complex Scenario" -> "Longest scenario", "ROI" -> "Estimated execution effort").

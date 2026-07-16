@@ -2,11 +2,22 @@
 
 Stop flying blind. Get instant, enterprise-grade BDD analytics about your entire project with the project statistics dashboard.
 
-> [!TIP]
-> **How to Launch**
->
-> - **Right-click** inside any `.feature` file → **Gherkin: Show Project Statistics**
-> - Or open the **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`) → **Gherkin: Show Project Statistics**
+<div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
+  <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 16px;">💡</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">How to Launch</span>
+  </div>
+  <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">Right-click</strong> inside any <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">.feature</code> file → <strong style="color: #111827;">Gherkin: Show Project Statistics</strong></span>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;">Open the <strong style="color: #111827;">Command Palette</strong> (<kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧P</kbd> / <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+P</kbd>) → <strong style="color: #111827;">Gherkin: Show Project Statistics</strong></span>
+    </div>
+  </div>
+</div>
 
 ---
 
@@ -51,4 +62,6 @@ parsed from the workspace (such as scenario names, tags, and step definitions) a
 HTML-escaped before rendering. This safeguards the editor environment from potential Cross-Site Scripting (XSS)
 vectors when rendering external or untrusted `.feature` data.
 
-![Dashboard Demonstration](../assets/dashboard.webp)
+<div align="center">
+  <img src="../../assets/dashboard.gif" alt="Dashboard Demonstration" width="800" />
+</div>
