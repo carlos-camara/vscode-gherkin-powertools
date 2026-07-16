@@ -16,7 +16,11 @@ Unlike regex-based parsers, our AST implementation guarantees it will never get 
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="background: #1f2937; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; line-height: 20px; text-align: center;">2</span>
-      <span style="color: #374151; font-size: 13px; padding-top: 2px;">Open the <strong style="color: #111827;">Outline</strong> panel (Explorer sidebar) or press <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧O</kbd> / <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+O</kbd>.</span>
+      <span style="color: #374151; font-size: 13px; padding-top: 2px;">Open the 
+        <strong style="color: #111827;">Outline</strong> panel (Explorer sidebar) or press 
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧O</kbd> / 
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+O</kbd>.
+      </span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="background: #1f2937; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; line-height: 20px; text-align: center;">3</span>

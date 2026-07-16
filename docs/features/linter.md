@@ -69,7 +69,11 @@ When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
-      <span style="color: #374151; font-size: 13px;"><strong style="color: #111827;">Problems Panel</strong> — Accessible via <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+M</kbd> / <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧M</kbd>.</span>
+      <span style="color: #374151; font-size: 13px;">
+        <strong style="color: #111827;">Problems Panel</strong> — Accessible via 
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+M</kbd> / 
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧M</kbd>.
+      </span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>

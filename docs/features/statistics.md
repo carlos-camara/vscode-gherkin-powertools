@@ -14,7 +14,12 @@ Stop flying blind. Get instant, enterprise-grade BDD analytics about your entire
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
-      <span style="color: #374151; font-size: 13px;">Open the <strong style="color: #111827;">Command Palette</strong> (<kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧P</kbd> / <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+P</kbd>) → <strong style="color: #111827;">Gherkin: Show Project Statistics</strong></span>
+      <span style="color: #374151; font-size: 13px;">Open the 
+        <strong style="color: #111827;">Command Palette</strong> (
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">⌘⇧P</kbd> / 
+        <kbd style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #1f2937;">Ctrl+Shift+P</kbd>) → 
+        <strong style="color: #111827;">Gherkin: Show Project Statistics</strong>
+      </span>
     </div>
   </div>
 </div>

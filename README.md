@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 MD033 -->
+
 <div align="center">
 
 <h1>Gherkin PowerTools</h1>
