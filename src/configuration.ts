@@ -31,18 +31,21 @@ export function isFileIgnored(uri: vscode.Uri, ignoreGlobs: string[]): boolean {
     for (const glob of ignoreGlobs) {
         if (!glob) continue;
         
-        // Basic glob to regex conversion.
+        // Convert glob to regex, using a placeholder for ** to avoid
+        // the single-star replacement from corrupting already-converted `.*`.
+        const DOUBLE_STAR = '\x00DOUBLESTAR\x00';
         let regexStr = glob
-            .replace(/\./g, '\\.')
-            .replace(/\*\*/g, '.*')
-            .replace(/\*/g, '[^/]*')
-            .replace(/\?/g, '.');
-            
-        // If it doesn't start with **, match from start but allow leading characters
+            .replace(/\*\*/g, DOUBLE_STAR)     // protect ** first
+            .replace(/\./g, '\\.')             // escape literal dots
+            .replace(/\*/g, '[^/]*')           // single * → no-slash wildcard
+            .replace(/\?/g, '.')               // ? → any single char
+            .replace(new RegExp(DOUBLE_STAR.replace(/\x00/g, '\\x00'), 'g'), '.*'); // restore **
+
+        // If it doesn't start with **, allow any leading path
         if (!glob.startsWith('**')) {
-            regexStr = '^.*' + regexStr; 
+            regexStr = '^.*' + regexStr;
         }
-        
+
         // Add end anchor
         regexStr = regexStr + '$';
         

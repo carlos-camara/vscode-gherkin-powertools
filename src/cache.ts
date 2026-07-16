@@ -23,7 +23,7 @@ export class SymbolCache {
     public state: CacheState = 'uninitialized';
     private initPromise: Promise<void> | null = null;
 
-    public initialize(config: import('./configuration').BehaveConfiguration): Promise<void> {
+    public initialize(config?: import('./configuration').BehaveConfiguration): Promise<void> {
         if (this.state === 'initializing' || this.state === 'ready') {
             return this.initPromise!;
         }
@@ -31,8 +31,12 @@ export class SymbolCache {
         this.state = 'initializing';
         this.initPromise = (async () => {
             try {
-                const globPattern = config.stepGlobPattern;
-                const excludePattern = config.ignoreGlobPattern;
+                if (!config) {
+                    const { getBehaveConfiguration } = require('./configuration');
+                    config = getBehaveConfiguration();
+                }
+                const globPattern = config!.stepGlobPattern;
+                const excludePattern = config!.ignoreGlobPattern;
 
                 const stepFiles = await vscode.workspace.findFiles(globPattern, excludePattern);
                 await Promise.all(stepFiles.map(file => this.updateFile(file)));
