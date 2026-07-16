@@ -9,7 +9,7 @@
 4. Click **Install**.
 
 <div align="center">
-  <img src="../assets/install.gif" alt="Installation Demonstration" width="800" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/install.gif" alt="Installation Demonstration" width="800" />
 </div>
 
 ## From a `.vsix` File
@@ -21,7 +21,7 @@ code --install-extension vscode-gherkin-powertools-<version>.vsix
 ```
 
 <div align="center">
-  <img src="../assets/install-vsix.gif" alt=".vsix Installation Demonstration" width="800" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/install-vsix.gif" alt=".vsix Installation Demonstration" width="800" />
 </div>
 
 <div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">

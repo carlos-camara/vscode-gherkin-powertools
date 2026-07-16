@@ -25,5 +25,5 @@ The highlighter uses VS Code's `createTextEditorDecorationType` API to apply cus
 </div>
 
 <div align="center">
-  <img src="../../assets/highlighting.gif" alt="Syntax Highlighting" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/highlighting.gif" alt="Syntax Highlighting" width="600" />
 </div>

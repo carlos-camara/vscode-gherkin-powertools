@@ -10,7 +10,7 @@ When you hover your mouse cursor over any step (e.g., `Given`, `When`, `Then`) i
 The tooltip displays the exact Python function signature (`def step_impl(context, ...):`) that matches your step. It supports single-line and complex multi-line function declarations.
 
 <div align="center">
-  <img src="../../assets/hover-step.gif" alt="Python Step Hover Demo" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-step.gif" alt="Python Step Hover Demo" width="600" />
 </div>
 
 ### 2. Docstring Parsing
@@ -20,7 +20,7 @@ If your Python developer left a docstring (`"""..."""` or `'''...'''`) explainin
 Hovering over any Gherkin tag (e.g., `@regression`) instantly calculates its "Blast Radius". The tooltip dynamically counts and displays the total number of executable scenarios affected by that tag across the entire workspace. This fully supports tag inheritance (from `Feature` or `Rule` levels) and multiplies data rows within `Scenario Outline` tables.
 
 <div align="center">
-  <img src="../../assets/hover-tags.gif" alt="Hover on Tags Demo" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif" alt="Hover on Tags Demo" width="600" />
 </div>
 
 ## 💡 Usage Example

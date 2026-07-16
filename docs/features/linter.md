@@ -37,7 +37,7 @@ The Linter integrates deeply with VS Code's **Quick Fix** system (the yellow lig
 When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+.` (Windows/Linux) to trigger an auto-correction:
 
 <div align="center">
-  <img src="../../assets/linter.gif" alt="Linter Demonstration" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif" alt="Linter Demonstration" width="600" />
 </div>
 
 - **Insert missing ':'**: When a block keyword (`Feature`, `Scenario`, etc.) is missing a colon, this action instantly appends it.
@@ -53,7 +53,7 @@ When a diagnostic appears, click the lightbulb or press `Cmd+.` (macOS) / `Ctrl+
   to inherit the correct preceding decorator.
 
 <div align="center">
-  <img src="../../assets/create-step.gif" alt="Create Empty Step Definition Demo" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/create-step.gif" alt="Create Empty Step Definition Demo" width="600" />
 </div>
 
 <div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
