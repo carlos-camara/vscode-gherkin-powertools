@@ -8,7 +8,32 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
 - **Keyboard**: Place your cursor on a step and press **`F12`**.
 - **Context Menu**: Right-click on a step → **"Go to Definition"**.
 
----
+<div align="center">
+  <img src="../../assets/goto-definition.gif" alt="Go To Definition Demo" width="600" />
+</div>
+
+<div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
+  <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 16px;">⚠️</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Workspace Requirements</span>
+  </div>
+  <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;">Python step implementation files must be located inside a directory named <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">steps/</code> (at any nesting depth).</span>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;">Python functions must be decorated with
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@given</code>,
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@when</code>,
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@then</code>, or
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@step</code>.
+      </span>
+    </div>
+  </div>
+</div>
+
 
 ## 🧠 How It Works (The Symbol Cache)
 
@@ -21,9 +46,15 @@ When you request a definition (e.g., clicking on `Given I login as "admin"`):
 3. **Lookup**: It queries the Symbol Cache in RAM via `getStepDefinitions()` which returns *all* matches.
 4. **Navigation**: It locates the matching Python decorator and instantly opens the file directly at that exact line. If multiple definitions exist, the editor allows selecting between them.
 
-> [!NOTE]
-> **Dynamic Updates**
-> The cache is fully reactive. It automatically updates asynchronously in the background whenever you create, modify, or delete Python files, ensuring your definitions are always perfectly in sync.
+<div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
+  <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 16px;">💡</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Dynamic Updates</span>
+  </div>
+  <div style="background-color: #ffffff; padding: 14px 16px;">
+    <span style="color: #374151; font-size: 13px;">The cache is fully reactive. It automatically updates asynchronously in the background whenever you create, modify, or delete Python files, ensuring your definitions are always perfectly in sync.</span>
+  </div>
+</div>
 
 ---
 
@@ -48,11 +79,3 @@ def step_see(context, dashboard): ...
 @step(u'I perform an action')
 def step_action(context): ...
 ```
-
-> [!WARNING]
-> **Workspace Requirements**
->
-> - Python step implementation files must be located inside a directory named `steps/` (at any nesting depth).
-> - Python functions must be decorated with `@given`, `@when`, `@then`, or `@step`.
-
-![Go To Definition Demonstration](../assets/definition.webp)

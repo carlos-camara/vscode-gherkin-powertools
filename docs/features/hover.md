@@ -9,11 +9,19 @@ When you hover your mouse cursor over any step (e.g., `Given`, `When`, `Then`) i
 ### 1. Python Signature Extraction
 The tooltip displays the exact Python function signature (`def step_impl(context, ...):`) that matches your step. It supports single-line and complex multi-line function declarations.
 
+<div align="center">
+  <img src="../../assets/hover-step.gif" alt="Python Step Hover Demo" width="600" />
+</div>
+
 ### 2. Docstring Parsing
 If your Python developer left a docstring (`"""..."""` or `'''...'''`) explaining what the step does, the Hover Provider will extract it and render it cleanly inside the tooltip using Markdown.
 
 ### 3. Tag Blast Radius
 Hovering over any Gherkin tag (e.g., `@regression`) instantly calculates its "Blast Radius". The tooltip dynamically counts and displays the total number of executable scenarios affected by that tag across the entire workspace. This fully supports tag inheritance (from `Feature` or `Rule` levels) and multiplies data rows within `Scenario Outline` tables.
+
+<div align="center">
+  <img src="../../assets/hover-tags.gif" alt="Hover on Tags Demo" width="600" />
+</div>
 
 ## 💡 Usage Example
 
@@ -35,12 +43,15 @@ def step_when_user_enters_credentials(
 
 When you hover over `Given the user enters valid credentials` in your `.feature` file, you will instantly see a formatted popup showing:
 
-> [!NOTE]
-> **def step_when_user_enters_credentials(context, username, password):**
->
-> ---
-> Simulates a user typing their credentials into the login form.
-> It automatically bypasses CAPTCHA in the test environment.
+<div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
+  <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 16px;">💡</span>
+    <code style="color: #f9fafb; font-size: 12px; font-weight: 600;">def step_when_user_enters_credentials(context, username, password):</code>
+  </div>
+  <div style="background-color: #ffffff; padding: 14px 16px;">
+    <span style="color: #374151; font-size: 13px;">Simulates a user typing their credentials into the login form.<br/>It automatically bypasses CAPTCHA in the test environment.</span>
+  </div>
+</div>
 
 ## ⚙️ Requirements
 - Ensure your step definitions are written in Python using Behave decorators (`@given`, `@when`, `@then`, `@step`).
