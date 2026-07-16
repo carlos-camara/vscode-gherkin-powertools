@@ -9,7 +9,7 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
 - **Context Menu**: Right-click on a step → **"Go to Definition"**.
 
 <div align="center">
-  <img src="../../assets/goto-definition.gif" alt="Go To Definition Demo" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif" alt="Go To Definition Demo" width="600" />
 </div>
 
 <div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">

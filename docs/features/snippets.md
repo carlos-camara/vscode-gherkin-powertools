@@ -14,7 +14,7 @@ Tired of memorizing the exact wording of your Python step definitions? The exten
 5. **Tab-to-Fill**: Select the suggestion, and your cursor will automatically land on the first variable. Fill it in, hit <kbd>Tab</kbd>, and jump straight to the next one!
 
 <div align="center">
-  <img src="../../assets/completion.gif" alt="IntelliSense Demonstration" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif" alt="IntelliSense Demonstration" width="600" />
 </div>
 
 ### 📊 Scenario Outline Parameter Autocompletion
@@ -28,7 +28,7 @@ When working within a `Scenario Outline` or `Scenario Template`, you frequently 
 4. Select a header, and the extension automatically inserts the header name along with the closing bracket `>`.
 
 <div align="center">
-  <img src="../../assets/outline-completion.gif" alt="Scenario Outline Autocompletion" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline-completion.gif" alt="Scenario Outline Autocompletion" width="600" />
 </div>
 
 ---

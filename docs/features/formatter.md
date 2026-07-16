@@ -36,7 +36,7 @@ The core feature of Gherkin PowerTools. Powered by the official `@cucumber/gherk
 </div>
 
 <div align="center">
-  <img src="../../assets/formatter.gif" alt="Formatter Demonstration" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif" alt="Formatter Demonstration" width="600" />
 </div>
 
 ## ✨ Formatting Capabilities

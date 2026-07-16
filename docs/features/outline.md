@@ -31,7 +31,7 @@ Unlike regex-based parsers, our AST implementation guarantees it will never get 
 
 
 <div align="center">
-  <img src="../../assets/outline.gif" alt="Outline Provider Demo" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif" alt="Outline Provider Demo" width="600" />
 </div>
 
 
