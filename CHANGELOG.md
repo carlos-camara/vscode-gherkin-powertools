@@ -8,6 +8,11 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 🛠️ Changed
+- **Unified Watcher Architecture**: Centralized the filesystem watcher and step discovery configuration. The extension now actively tracks the `gherkinPowerTools.behave.stepGlobs` and `ignoreGlobs` settings for real-time live updates, properly ignores `.venv` and `node_modules` caches instantly, and automatically hot-reloads its indexing logic whenever these configurations are modified without requiring a VS Code window reload.
+
 ## [1.7.3] - 2026-07-16
 
 ### 🛠️ Changed

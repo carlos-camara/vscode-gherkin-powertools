@@ -193,9 +193,8 @@ Fine-tune the extension to match your team's style guide via your Workspace Sett
 | `gherkinPowerTools.indentation.steps` | `4` | Number of spaces to indent steps. |
 | `gherkinPowerTools.tables.alignToKeyword` | `true` | Align pipes dynamically to the step text. |
 | `gherkinPowerTools.tags.format` | `"wrap"` | `"wrap"` or `"singleLine"` for long tags. |
-| `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py"]` | Paths to index your Python steps. |
-
-
+| `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py", "**/features/steps/**/*.py"]` | Paths to index and watch your Python steps. Changes apply in real-time. |
+| `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**", "**/.venv/**", ...]` | Glob patterns to ignore during step discovery. |
 
 ## 🗺️ Roadmap & Support
 
