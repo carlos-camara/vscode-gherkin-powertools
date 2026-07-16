@@ -53,88 +53,80 @@ Provides **universal formatting and linting** for any framework (Cucumber, Playw
 
 <div align="center">
 
-![Formatting Data Tables](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif)
+![Formatting Data Tables](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif)<br/>
+**📖 Read the full documentation on [Formatter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/formatter.html)**
 
 </div>
-
-> 📖 Read the full documentation on [Formatter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/formatter.html)
 
 ### 🛡️ Real-Time Syntax Guardian
 **Catch typos before they break your build.** Our strict, real-time AST linter silently watches your back, highlighting missing colons and malformed tables exactly when you type them. Shift-left your BDD workflow today.
 
 <div align="center">
 
-![Linting and Diagnostics](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif)
+![Linting and Diagnostics](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif)<br/>
+**📖 Read the full documentation on [Linter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html)**
 
 </div>
-
-> 📖 Read the full documentation on [Linter](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html)
 
 ### 🪄 One-Click Auto-Corrections
 **Don't break your typing flow.** Misspelled a keyword? Forgot punctuation? Just hit `Cmd+.` and let intelligent auto-corrections fix your Gherkin syntax in a fraction of a second.
 
 <div align="center">
 
-![One-Click Auto-Corrections](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/auto-corrections.gif)
+![One-Click Auto-Corrections](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/auto-corrections.gif)<br/>
+**📖 Read the full documentation on [Auto-Corrections](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html#auto-corrections)**
 
 </div>
-
-> 📖 Read the full documentation on [Auto-Corrections](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html#auto-corrections)
 
 ### 🧠 Smart Autocompletion (IntelliSense)
 **Type less, test more.** Forget memorizing exact step definitions. The extension parses your Python codebase and offers context-aware IntelliSense for your Gherkin steps, complete with interactive Tab-to-Fill variables.
 
 <div align="center">
 
-![IntelliSense Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif)
+![IntelliSense Demonstration](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif)<br/>
+**📖 Read the full documentation on [Autocomplete & Snippets](https://carlos-camara.github.io/vscode-gherkin-powertools/features/snippets.html)**
 
 </div>
-
-> 📖 Read the full documentation on [Autocomplete & Snippets](https://carlos-camara.github.io/vscode-gherkin-powertools/features/snippets.html)
 
 ### 💥 Intelligent Hover Tooltips
 **Context at your fingertips.** Hover over any Gherkin `@tag` to instantly see its "Blast Radius" (how many scenarios across the workspace it impacts). Hover over any step to reveal its exact Python function signature and docstrings without leaving the feature file!
 
 <div align="center">
 
-![Hover on Tags](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)
+![Hover on Tags](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)<br/>
+**📖 Read the full documentation on [Hover Preview](https://carlos-camara.github.io/vscode-gherkin-powertools/features/hover.html)**
 
 </div>
-
-> 📖 Read the full documentation on [Hover Preview](https://carlos-camara.github.io/vscode-gherkin-powertools/features/hover.html)
 
 ### 🐍 Seamless Python Step Navigation
 **Navigate your test suite at the speed of thought.** Cmd-Click any Gherkin step to instantly jump to its Python definition, trigger context-aware autocomplete, or hover to read the underlying code without ever switching tabs.
 
 <div align="center">
 
-![Go To Definition for Behave](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif)
+![Go To Definition for Behave](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif)<br/>
+**📖 Read the full documentation on [Go To Definition](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html)**
 
 </div>
-
-> 📖 Read the full documentation on [Go To Definition](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html)
 
 ### 🗺️ Outline Provider & Structure Navigation
 **Never get lost in massive feature files.** The AST-powered outline perfectly mirrors your file's semantic structure (Features, Rules, Scenarios), letting you instantly navigate massive test suites.
 
 <div align="center">
 
-![Outline Provider Demo](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif)
+![Outline Provider Demo](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif)<br/>
+**📖 Read the full documentation on [Outline Provider](https://carlos-camara.github.io/vscode-gherkin-powertools/features/outline.html)**
 
 </div>
-
-> 📖 Read the full documentation on [Outline Provider](https://carlos-camara.github.io/vscode-gherkin-powertools/features/outline.html)
 
 ### 📈 Project Health Dashboard
 **Understand your testing surface at a glance.** Generate heuristic analytics to visualize tag distribution, pinpoint overgrown scenarios, and measure your total QA effort right from your editor.
 
 <div align="center">
 
-![Project QA Statistics Dashboard](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/dashboard.gif)
+![Project QA Statistics Dashboard](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/dashboard.gif)<br/>
+**📖 Read the full documentation on [Statistics Dashboard](https://carlos-camara.github.io/vscode-gherkin-powertools/features/statistics.html)**
 
 </div>
-
-> 📖 Read the full documentation on [Statistics Dashboard](https://carlos-camara.github.io/vscode-gherkin-powertools/features/statistics.html)
 
 ---
 
