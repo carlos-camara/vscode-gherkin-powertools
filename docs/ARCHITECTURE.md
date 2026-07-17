@@ -48,7 +48,7 @@ graph LR
 
 ## Hot-Reloading Configuration
 
-The extension is designed to respond to configuration changes instantly without requiring a window reload. 
+The extension is designed to respond to configuration changes instantly without requiring a window reload.
 When settings like `gherkinPowerTools.behave.stepGlobs` are modified, `extension.ts` interacts with `discovery.ts` to immediately tear down old file system watchers, instantiate new ones, and instruct the `SymbolCache` to re-index the workspace and trigger live re-linting of all open feature documents.
 
 
