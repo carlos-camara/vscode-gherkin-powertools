@@ -457,7 +457,8 @@ export class GherkinLinter {
         }
         for (const step of steps) {
             const stepText = step.text.trim();
-            const defs = await this.symbolCache.getStepDefinitions(stepText);
+            const semanticType = dialectService.resolveAndBut(document, Math.max(0, step.location.line - 1));
+            const defs = await this.symbolCache.getStepDefinitions(stepText, semanticType);
             if (defs.length !== 1) {
                 const lineIndex = Math.max(0, step.location.line - 1);
                 const lineText = document.lineAt(lineIndex).text;

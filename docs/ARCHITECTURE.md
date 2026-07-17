@@ -52,6 +52,11 @@ The extension is designed to respond to configuration changes instantly without 
 When settings like `gherkinPowerTools.behave.stepGlobs` are modified, `extension.ts` interacts with `discovery.ts` to immediately tear down old file system watchers, instantiate new ones, and instruct the `SymbolCache` to re-index the workspace and trigger live re-linting of all open feature documents.
 
 
+## Semantic Step Matching
+
+In traditional Gherkin engines, steps are resolved solely by matching regex patterns against the trailing text. However, frameworks like Behave allow identically worded steps differentiated only by their semantic decorator (`@given("I log in")` vs `@when("I log in")`).
+Gherkin PowerTools correctly respects these semantic constraints. The `DialectService` traverses backwards through the Gherkin document to resolve contextual semantic types for continuation keywords (`And`, `But`). This inferred semantic type is passed synchronously into the `SymbolCache`, which strictly filters autocomplete snippets, hover documentation, Go-To-Definition links, and Linter diagnostics to only present perfectly valid contexts without throwing ambiguous step errors. Generic `@step` decorators are treated as wildcards.
+
 ## The Formatting Engine
 
 While parsing relies on the AST for semantic validation, the `formatter.ts` leverages regex-based token extraction combined with AST localization to perform block-spacing and table alignment without altering invalid lines.

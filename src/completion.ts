@@ -84,18 +84,13 @@ export class GherkinCompletionProvider implements vscode.CompletionItemProvider 
             semanticType = dialectService.resolveAndBut(document, position.line);
         }
 
-        const definitions = await this.symbolCache.getAllStepDefinitions();
+        const definitions = await this.symbolCache.getAllStepDefinitions(semanticType);
         const completionItems: vscode.CompletionItem[] = [];
         const seenPatterns = new Set<string>();
 
         for (const def of definitions) {
             if (token.isCancellationRequested) {
                 return undefined;
-            }
-
-            // Filter by decorator type
-            if (def.type !== semanticType && def.type !== 'step') {
-                continue;
             }
 
             const pattern = def.rawPattern;
