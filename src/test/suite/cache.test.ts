@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { SymbolCache, FeatureCache } from '../../cache';
+import { discoveryService } from '../../discovery';
 
 suite('SymbolCache Test Suite', () => {
     let cache: SymbolCache;
@@ -125,6 +126,9 @@ def step_impl(
     });
 
     test('Initializes cache from workspace files', async () => {
+        const originalGetStepFiles = discoveryService.getStepFiles.bind(discoveryService);
+        discoveryService.getStepFiles = async () => [];
+        
         // We can't easily mock vscode.workspace.findFiles, but we can verify 
         // that calling initialize() doesn't crash and sets state.
         const p1 = cache.initialize();
@@ -140,6 +144,8 @@ def step_impl(
         // Calling it again after ready should also return the resolved promise
         const p3 = cache.initialize();
         assert.strictEqual(p1, p3);
+
+        discoveryService.getStepFiles = originalGetStepFiles;
     });
 
     test('Tag Blast Radius: Handles inherited tags from Feature and multiplies by Examples', async () => {
