@@ -19,10 +19,6 @@ AST-powered formatting, validation, navigation and analytics for Gherkin project
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.93-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/LICENSE)
 
-<br/>
-
-[![Documentation](https://img.shields.io/badge/Docs-carlos--camara.github.io-blueviolet?style=flat-square)](https://carlos-camara.github.io/vscode-gherkin-powertools/)&ensp;[![Changelog](https://img.shields.io/badge/Changelog-view-gray?style=flat-square)](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/CHANGELOG.md)&ensp;[![Issues](https://img.shields.io/github/issues/carlos-camara/vscode-gherkin-powertools?style=flat-square&color=red)](https://github.com/carlos-camara/vscode-gherkin-powertools/issues)
-
 </div>
 
 ---

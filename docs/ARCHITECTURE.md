@@ -22,6 +22,9 @@ graph LR
     A --> I[completion.ts]
     A --> J[cache.ts]
     A --> K[logger.ts]
+    A --> L[hover.ts]
+    A --> M[parser.ts]
+    A --> N[dialect.ts]
 ```
 
 | Module | Responsibility |
@@ -37,6 +40,9 @@ graph LR
 | `completion.ts`| Smart IntelliSense autocompletion parsing regex into Snippets |
 | `cache.ts`     | Asynchronous caching engine that non-blockingly indexes the workspace via `vscode.workspace.findFiles` |
 | `logger.ts`    | Native VS Code Output Channel for tracing |
+| `hover.ts`     | Provides hover information (function signatures, docstrings, tag blast radius) |
+| `parser.ts`    | Handles AST parsing and caching of Gherkin documents |
+| `dialect.ts`   | Provides i18n support by matching localized Gherkin keywords |
 
 
 ## The Formatting Engine
