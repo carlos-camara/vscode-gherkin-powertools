@@ -1,7 +1,6 @@
 # 🔍 Overview
 
-> [!NOTE]
-> Thank you for contributing to Gherkin PowerTools! Please ensure you have read `CONTRIBUTING.md` before submitting this PR.
+> **Note:** Thank you for contributing to Gherkin PowerTools! Please ensure you have read `CONTRIBUTING.md` before submitting this PR.
 
 <!-- Provide a brief description of the changes in this PR -->
 

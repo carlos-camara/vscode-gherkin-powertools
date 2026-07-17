@@ -13,8 +13,7 @@ Currently, the following versions of the extension receive security updates:
 
 ## Reporting a Vulnerability
 
-> [!CAUTION]
-> If you believe you have found a security vulnerability, please do **not** open a public issue. Instead, follow our coordinated disclosure process:
+> **Caution:** If you believe you have found a security vulnerability, please do **not** open a public issue. Instead, follow our coordinated disclosure process:
 
 1. **Contact**: Report the vulnerability via GitHub's Private Vulnerability Reporting feature.
 2. **Information Required**:
