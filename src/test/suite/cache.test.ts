@@ -98,6 +98,48 @@ def general(context): pass
         assert.strictEqual((await cache.getAllStepDefinitions()).length, 0);
     });
 
+    test('Filters step definitions by semantic type', async () => {
+        const semanticCode = `
+@given('I log in')
+def given_login(context): pass
+
+@when('I log in')
+def when_login(context): pass
+
+@then('I log in')
+def then_login(context): pass
+
+@step('a generic step')
+def generic_step(context): pass
+        `;
+        const tempFile = path.join(tempDir, 'semantic.py');
+        fs.writeFileSync(tempFile, semanticCode);
+        await cache.updateFile(vscode.Uri.file(tempFile));
+
+        // Search with no semantic type (matches everything)
+        assert.strictEqual((await cache.getStepDefinitions('I log in')).length, 3);
+        
+        // Search with specific semantic types
+        const givenDefs = await cache.getStepDefinitions('I log in', 'given');
+        assert.strictEqual(givenDefs.length, 1);
+        assert.strictEqual(givenDefs[0].type, 'given');
+        
+        const whenDefs = await cache.getStepDefinitions('I log in', 'when');
+        assert.strictEqual(whenDefs.length, 1);
+        assert.strictEqual(whenDefs[0].type, 'when');
+        
+        const thenDefs = await cache.getStepDefinitions('I log in', 'then');
+        assert.strictEqual(thenDefs.length, 1);
+        assert.strictEqual(thenDefs[0].type, 'then');
+
+        // Generic @step matches anything
+        assert.strictEqual((await cache.getStepDefinitions('a generic step', 'given')).length, 1);
+        assert.strictEqual((await cache.getStepDefinitions('a generic step', 'when')).length, 1);
+        assert.strictEqual((await cache.getStepDefinitions('a generic step', 'then')).length, 1);
+        assert.strictEqual((await cache.getStepDefinitions('a generic step', 'step')).length, 1);
+    });
+
+
     test('Handles multiline function signatures and docstrings', async () => {
         const mockPythonCode = `
 @then('I have multi')

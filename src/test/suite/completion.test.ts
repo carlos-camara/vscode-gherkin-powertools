@@ -69,7 +69,10 @@ suite('Completion Test Suite', () => {
         ];
         
         // Override the cache method for testing
-        mockCache.getAllStepDefinitions = () => Promise.resolve(steps);
+        mockCache.getAllStepDefinitions = (semanticType?: 'given' | 'when' | 'then' | 'step') => {
+            if (!semanticType || semanticType === 'step') return Promise.resolve(steps);
+            return Promise.resolve(steps.filter(s => s.type === semanticType || s.type === 'step'));
+        };
         
         provider = new GherkinCompletionProvider(mockCache);
     });

@@ -39,8 +39,9 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
 
 
         const stepText = match[2].trim();
+        const semanticType = dialectService.resolveAndBut(document, position.line);
 
-        const stepDef: StepDefinition | null = await this.symbolCache.getStepDefinition(stepText);
+        const stepDef: StepDefinition | null = await this.symbolCache.getStepDefinition(stepText, semanticType);
 
         if (!stepDef) {
             return undefined; // No underlying implementation found

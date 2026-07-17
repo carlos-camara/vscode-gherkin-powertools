@@ -198,11 +198,14 @@ export class SymbolCache {
         this.cache.delete(uri.toString());
     }
 
-    public async getStepDefinitions(stepText: string): Promise<StepDefinition[]> {
+    public async getStepDefinitions(stepText: string, semanticType?: 'given' | 'when' | 'then' | 'step'): Promise<StepDefinition[]> {
         await this.initialize();
         const matches: StepDefinition[] = [];
         for (const [_, definitions] of this.cache) {
             for (const def of definitions) {
+                if (semanticType && semanticType !== 'step' && def.type !== 'step' && def.type !== semanticType) {
+                    continue;
+                }
                 if (def.regex.test(stepText)) {
                     matches.push(def);
                 }
@@ -211,16 +214,21 @@ export class SymbolCache {
         return matches;
     }
 
-    public async getStepDefinition(stepText: string): Promise<StepDefinition | null> {
-        const matches = await this.getStepDefinitions(stepText);
+    public async getStepDefinition(stepText: string, semanticType?: 'given' | 'when' | 'then' | 'step'): Promise<StepDefinition | null> {
+        const matches = await this.getStepDefinitions(stepText, semanticType);
         return matches.length > 0 ? matches[0] : null;
     }
 
-    public async getAllStepDefinitions(): Promise<StepDefinition[]> {
+    public async getAllStepDefinitions(semanticType?: 'given' | 'when' | 'then' | 'step'): Promise<StepDefinition[]> {
         await this.initialize();
         const definitions: StepDefinition[] = [];
         for (const [_, defs] of this.cache) {
-            definitions.push(...defs);
+            for (const def of defs) {
+                if (semanticType && semanticType !== 'step' && def.type !== 'step' && def.type !== semanticType) {
+                    continue;
+                }
+                definitions.push(def);
+            }
         }
         return definitions;
     }
