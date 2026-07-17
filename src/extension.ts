@@ -10,6 +10,7 @@ import { logger } from './logger';
 import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 import { GherkinCompletionProvider } from './completion';
 import { GherkinHoverProvider } from './hover';
+import { discoveryService } from './discovery';
 
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
@@ -47,11 +48,25 @@ export async function activate(context: vscode.ExtensionContext) {
     };
 
     // Watch for changes in Python step files
-    const watcher = vscode.workspace.createFileSystemWatcher('**/steps/**/*.py');
-    watcher.onDidCreate(async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); });
-    watcher.onDidChange(async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); });
-    watcher.onDidDelete(uri => { symbolCache.removeFile(uri); reLintOpenFiles(); });
-    context.subscriptions.push(watcher);
+    const setupStepWatchers = () => {
+        const watchers = discoveryService.setupWatchers(
+            async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); },
+            async uri => { await symbolCache.updateFile(uri); reLintOpenFiles(); },
+            uri => { symbolCache.removeFile(uri); reLintOpenFiles(); }
+        );
+        watchers.forEach(w => context.subscriptions.push(w));
+    };
+    setupStepWatchers();
+
+    // Rebuild discovery logic on configuration change
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(async e => {
+        if (e.affectsConfiguration('gherkinPowerTools.behave.stepGlobs') || 
+            e.affectsConfiguration('gherkinPowerTools.behave.ignoreGlobs')) {
+            setupStepWatchers();
+            await symbolCache.initialize();
+            reLintOpenFiles();
+        }
+    }));
     
     // Watch for changes in feature files to update tag statistics
     const featureWatcher = vscode.workspace.createFileSystemWatcher('**/*.feature');

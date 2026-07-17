@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { logger } from './logger';
+import { discoveryService } from './discovery';
 import { parseGherkin } from './parser';
 import type { Tag, Scenario } from '@cucumber/messages';
 export interface StepDefinition {
@@ -31,14 +32,7 @@ export class SymbolCache {
         this.state = 'initializing';
         this.initPromise = (async () => {
             try {
-                const config = vscode.workspace.getConfiguration('gherkinPowerTools.behave');
-                const stepGlobs = config.get<string[]>('stepGlobs', ['**/steps/**/*.py', '**/features/steps/**/*.py']);
-                const ignoreGlobs = config.get<string[]>('ignoreGlobs', ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**']);
-
-                const globPattern = stepGlobs.length > 1 ? `{${stepGlobs.join(',')}}` : stepGlobs[0];
-                const excludePattern = ignoreGlobs.length > 1 ? `{${ignoreGlobs.join(',')}}` : ignoreGlobs[0];
-
-                const stepFiles = await vscode.workspace.findFiles(globPattern, excludePattern);
+                const stepFiles = await discoveryService.getStepFiles();
                 await Promise.all(stepFiles.map(file => this.updateFile(file)));
 
                 this.state = 'ready';

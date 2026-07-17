@@ -10,6 +10,10 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 | `gherkinPowerTools.tables.alignToKeyword` | `true` | If enabled, tables dynamically pad their left border to match the text length of the preceding step. |
 | `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Enforces the exact number of blank lines between `Scenario` and `Rule` blocks. |
 | `gherkinPowerTools.tags.format` | `"wrap"` | Choose `"wrap"` to split long tags across lines, or `"singleLine"` to keep them contiguous. |
+| `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py"]` | An array of glob patterns pointing to Python files that contain Behave steps. Used for linking, hovers, linting, and autocomplete. |
+| `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**"]` | An array of glob patterns to exclude from step discovery. |
+
+> **Note:** Changes to the `behave.stepGlobs` or `behave.ignoreGlobs` settings take effect immediately. The extension will automatically reload its step cache and live watchers without requiring you to restart VS Code.
 
 ## Example Configuration
 
@@ -18,7 +22,11 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
     "gherkinPowerTools.indentation.steps": 2,
     "gherkinPowerTools.tables.alignToKeyword": true,
     "gherkinPowerTools.emptyLines.betweenScenarios": 1,
-    "gherkinPowerTools.tags.format": "wrap"
+    "gherkinPowerTools.tags.format": "wrap",
+    "gherkinPowerTools.behave.stepGlobs": [
+        "**/steps/**/*.py",
+        "**/other_steps/**/*.py"
+    ]
 }
 ```
 

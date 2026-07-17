@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { dialectService } from './dialect';
+import { discoveryService } from './discovery';
 
 export class GherkinCodeActionProvider implements vscode.CodeActionProvider {
     public static readonly providedCodeActionKinds = [
@@ -136,16 +137,14 @@ export async function createStepDefinition(stepText: string, keyword: string, do
         pyKeyword = 'step';
     }
 
-    const pyFiles = await vscode.workspace.findFiles('**/steps/**/*.py', '**/node_modules/**');
+    const pyFiles = await discoveryService.getStepFiles();
 
     let targetUri: vscode.Uri | undefined;
     let isNewFile = false;
 
     if (pyFiles.length === 0) {
         // Find workspace folder
-        const workspaceFolder = documentUri 
-            ? vscode.workspace.getWorkspaceFolder(documentUri) 
-            : (vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined);
+        const workspaceFolder = documentUri ? discoveryService.getBestWorkspaceFolder(documentUri) : discoveryService.getBestWorkspaceFolder(vscode.Uri.file('/'));
             
         if (!workspaceFolder) {
             vscode.window.showErrorMessage("Please open a workspace to create step definitions.");

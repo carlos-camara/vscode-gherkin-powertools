@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { GherkinCodeActionProvider, createStepDefinition, serializeToPythonString, generateStepFunctionName } from '../../codeAction';
+import { discoveryService } from '../../discovery';
 
 function createMockDocument(text: string, uriStr: string): vscode.TextDocument {
     const lines = text.split('\n');
@@ -112,8 +113,12 @@ suite('createStepDefinition Test Suite', () => {
     let originalShowTextDocument: any;
     let originalOpenTextDocument: any;
 
+    let originalGetStepFiles: any;
+    let originalGetBestWorkspaceFolder: any;
+
     setup(() => {
-        originalFindFiles = vscode.workspace.findFiles;
+        originalGetStepFiles = discoveryService.getStepFiles.bind(discoveryService);
+        originalGetBestWorkspaceFolder = discoveryService.getBestWorkspaceFolder.bind(discoveryService);
         originalShowInformationMessage = vscode.window.showInformationMessage;
         originalShowQuickPick = vscode.window.showQuickPick;
         originalShowErrorMessage = vscode.window.showErrorMessage;
@@ -125,7 +130,8 @@ suite('createStepDefinition Test Suite', () => {
     });
 
     teardown(() => {
-        (vscode.workspace as any).findFiles = originalFindFiles;
+        discoveryService.getStepFiles = originalGetStepFiles;
+        discoveryService.getBestWorkspaceFolder = originalGetBestWorkspaceFolder;
         (vscode.window as any).showInformationMessage = originalShowInformationMessage;
         (vscode.window as any).showQuickPick = originalShowQuickPick;
         (vscode.window as any).showErrorMessage = originalShowErrorMessage;
@@ -138,10 +144,9 @@ suite('createStepDefinition Test Suite', () => {
 
     test('Shows error message if no workspace is opened', async () => {
         let errorMessage = '';
-        (vscode.workspace as any).findFiles = async () => [];
+        discoveryService.getStepFiles = async () => [];
         (vscode.window as any).showErrorMessage = async (msg: string) => { errorMessage = msg; };
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => undefined });
-        (vscode.workspace as any).getWorkspaceFolder = () => undefined;
+        discoveryService.getBestWorkspaceFolder = () => undefined;
 
         await createStepDefinition('step', 'Given');
 
@@ -153,12 +158,12 @@ suite('createStepDefinition Test Suite', () => {
         let directoryCreated = false;
         let editApplied = false;
 
-        (vscode.workspace as any).findFiles = async () => [];
+        discoveryService.getStepFiles = async () => [];
         (vscode.window as any).showInformationMessage = async (msg: string, action: string) => { 
             infoMessage = msg;
             return action;
         };
-        (vscode.workspace as any).getWorkspaceFolder = () => ({ uri: vscode.Uri.file('/tmp') });
+        discoveryService.getBestWorkspaceFolder = () => ({ uri: vscode.Uri.file('/tmp'), name: 'tmp', index: 0 });
         
         Object.defineProperty(vscode.workspace, 'fs', { get: () => ({
             createDirectory: async () => { directoryCreated = true; },
@@ -182,7 +187,7 @@ suite('createStepDefinition Test Suite', () => {
     test('Appends without collision to an existing file', async () => {
         let editApplied = false;
 
-        (vscode.workspace as any).findFiles = async () => [vscode.Uri.file('/tmp/file1.py')];
+        discoveryService.getStepFiles = async () => [vscode.Uri.file('/tmp/file1.py')];
         
         Object.defineProperty(vscode.workspace, 'fs', { get: () => ({
             readFile: async () => Buffer.from("def i_test_collision(context):\n    pass\n")

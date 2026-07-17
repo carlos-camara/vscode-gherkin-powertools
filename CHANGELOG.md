@@ -8,6 +8,13 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 🛠️ Changed
+- **Centralized File Discovery**: Introduced `BehaveFileDiscoveryService` to act as the single source of truth for locating Behave step files.
+  - **Dynamic Configuration Hot-Reload**: Changes to `gherkinPowerTools.behave.stepGlobs` or `ignoreGlobs` settings are now applied immediately. Live file system watchers are dynamically recreated, cache is re-indexed, and open features are instantly re-linted without requiring a VS Code restart.
+  - **Multi-Root Workspace Intelligence**: Step definition generation (Quick Fix) now correctly infers the appropriate base workspace folder if multiple roots are opened.
+
 ## [1.7.3] - 2026-07-16
 
 ### 🛠️ Changed

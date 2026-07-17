@@ -24,6 +24,7 @@ Here is a breakdown of the core modules located in the `src/` directory:
 - **`hover.ts`**: Provides hover information such as function signatures, docstrings, and tag blast radius.
 - **`parser.ts`**: Handles AST parsing and caching of Gherkin documents.
 - **`dialect.ts`**: Provides i18n support by matching localized Gherkin keywords.
+- **`discovery.ts`**: Centralized service for Behave step-file discovery, configuration normalization, and reactive file watchers.
 
 ---
 
