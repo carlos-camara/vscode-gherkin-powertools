@@ -55,7 +55,9 @@ When settings like `gherkinPowerTools.behave.stepGlobs` are modified, `extension
 ## Semantic Step Matching
 
 In traditional Gherkin engines, steps are resolved solely by matching regex patterns against the trailing text. However, frameworks like Behave allow identically worded steps differentiated only by their semantic decorator (`@given("I log in")` vs `@when("I log in")`).
-Gherkin PowerTools correctly respects these semantic constraints. The `DialectService` traverses backwards through the Gherkin document to resolve contextual semantic types for continuation keywords (`And`, `But`). This inferred semantic type is passed synchronously into the `SymbolCache`, which strictly filters autocomplete snippets, hover documentation, Go-To-Definition links, and Linter diagnostics to only present perfectly valid contexts without throwing ambiguous step errors. Generic `@step` decorators are treated as wildcards.
+Gherkin PowerTools correctly respects these semantic constraints. The `DialectService` traverses backwards through the Gherkin document to resolve contextual semantic types for continuation keywords (`And`, `But`).
+This inferred semantic type is passed synchronously into the `SymbolCache`, which strictly filters autocomplete snippets, hover documentation, Go-To-Definition links, and Linter diagnostics to only present perfectly valid contexts without throwing ambiguous step errors.
+Generic `@step` decorators are treated as wildcards.
 
 ## The Formatting Engine
 
