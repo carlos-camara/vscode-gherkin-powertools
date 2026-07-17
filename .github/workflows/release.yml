@@ -102,4 +102,4 @@ jobs:
             exit 0
           fi
           echo "Publishing to Visual Studio Marketplace..."
-          npx vsce publish -p $VSCE_PAT
+          npx vsce publish
