@@ -97,9 +97,5 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
-          if [ -z "$VSCE_PAT" ]; then
-            echo "VSCE_PAT secret is missing. Skipping marketplace publish."
-            exit 0
-          fi
           echo "Publishing to Visual Studio Marketplace..."
           npx vsce publish
