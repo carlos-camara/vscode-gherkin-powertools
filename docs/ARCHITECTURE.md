@@ -25,6 +25,7 @@ graph LR
     A --> L[hover.ts]
     A --> M[parser.ts]
     A --> N[dialect.ts]
+    A --> O[discovery.ts]
 ```
 
 | Module | Responsibility |
@@ -43,6 +44,12 @@ graph LR
 | `hover.ts`     | Provides hover information (function signatures, docstrings, tag blast radius) |
 | `parser.ts`    | Handles AST parsing and caching of Gherkin documents |
 | `dialect.ts`   | Provides i18n support by matching localized Gherkin keywords |
+| `discovery.ts` | Centralized Behave file discovery service handling glob normalization and reactive file watchers |
+
+## Hot-Reloading Configuration
+
+The extension is designed to respond to configuration changes instantly without requiring a window reload. 
+When settings like `gherkinPowerTools.behave.stepGlobs` are modified, `extension.ts` interacts with `discovery.ts` to immediately tear down old file system watchers, instantiate new ones, and instruct the `SymbolCache` to re-index the workspace and trigger live re-linting of all open feature documents.
 
 
 ## The Formatting Engine
