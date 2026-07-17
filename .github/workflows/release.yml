@@ -92,3 +92,14 @@ jobs:
             echo "Uploading asset $VSIX to release $TAG..."
             gh release upload "$TAG" "$VSIX" --clobber
           fi
+
+      - name: 🌐 Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "VSCE_PAT secret is missing. Skipping marketplace publish."
+            exit 0
+          fi
+          echo "Publishing to Visual Studio Marketplace..."
+          npx vsce publish -p $VSCE_PAT
