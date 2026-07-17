@@ -98,4 +98,6 @@ jobs:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
           echo "Publishing to Visual Studio Marketplace..."
-          npx vsce publish
+          # By passing the pre-packaged VSIX (-i), we prevent vsce from re-running 
+          # the build scripts (prepublish) while the PAT is exposed in the environment.
+          npx vsce publish -i ${{ steps.vars.outputs.vsix }} -p "$VSCE_PAT"
