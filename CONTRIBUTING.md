@@ -63,8 +63,7 @@ To run native UI integration tests that launch a real VS Code instance and test 
 npm run test:e2e
 ```
 
-> [!IMPORTANT]
-> Always ensure that all tests pass before submitting a Pull Request. If you are adding a new feature, please add a corresponding test case in the `src/test/` directory.
+> **Important:** Always ensure that all tests pass before submitting a Pull Request. If you are adding a new feature, please add a corresponding test case in the `src/test/` directory.
 
 ---
 
@@ -88,8 +87,7 @@ This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root dir
 
 ## 🤝 Submitting a Pull Request
 
-> [!NOTE]
-> If you are planning a large feature or significant architectural change, please open an Issue or Discussion first to align with the project maintainers before writing code.
+> **Note:** If you are planning a large feature or significant architectural change, please open an Issue or Discussion first to align with the project maintainers before writing code.
 
 1. Fork the repository.
 2. Create a new branch for your feature or bug fix: `git checkout -b feature/my-new-feature`
