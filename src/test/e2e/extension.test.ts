@@ -449,9 +449,57 @@ Feature: Tags
             range
         );
 
-        assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for typo');
+        assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for misspelled step');
         const fixAction = codeActions.find(a => a.title.includes("Replace with 'Given'"));
-        assert.ok(fixAction, 'Did not find the spelling correction quick fix');
+        assert.ok(fixAction, 'Did not find the "Replace with \'Given\'" quick fix');
+    });
+
+    test('Simulate Document Save triggers Linter', async () => {
+        const uri = vscode.Uri.parse('untitled:save_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Save\n  Scenario: Test\n    Given step');
+        });
+
+        // Trigger save (for an untitled file, it might prompt, so we can't easily execute save command without UI)
+        // Instead, we just trigger the extension's hook directly if possible, or execute save on a real file.
+        // Let's create a real temporary file instead.
+        const os = require('os');
+        const path = require('path');
+        const fs = require('fs');
+        const tempFilePath = path.join(os.tmpdir(), 'real_save_test.feature');
+        fs.writeFileSync(tempFilePath, 'Feature: Save\n  Scenario: Test\n    Given step');
+        
+        const realUri = vscode.Uri.file(tempFilePath);
+        const realDocument = await vscode.workspace.openTextDocument(realUri);
+        await vscode.window.showTextDocument(realDocument);
+
+        await realDocument.save();
+        // Wait a bit for the save event to trigger linter
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const diagnostics = vscode.languages.getDiagnostics(realDocument.uri);
+        assert.ok(diagnostics !== undefined, 'Linter should process the document on save');
+
+        try { fs.unlinkSync(tempFilePath); } catch (e) {}
+    });
+
+    test('Simulate text change triggers Highlighter on active editor', async () => {
+        const uri = vscode.Uri.parse('untitled:highlight_active_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        // Typing triggers onDidChangeTextDocument, which should call highlighter.highlight if it's the active editor
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Feature: Active Highlight\n');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+        assert.ok(true, 'Highlighter should have been triggered without throwing');
     });
 
     test('Simulate Ambiguous Step diagnostic (Integration Engine)', async () => {

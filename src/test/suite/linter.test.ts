@@ -165,6 +165,23 @@ Some stray text without docstrings
         assert.ok(true);
     });
 
+    test('Misspelled block keyword in description generates specific missing colon diagnostic', async () => {
+        // 'Featur' instead of 'Feature:' causes it to be parsed as a stray description line
+        const text = `
+Featur something
+  Scenario: Stray text check
+    Given a step
+        `.trim();
+        const doc = createMockDocument(text, 'file:///stray-block-typo.feature');
+        await linter.lint(doc);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        const diag = diagnostics.find(d => d.code === 'MISSPELLED_KEYWORD');
+        assert.ok(diag, 'Should generate MISSPELLED_KEYWORD');
+        console.log("DIAG MESSAGE IS:", diag?.message);
+        assert.ok(diag?.message.includes("Did you mean 'Feature:'?"), 'Message should suggest adding a colon for block keywords');
+    });
+
     test('Fallback check on syntax error', async () => {
         // Provide completely invalid syntax to force AST failure and trigger fallbackCheckScenarioExamples
         const text = `
@@ -211,6 +228,22 @@ Feature: Empty outline
         // (Other semantic checks might flag undefined steps, but no syntax error).
         // Since we mock 'step' in setup(), it will NOT flag UNDEFINED_STEP.
         assert.strictEqual(diagnostics.length, 0);
+    });
+
+    test('checkSteps returns early if cache is not ready', async () => {
+        mockCache.state = 'initializing';
+        
+        const text = `
+Feature: Test
+  Scenario: Test
+    Given an undefined step that normally would flag
+        `.trim();
+        const doc = createMockDocument(text, 'file:///not-ready.feature');
+        await linter.lint(doc);
+        
+        // Because the cache is not ready, checkSteps won't run, so we won't get UNDEFINED_STEP
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        assert.ok(!diagnostics.some(d => d.code === 'UNDEFINED_STEP'), 'Should not flag undefined step if cache is not ready');
     });
 
     test('Concurrency: Older run should not overwrite newer run diagnostics', async () => {

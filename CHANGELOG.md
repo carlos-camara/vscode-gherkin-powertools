@@ -8,6 +8,16 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 🚀 Added
+- **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.
+- **Remote Workspace Compatibility**: Feature files are now parsed correctly over virtual filesystems (e.g., GitHub Codespaces, SSH, and remote tunnels) using VS Code's native `workspace.fs` API.
+- **Robust Parsing Fallback**: If a feature file contains severe syntax errors, the cache will now gracefully downgrade to a "Partial" state and salvage any parsable scenarios, while displaying an inline warning in the hover widget.
+
+### 🛠️ Changed
+- **Architectural Refactor**: Rebuilt the underlying `FeatureCache` to operate asynchronously with a 300ms debounce window and an incremental diffing strategy. This drastically reduces CPU overhead during rapid typing and eliminates full-workspace re-indexing on single-file changes.
+
 ## [1.7.5] - 2026-07-18
 
 ### 🐛 Fixed

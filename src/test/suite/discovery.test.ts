@@ -102,4 +102,70 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
         vscode.workspace.getConfiguration = originalGetConfiguration;
         (vscode.workspace as any).createFileSystemWatcher = originalCreateFileSystemWatcher;
     });
+
+    test('globPattern and excludePattern return correctly formatted strings', () => {
+        const originalGetConfiguration = vscode.workspace.getConfiguration;
+        vscode.workspace.getConfiguration = () => ({
+            get: (key: string) => {
+                if (key === 'stepGlobs') return ['glob1', 'glob2'];
+                if (key === 'ignoreGlobs') return ['ignore1', 'ignore2'];
+                return undefined;
+            }
+        } as any);
+
+        assert.strictEqual(service.globPattern, '{glob1,glob2}');
+        assert.strictEqual(service.excludePattern, '{ignore1,ignore2}');
+
+        // Single glob
+        vscode.workspace.getConfiguration = () => ({
+            get: (key: string) => {
+                if (key === 'stepGlobs') return ['glob1'];
+                if (key === 'ignoreGlobs') return ['ignore1'];
+                return undefined;
+            }
+        } as any);
+
+        assert.strictEqual(service.globPattern, 'glob1');
+        assert.strictEqual(service.excludePattern, 'ignore1');
+
+        vscode.workspace.getConfiguration = originalGetConfiguration;
+    });
+
+    test('getStepFiles returns array of URIs', async () => {
+        const originalFindFiles = vscode.workspace.findFiles;
+        
+        (vscode.workspace as any).findFiles = async (_include: string, _exclude: string) => {
+            return [vscode.Uri.file('/tmp/file1.py'), vscode.Uri.file('/tmp/file2.py')];
+        };
+
+        const originalGetConfiguration = vscode.workspace.getConfiguration;
+        vscode.workspace.getConfiguration = () => ({
+            get: (key: string) => {
+                if (key === 'stepGlobs') return ['glob1'];
+                return undefined;
+            }
+        } as any);
+
+        const files = await service.getStepFiles();
+        assert.strictEqual(files.length, 2);
+        assert.ok(files.some(f => f.fsPath.includes('file1.py')));
+
+        (vscode.workspace as any).findFiles = originalFindFiles;
+        vscode.workspace.getConfiguration = originalGetConfiguration;
+    });
+
+    test('getBestWorkspaceFolder returns undefined if no workspace folders exist', () => {
+        const originalWorkspaceFolders = vscode.workspace.workspaceFolders;
+        
+        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => undefined });
+        
+        const result = service.getBestWorkspaceFolder(vscode.Uri.file('/tmp/file.py'));
+        assert.strictEqual(result, undefined);
+        
+        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => [] });
+        const result2 = service.getBestWorkspaceFolder(vscode.Uri.file('/tmp/file.py'));
+        assert.strictEqual(result2, undefined);
+
+        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => originalWorkspaceFolders });
+    });
 });

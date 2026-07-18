@@ -39,9 +39,9 @@ graph LR
 | `statistics.ts` | Interactive HTML Webview dashboard displaying heuristic workspace metrics |
 | `codeAction.ts`| Generates quick fixes (💡) for undefined steps or syntax typos |
 | `completion.ts`| Smart IntelliSense autocompletion parsing regex into Snippets |
-| `cache.ts`     | Asynchronous caching engine that non-blockingly indexes the workspace via `vscode.workspace.findFiles` |
+| `cache.ts`     | Asynchronous incremental caching engine with debounce, live un-saved document preference, and partial AST fallback. Indexes the workspace via `vscode.workspace.findFiles` and listens to `vscode.workspace.fs` |
 | `logger.ts`    | Native VS Code Output Channel for tracing |
-| `hover.ts`     | Provides hover information (function signatures, docstrings, tag blast radius) |
+| `hover.ts`     | Provides hover information (function signatures, docstrings, tag blast radius with partial/stale warnings) |
 | `parser.ts`    | Handles AST parsing and caching of Gherkin documents |
 | `dialect.ts`   | Provides i18n support by matching localized Gherkin keywords |
 | `discovery.ts` | Centralized Behave file discovery service handling glob normalization and reactive file watchers |

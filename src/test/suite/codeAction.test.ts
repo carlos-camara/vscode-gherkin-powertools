@@ -210,5 +210,94 @@ suite('createStepDefinition Test Suite', () => {
         // Because i_test_collision exists, it should generate i_test_collision_1
         assert.ok(insertedText.includes('def i_test_collision_1(context):'));
     });
+
+    test('Shows quick pick when multiple files exist and user selects one', async () => {
+        let editApplied = false;
+        discoveryService.getStepFiles = async () => [
+            vscode.Uri.file('/tmp/file1.py'),
+            vscode.Uri.file('/tmp/file2.py')
+        ];
+        
+        let quickPickItems: any[] = [];
+        (vscode.window as any).showQuickPick = async (items: any[]) => {
+            quickPickItems = items;
+            return items[1]; // Select the second one
+        };
+
+        Object.defineProperty(vscode.workspace, 'fs', { get: () => ({
+            readFile: async () => Buffer.from("")
+        })});
+
+        let targetFileStr = '';
+        (vscode.workspace as any).applyEdit = async (edit: vscode.WorkspaceEdit) => { 
+            editApplied = true;
+            targetFileStr = edit.entries()[0][0].toString();
+            return true; 
+        };
+        (vscode.workspace as any).openTextDocument = async () => createMockDocument('', 'file:///tmp/file2.py');
+        (vscode.window as any).showTextDocument = async () => ({ 
+            document: { lineCount: 1, lineAt: () => ({text: ''}) },
+            revealRange: () => {} 
+        } as any);
+
+        await createStepDefinition('I test multiple files', 'Given');
+
+        assert.strictEqual(quickPickItems.length, 2);
+        assert.ok(editApplied);
+        assert.ok(targetFileStr.endsWith('file2.py'));
+    });
+
+    test('Cancels step creation if user cancels quick pick', async () => {
+        let editApplied = false;
+        discoveryService.getStepFiles = async () => [
+            vscode.Uri.file('/tmp/file1.py'),
+            vscode.Uri.file('/tmp/file2.py')
+        ];
+        
+        (vscode.window as any).showQuickPick = async () => undefined; // Cancel
+        (vscode.workspace as any).applyEdit = async () => { editApplied = true; return true; };
+
+        await createStepDefinition('I test cancel quick pick', 'Given');
+
+        assert.strictEqual(editApplied, false);
+    });
+
+    test('Uses fileContent fallback if openTextDocument throws', async () => {
+        let editApplied = false;
+        discoveryService.getStepFiles = async () => [vscode.Uri.file('/tmp/file1.py')];
+        
+        Object.defineProperty(vscode.workspace, 'fs', { get: () => ({
+            readFile: async () => Buffer.from("def dummy():\n    pass\n")
+        })});
+
+        let insertedText = '';
+        (vscode.workspace as any).applyEdit = async (edit: vscode.WorkspaceEdit) => { 
+            editApplied = true; 
+            insertedText = edit.entries()[0][1][0].newText;
+            return true; 
+        };
+
+        let openCallCount = 0;
+        (vscode.workspace as any).openTextDocument = async () => {
+            openCallCount++;
+            if (openCallCount === 1) {
+                // First call throws (simulating failure to get line count from open doc)
+                throw new Error("Cannot open doc");
+            } else {
+                // Second call (for revealing) succeeds
+                return createMockDocument('', 'file:///tmp/file1.py');
+            }
+        };
+        
+        (vscode.window as any).showTextDocument = async () => ({ 
+            document: { lineCount: 1, lineAt: () => ({text: ''}) },
+            revealRange: () => {} 
+        } as any);
+
+        await createStepDefinition('I test fallback doc', 'Given');
+
+        assert.ok(editApplied);
+        assert.ok(insertedText.includes('def i_test_fallback_doc(context):'));
+    });
 });
 

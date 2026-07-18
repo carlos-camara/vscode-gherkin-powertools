@@ -137,8 +137,17 @@ export class GherkinLinter {
                             
                             if (bestMatch) {
                                 code = 'MISSPELLED_KEYWORD';
-                                message = `Misspelled or incomplete keyword: '${firstWord}'. Did you mean '${bestMatch}'?`;
-                                suggestedEdit = bestMatch;
+                                
+                                const blockKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples'];
+                                const isBlockKeyword = blockKeywords.includes(bestMatch);
+                                
+                                if (isBlockKeyword) {
+                                    message = `Misspelled or incomplete block keyword: '${firstWord}'. Did you mean '${bestMatch}:'?`;
+                                    suggestedEdit = bestMatch + ':';
+                                } else {
+                                    message = `Misspelled or incomplete keyword: '${firstWord}'. Did you mean '${bestMatch}'?`;
+                                    suggestedEdit = bestMatch;
+                                }
                                 endChar = startChar + firstWord.length;
                             } else {
                                 if (message.includes('expected:')) {
