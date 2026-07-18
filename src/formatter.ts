@@ -23,6 +23,13 @@ interface FormattedLine {
     originalLine: number;
 }
 
+interface ASTNodeRange {
+    type: string;
+    startLine: number;
+    endLine: number;
+}
+
+
 export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider {
     
     private getOptions(): FormatterOptions {
@@ -72,13 +79,41 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         const text = document.getText();
         const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
 
+        const { document: gherkinDocument, errors } = await parseGherkin(text);
+        if (!gherkinDocument || errors.length > 0) {
+            // Fallback to full document format or return empty if we can't parse safely
+            vscode.window.showWarningMessage("Gherkin PowerTools: Cannot range-format document due to syntax errors.");
+            return [];
+        }
+
         const formattedLines = await this.formatGherkin(text, options, token);
         if (formattedLines === null || token.isCancellationRequested) return [];
 
         const startLineOriginal = range.start.line + 1; // 1-indexed
         const endLineOriginal = range.end.line + 1; // 1-indexed
 
-        const filteredLines = formattedLines.filter(l => l.originalLine >= startLineOriginal && l.originalLine <= endLineOriginal);
+        const ranges = this.buildASTRanges(gherkinDocument);
+        
+        // Find the smallest ASTNodeRange that fully encompasses the selection
+        let bestRange: ASTNodeRange | undefined;
+        let bestSize = Infinity;
+
+        for (const r of ranges) {
+            if (r.startLine <= startLineOriginal && r.endLine >= endLineOriginal) {
+                const size = r.endLine - r.startLine;
+                if (size < bestSize) {
+                    bestSize = size;
+                    bestRange = r;
+                }
+            }
+        }
+
+        if (!bestRange) {
+            // Fallback if no node encompasses the selection (e.g. out of bounds)
+            return [];
+        }
+
+        const filteredLines = formattedLines.filter(l => l.originalLine >= bestRange!.startLine && l.originalLine <= bestRange!.endLine);
         if (filteredLines.length === 0) {
             return [];
         }
@@ -87,8 +122,8 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         
         // Construct the full-line exact replacement range
         const replacementRange = new vscode.Range(
-            new vscode.Position(range.start.line, 0),
-            new vscode.Position(range.end.line, document.lineAt(range.end.line).text.length)
+            new vscode.Position(bestRange.startLine - 1, 0),
+            new vscode.Position(bestRange.endLine - 1, document.lineAt(bestRange.endLine - 1).text.length)
         );
 
         const originalTextRange = document.getText(replacementRange);
@@ -217,6 +252,77 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         }
 
         return out;
+    }
+
+    private buildASTRanges(document: GherkinDocument): ASTNodeRange[] {
+        const ranges: ASTNodeRange[] = [];
+        
+        function traverse(node: any, type: string): { startLine: number, endLine: number } {
+            if (!node) return { startLine: 0, endLine: 0 };
+            
+            let startLine = node.location?.line || 1;
+            if (node.tags && node.tags.length > 0) {
+                startLine = Math.min(startLine, node.tags[0].location.line);
+            }
+            
+            let endLine = node.location?.line || 1;
+            
+            if (node.description) {
+                endLine = Math.max(endLine, node.location.line + node.description.split('\n').length);
+            }
+            
+            if (node.docString) {
+                const dsStart = node.docString.location.line;
+                const dsEnd = dsStart + node.docString.content.split('\n').length + 1;
+                ranges.push({ type: 'DocString', startLine: dsStart, endLine: dsEnd });
+                endLine = Math.max(endLine, dsEnd);
+            }
+            
+            if (node.dataTable && node.dataTable.rows && node.dataTable.rows.length > 0) {
+                const dtStart = node.dataTable.rows[0].location.line;
+                const dtEnd = node.dataTable.rows[node.dataTable.rows.length - 1].location.line;
+                ranges.push({ type: 'DataTable', startLine: dtStart, endLine: dtEnd });
+                endLine = Math.max(endLine, dtEnd);
+            }
+            
+            if (node.tableHeader) {
+                endLine = Math.max(endLine, node.tableHeader.location.line);
+            }
+            if (node.tableBody && node.tableBody.length > 0) {
+                endLine = Math.max(endLine, node.tableBody[node.tableBody.length - 1].location.line);
+            }
+            
+            if (node.steps) {
+                node.steps.forEach((s: any) => {
+                    const b = traverse(s, 'Step');
+                    endLine = Math.max(endLine, b.endLine);
+                });
+            }
+            
+            if (node.examples) {
+                node.examples.forEach((e: any) => {
+                    const b = traverse(e, 'Examples');
+                    endLine = Math.max(endLine, b.endLine);
+                });
+            }
+            
+            if (node.children) {
+                node.children.forEach((c: any) => {
+                    if (c.rule) endLine = Math.max(endLine, traverse(c.rule, 'Rule').endLine);
+                    if (c.background) endLine = Math.max(endLine, traverse(c.background, 'Background').endLine);
+                    if (c.scenario) endLine = Math.max(endLine, traverse(c.scenario, 'Scenario').endLine);
+                });
+            }
+            
+            ranges.push({ type, startLine, endLine });
+            return { startLine, endLine };
+        }
+        
+        if (document.feature) {
+            traverse(document.feature, 'Feature');
+        }
+        
+        return ranges;
     }
 
     private buildASTMap(document: GherkinDocument, options: FormatterOptions, map: Map<number, NodeInfo>) {

@@ -319,7 +319,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         assert.strictEqual(result, '      Given     unformatted step');
     });
 
-    test('Range formatting: selection across multiple steps', async () => {
+    test('Range formatting: selection across multiple steps expands to Scenario', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: F',
@@ -329,12 +329,12 @@ suite('Formatter VS Code API Wrapper Tests', () => {
             'And   3'
         ].join('\n');
         
-        // line 2 to 3
+        // line 2 to 3 expands to the smallest node encompassing both (Scenario)
         const result = await runRangeFormat(formatter, unformatted, 2, 3);
-        assert.strictEqual(result, '      Given     1\n      Then     2');
+        assert.strictEqual(result, '\n  Scenario: S\n      Given     1\n      Then     2\n      And   3');
     });
 
-    test('Range formatting: table selection', async () => {
+    test('Range formatting: table selection expands to full table', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: F',
@@ -344,9 +344,9 @@ suite('Formatter VS Code API Wrapper Tests', () => {
             '|u1|p1|'
         ].join('\n');
         
-        // line 4 (the second row) -> will be aligned based on the entire table calculation
+        // line 4 (the second row) -> expands to the entire DataTable node
         const result = await runRangeFormat(formatter, unformatted, 4, 4);
-        assert.strictEqual(result, '            | u1       | p1   |');
+        assert.strictEqual(result, '            | username | pass |\n            | u1       | p1   |');
     });
 
     test('Range formatting: DocString selection', async () => {
@@ -362,7 +362,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         
         // line 4 ('  hello')
         const result = await runRangeFormat(formatter, unformatted, 4, 4);
-        assert.strictEqual(result, '          hello');
+        assert.strictEqual(result, '        """\n          hello\n        """');
     });
 
     test('Range formatting: tags', async () => {
@@ -391,8 +391,8 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         // Formatter should insert a blank line before Scenario: S2
         // If we select just Scenario: S2 (line 4)
         const result = await runRangeFormat(formatter, unformatted, 4, 4);
-        // It should yield an empty line followed by the properly indented Scenario
-        assert.strictEqual(result, '\n    Scenario: S2');
+        // It expands to Scenario 2 and its steps
+        assert.strictEqual(result, '\n    Scenario: S2\n        Given 2');
     });
 
     test('Range formatting: syntax errors fallback gracefully', async () => {
@@ -420,5 +420,39 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         // select lines 3 and 4 (header and first row only)
         const result = await runRangeFormat(formatter, unformatted, 3, 4);
         assert.strictEqual(result, '            | u1 | p1 |\n            | u2 | p2 |');
+    });
+
+    test('Range formatting: selection inside Examples block expands to full Examples', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario Outline: S',
+            'Given <user>',
+            'Examples:',
+            '|user|',
+            '|u1|',
+            '|u2|'
+        ].join('\n');
+        
+        // select line 5 ('|u1|')
+        const result = await runRangeFormat(formatter, unformatted, 5, 5);
+        // Should expand to encompass Examples block: lines 3, 4, 5, 6
+        assert.strictEqual(result, '\n      Examples:\n        | user |\n        | u1   |\n        | u2   |');
+    });
+
+    test('Range formatting: Background selection', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Background:',
+            'Given bg',
+            'Scenario: S',
+            'Given s'
+        ].join('\n');
+        
+        // select line 1 ('Background:')
+        const result = await runRangeFormat(formatter, unformatted, 1, 1);
+        // Expands to Background and its steps (lines 1 to 2)
+        assert.strictEqual(result, '\n  Background:\n      Given bg');
     });
 });

@@ -59,6 +59,9 @@ Data tables and `Examples` blocks (using pipes `|`) are dynamically padded. The 
 ### Intelligent Tag Wrapping
 Keeps your files clean by intelligently wrapping long lists of `@tags` that exceed 80 characters. It respects logical grouping and indents them correctly above the Scenario or Feature block.
 
+### AST-Scoped Range Formatting
+When formatting a specific selection (`Format Selection`), the engine identifies the **smallest complete AST node** that fully encompasses your selection and formats it atomically. Selecting a single row in a DataTable will dynamically re-align the entire table, and selecting part of a DocString will format the entire block perfectly.
+
 ### Unmapped Descriptions & DocStrings
 Preserves multi-line descriptions directly beneath `Feature` and `Scenario` blocks without corrupting their indentation. Flawlessly formats `"""` DocStrings relative to their parent step.
 
