@@ -24,18 +24,19 @@ code --install-extension vscode-gherkin-powertools-<version>.vsix
   <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/install-vsix.gif" alt=".vsix Installation Demonstration" width="800" />
 </div>
 
-<div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
-  <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
-    <span style="font-size: 16px;">💡</span>
-    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Pro-Tip: Auto-Formatting</span>
-  </div>
-  <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
-    <span style="color: #374151; font-size: 13px;">To unleash the full power of the extension, enable <strong style="color: #111827;">Format on Save</strong> specifically for Gherkin files:</span>
-    <pre style="background:#f3f4f6; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px 14px; margin: 0; font-size: 12px; color: #1f2937; overflow-x: auto;"><code>"[feature]": {
+<div style="margin: 24px 0; border-radius: 8px; border: 1px solid var(--vscode-panel-border, #e2e8f0); background: var(--vscode-textBlockQuote-background, #f8fafc); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+  <div style="border-left: 5px solid var(--vscode-editorWarning-foreground, #f59e0b); padding: 16px 20px;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--vscode-editorWarning-foreground, #f59e0b)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path><path d="M16 12a4 4 0 0 1-8 0"></path><path d="M9 16h6"></path><path d="M10 20h4"></path></svg>
+      <span style="color: var(--vscode-editorWarning-foreground, #d97706); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.8px;">Pro-Tip: Auto-Formatting</span>
+    </div>
+    <div style="color: var(--vscode-editor-foreground, #334155); font-size: 14.5px; line-height: 1.6;">
+      To unleash the full power of the extension, enable <strong>Format on Save</strong> specifically for Gherkin files:
+      <pre style="background: var(--vscode-textCodeBlock-background, #1e293b); color: var(--vscode-editor-foreground, #f8fafc); padding: 14px; border-radius: 6px; margin: 12px 0 0 0; overflow-x: auto; border: 1px solid var(--vscode-panel-border, #334155); font-size: 13.5px;"><code>"[feature]": {
     "editor.defaultFormatter": "carloscamara.vscode-gherkin-powertools",
     "editor.formatOnSave": true
 }</code></pre>
+      <div style="margin-top: 12px;">Add this to your <code>.vscode/settings.json</code> or your global User Settings.</div>
+    </div>
   </div>
 </div>
-
-    Add this to your `.vscode/settings.json` or your global User Settings.

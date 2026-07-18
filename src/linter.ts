@@ -457,7 +457,22 @@ export class GherkinLinter {
         }
         for (const step of steps) {
             const stepText = step.text.trim();
-            const semanticType = dialectService.resolveAndBut(document, Math.max(0, step.location.line - 1));
+            const keyword = step.keyword ? step.keyword.trim() : '';
+            
+            let semanticType: 'given' | 'when' | 'then' | 'step' = 'step';
+            const dialect = dialectService.getDialect(document);
+            
+            if (dialect.given.map(k => k.trim()).includes(keyword)) {
+                semanticType = 'given';
+            } else if (dialect.when.map(k => k.trim()).includes(keyword)) {
+                semanticType = 'when';
+            } else if (dialect.then.map(k => k.trim()).includes(keyword)) {
+                semanticType = 'then';
+            } else {
+                // For And, But, or * we resolve the context from previous steps
+                semanticType = dialectService.resolveAndBut(document, Math.max(0, step.location.line - 1));
+            }
+
             const defs = await this.symbolCache.getStepDefinitions(stepText, semanticType);
             if (defs.length !== 1) {
                 const lineIndex = Math.max(0, step.location.line - 1);

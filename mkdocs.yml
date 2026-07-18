@@ -9,7 +9,7 @@ use_directory_urls: false
 
 theme:
   name: material
-  logo: assets/logo.png
+  logo: assets/logo-transparent.png
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default

@@ -28,6 +28,11 @@ suite('Python Tokenizer Test Suite', () => {
             assert.strictEqual(res.length, 1);
             assert.strictEqual(res[0].argumentText, 'foo');
             assert.strictEqual(res[0].isStringLiteral, true);
+
+            const res2 = parsePythonDecorators(`@then(${p}'foo')`);
+            assert.strictEqual(res2.length, 1, `Failed on prefix ${p}'`);
+            assert.strictEqual(res2[0].argumentText, 'foo');
+            assert.strictEqual(res2[0].isStringLiteral, true);
         }
     });
 

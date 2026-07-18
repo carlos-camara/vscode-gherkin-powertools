@@ -85,7 +85,7 @@ export class DialectService {
         const thenKeywords = dialect.then;
         const stepRegex = this.getStepRegex(dialect);
 
-        for (let i = lineIndex - 1; i >= 0; i--) {
+        for (let i = lineIndex; i >= 0; i--) {
             const text = document.lineAt(i).text;
             const match = text.match(stepRegex);
             if (match) {
