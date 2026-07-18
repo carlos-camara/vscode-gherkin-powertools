@@ -125,7 +125,6 @@ Works with any `.feature` file.
 **ℹ️ NOTE:** *Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.*
 
 <br>
----
 
 ## Featured Demos
 
