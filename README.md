@@ -118,12 +118,21 @@ Works with any `.feature` file.
 | Syntax highlighting | ✅ | ✅ | |
 | Built-in snippets | ✅ | ✅ | `feature`, `scenario`, `outline`, `rule` |
 
-> [!NOTE]
-> Formatting and linting work for Cucumber.js, Playwright BDD, SpecFlow, and Karate because they share the Gherkin syntax. These frameworks do not have framework-specific step navigation in this extension.
+<br>
 
-> [!NOTE]
-> Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.
+<table>
+  <tr>
+    <td width="30" align="center" valign="top">ℹ️</td>
+    <td>
+      <strong>NOTE</strong><br>
+      Formatting and linting work for Cucumber.js, Playwright BDD, SpecFlow, and Karate because they share the Gherkin syntax. These frameworks do not have framework-specific step navigation in this extension.
+      <br><br>
+      Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.
+    </td>
+  </tr>
+</table>
 
+<br>
 ---
 
 ## Featured Demos
@@ -317,8 +326,19 @@ Both extensions can be installed together. They serve different purposes.
 
 *Last reviewed: 2026-07-17. The Official Cucumber extension is maintained at [github.com/cucumber/vscode](https://github.com/cucumber/vscode).*
 
-> [!TIP]
-> Install both extensions. Gherkin PowerTools handles formatting, Python/Behave navigation, and analytics. The Official Cucumber extension provides Language Server Protocol support for other frameworks.
+<br>
+
+<table>
+  <tr>
+    <td width="30" align="center" valign="top">💡</td>
+    <td>
+      <strong>PRO-TIP</strong><br>
+      Install both extensions. Gherkin PowerTools handles formatting, Python/Behave navigation, and analytics. The Official Cucumber extension provides Language Server Protocol support for other frameworks.
+    </td>
+  </tr>
+</table>
+
+<br>
 
 ---
 

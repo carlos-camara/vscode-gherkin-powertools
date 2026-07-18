@@ -95,8 +95,19 @@ This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root dir
 
 ## 🤝 Submitting a Pull Request
 
-> [!NOTE]
-> If you are planning a large feature or significant architectural change, please open an Issue or Discussion first to align with the project maintainers before writing code.
+<br>
+
+<table>
+  <tr>
+    <td width="30" align="center" valign="top">ℹ️</td>
+    <td>
+      <strong>NOTE</strong><br>
+      If you are planning a large feature or significant architectural change, please open an Issue or Discussion first to align with the project maintainers before writing code.
+    </td>
+  </tr>
+</table>
+
+<br>
 
 1. Fork the repository.
 2. Create a new branch for your feature or bug fix: `git checkout -b feature/my-new-feature`
