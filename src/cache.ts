@@ -8,7 +8,9 @@ export interface StepDefinition {
     type: 'given' | 'when' | 'then' | 'step';
     rawPattern: string;
     matcherType: 'parse' | 'cfparse' | 're';
-    regex: RegExp;
+    regex?: RegExp;
+    evaluable: boolean;
+    compilationError?: string;
     decoratorRange: vscode.Range;
     functionRange?: vscode.Range;
     functionName?: string;
@@ -168,22 +170,31 @@ export class SymbolCache {
                         }
                     }
 
+                    let regex: RegExp | undefined;
+                    let evaluable = true;
+                    let compilationError: string | undefined;
+
                     try {
-                        const regex = new RegExp('^' + regexPattern + '$', 'i');
-                        definitions.push({
-                            type: stepType,
-                            rawPattern,
-                            matcherType,
-                            regex,
-                            decoratorRange,
-                            functionRange,
-                            functionName,
-                            documentation,
-                            uri
-                        });
-                    } catch (e) {
-                        // Ignore invalid regex
+                        regex = new RegExp('^' + regexPattern + '$', 'i');
+                    } catch (e: any) {
+                        evaluable = false;
+                        compilationError = e.message;
+                        logger.debug(`Skipping regex compilation for step: ${rawPattern}. Error: ${e.message}`);
                     }
+
+                    definitions.push({
+                        type: stepType,
+                        rawPattern,
+                        matcherType,
+                        regex,
+                        evaluable,
+                        compilationError,
+                        decoratorRange,
+                        functionRange,
+                        functionName,
+                        documentation,
+                        uri
+                    });
                 }
             }
 
@@ -206,7 +217,7 @@ export class SymbolCache {
                 if (semanticType && semanticType !== 'step' && def.type !== 'step' && def.type !== semanticType) {
                     continue;
                 }
-                if (def.regex.test(stepText)) {
+                if (def.evaluable && def.regex && def.regex.test(stepText)) {
                     matches.push(def);
                 }
             }

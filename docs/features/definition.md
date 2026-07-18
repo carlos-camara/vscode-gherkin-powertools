@@ -79,3 +79,12 @@ def step_see(context, dashboard): ...
 @step(u'I perform an action')
 def step_action(context): ...
 ```
+
+## ⚠️ Limitations
+
+Because Gherkin PowerTools evaluates step matches inside the Node.js (JavaScript) environment, **Python-specific Regex constructs that are not supported by the V8 JavaScript Engine** (such as advanced lookbehinds or specific group referencing syntax) cannot be evaluated dynamically. 
+
+If a Python step definition uses an unsupported regex pattern:
+- It **will not** be available for **Go To Definition**, **Hover**, or **Linting validation**.
+- It **will** still be indexed and safely preserved in the Symbol Cache.
+- It **will** still be available for global auto-completion and Workspace Symbols, preventing it from being silently discarded.
