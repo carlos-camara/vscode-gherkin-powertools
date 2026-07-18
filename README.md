@@ -118,10 +118,13 @@ Works with any `.feature` file.
 | Syntax highlighting | ✅ | ✅ | |
 | Built-in snippets | ✅ | ✅ | `feature`, `scenario`, `outline`, `rule` |
 
-> **Note:** Formatting and linting work for Cucumber.js, Playwright BDD, SpecFlow, and Karate because they share the Gherkin syntax. These frameworks do not have framework-specific step navigation in this extension.
-> **Note:** Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.
+<br>
 
----
+**ℹ️ NOTE:** *Formatting and linting work for Cucumber.js, Playwright BDD, SpecFlow, and Karate because they share the Gherkin syntax. These frameworks do not have framework-specific step navigation in this extension.*
+
+**ℹ️ NOTE:** *Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.*
+
+<br>
 
 ## Featured Demos
 
@@ -314,7 +317,11 @@ Both extensions can be installed together. They serve different purposes.
 
 *Last reviewed: 2026-07-17. The Official Cucumber extension is maintained at [github.com/cucumber/vscode](https://github.com/cucumber/vscode).*
 
-> **Tip:** Install both extensions. Gherkin PowerTools handles formatting, Python/Behave navigation, and analytics. The Official Cucumber extension provides Language Server Protocol support for other frameworks.
+<br>
+
+**💡 PRO-TIP:** *Install both extensions. Gherkin PowerTools handles formatting, Python/Behave navigation, and analytics. The Official Cucumber extension provides Language Server Protocol support for other frameworks.*
+
+<br>
 
 ---
 

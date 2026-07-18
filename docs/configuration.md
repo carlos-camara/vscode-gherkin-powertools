@@ -13,7 +13,11 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 | `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py"]` | An array of glob patterns pointing to Python files that contain Behave steps. Used for linking, hovers, linting, and autocomplete. |
 | `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**"]` | An array of glob patterns to exclude from step discovery. |
 
-> **Note:** Changes to the `behave.stepGlobs` or `behave.ignoreGlobs` settings take effect immediately. The extension will automatically reload its step cache and live watchers without requiring you to restart VS Code.
+<br>
+
+**ℹ️ NOTE:** *Changes to the `behave.stepGlobs` or `behave.ignoreGlobs` settings take effect immediately. The extension will automatically reload its step cache and live watchers without requiring you to restart VS Code.*
+
+<br>
 
 ## Example Configuration
 
