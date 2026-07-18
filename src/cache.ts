@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { logger } from './logger';
 import { discoveryService } from './discovery';
 import { parseGherkin } from './parser';
+import { parsePythonDecorators } from './tokenizer';
 import type { Tag, Scenario } from '@cucumber/messages';
 export interface StepDefinition {
     type: 'given' | 'when' | 'then' | 'step';
@@ -55,69 +56,38 @@ export class SymbolCache {
             const lines = content.split(/\r?\n/);
             const definitions: StepDefinition[] = [];
 
-            for (let i = 0; i < lines.length; i++) {
-                const pyLine = lines[i];
-                const pyLineTrimmed = pyLine.trim();
+            const decorators = parsePythonDecorators(content);
 
-                // Look for Behave decorators: @given('...'), @when(r"..."), etc.
-                const decoratorMatch = pyLineTrimmed.match(/^@(given|when|then|step)\s*\(\s*(?:r|u|f|b)?(['"])(.*)$/i);
-                if (decoratorMatch) {
-                    const stepType = decoratorMatch[1].toLowerCase() as 'given'|'when'|'then'|'step';
-                    const quoteChar = decoratorMatch[2];
-                    let rawPattern = decoratorMatch[3];
-                    let startLine = i;
-                    let endLine = i;
+            for (const dec of decorators) {
+                const stepType = dec.type;
+                const rawPattern = dec.argumentText;
 
-                    // Support multiline decorators
-                    if (!rawPattern.endsWith(quoteChar + ')') && !rawPattern.endsWith(quoteChar)) {
-                        let foundEnd = false;
-                        for (let m = i + 1; m < Math.min(i + 10, lines.length); m++) {
-                            const nLine = lines[m];
-                            rawPattern += '\n' + nLine;
-                            if (nLine.includes(quoteChar)) {
-                                foundEnd = true;
-                                endLine = m;
-                                break;
-                            }
-                        }
-                        if (foundEnd) {
-                            const closingIdx = rawPattern.lastIndexOf(quoteChar);
-                            if (closingIdx !== -1) {
-                                rawPattern = rawPattern.substring(0, closingIdx);
-                            }
-                        }
-                    } else {
-                        // It's on a single line. Trim the closing quote and paren.
-                        rawPattern = rawPattern.replace(new RegExp(`${quoteChar}\\)?\\s*$`), '');
-                    }
+                let matcherType: 'parse' | 'cfparse' | 're' = 'parse';
+                const firstLine = lines[dec.startLine] || '';
+                if (firstLine.match(/@(given|when|then|step)\s*\(\s*re\./i) || rawPattern.includes('(?P<')) {
+                    matcherType = 're';
+                } else if (rawPattern.includes('{') && rawPattern.includes('}')) {
+                    matcherType = 'parse';
+                }
 
-                    let matcherType: 'parse' | 'cfparse' | 're' = 'parse';
-                    if (pyLineTrimmed.match(/@(given|when|then|step)\s*\(\s*re\./i) || rawPattern.includes('(?P<')) {
-                        matcherType = 're';
-                    } else if (rawPattern.includes('{') && rawPattern.includes('}')) {
-                        matcherType = 'parse';
-                    }
+                let regexPattern = rawPattern;
+                if (matcherType === 're') {
+                    regexPattern = regexPattern.replace(/\(\?P<[^>]+>/g, '(');
+                } else {
+                    // Escape regex characters and replace \{param\} with .*
+                    regexPattern = regexPattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\\\{[^}]+\\\}/g, '.*');
+                }
 
-                    let regexPattern = rawPattern;
-                    if (matcherType === 're') {
-                        regexPattern = regexPattern.replace(/\(\?P<[^>]+>/g, '(');
-                    } else {
-                        // Escape regex characters and replace \{param\} with .*
-                        regexPattern = regexPattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').replace(/\\\{[^}]+\\\}/g, '.*');
-                    }
+                // Prevent exponential backtracking
+                regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');
 
-                    // Prevent exponential backtracking
-                    regexPattern = regexPattern.replace(/(?:\.\*)+/g, '.*');
-
-                    const decoratorStartCol = lines[startLine].indexOf('@' + decoratorMatch[1]);
-                    const decoratorEndCol = lines[endLine].length;
-                    const decoratorRange = new vscode.Range(startLine, Math.max(0, decoratorStartCol), endLine, decoratorEndCol);
+                const decoratorRange = new vscode.Range(dec.startLine, dec.startCol, dec.endLine, dec.endCol);
 
                     let functionName: string | undefined;
                     let functionRange: vscode.Range | undefined;
                     let documentation: string | undefined;
 
-                    for (let j = endLine + 1; j < Math.min(endLine + 15, lines.length); j++) {
+                    for (let j = dec.endLine + 1; j < Math.min(dec.endLine + 15, lines.length); j++) {
                         const aheadLine = lines[j].trim();
                         if (!functionName && aheadLine.startsWith('def ')) {
                             const defMatch = aheadLine.match(/^def\s+([a-zA-Z0-9_]+)\s*\(/);
@@ -174,12 +144,18 @@ export class SymbolCache {
                     let evaluable = true;
                     let compilationError: string | undefined;
 
-                    try {
-                        regex = new RegExp('^' + regexPattern + '$', 'i');
-                    } catch (e: any) {
+                    if (!dec.isStringLiteral) {
                         evaluable = false;
-                        compilationError = e.message;
-                        logger.debug(`Skipping regex compilation for step: ${rawPattern}. Error: ${e.message}`);
+                        compilationError = 'Dynamic Python expression is not supported';
+                        logger.debug(`Skipping dynamic expression for step: ${rawPattern}.`);
+                    } else {
+                        try {
+                            regex = new RegExp('^' + regexPattern + '$', 'i');
+                        } catch (e: any) {
+                            evaluable = false;
+                            compilationError = e.message;
+                            logger.debug(`Skipping regex compilation for step: ${rawPattern}. Error: ${e.message}`);
+                        }
                     }
 
                     definitions.push({
@@ -195,7 +171,6 @@ export class SymbolCache {
                         documentation,
                         uri
                     });
-                }
             }
 
             this.cache.set(uri.toString(), definitions);

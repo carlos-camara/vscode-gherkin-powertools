@@ -59,6 +59,13 @@ Gherkin PowerTools correctly respects these semantic constraints. The `DialectSe
 This inferred semantic type is passed synchronously into the `SymbolCache`, which strictly filters autocomplete snippets, hover documentation, Go-To-Definition links, and Linter diagnostics to only present perfectly valid contexts without throwing ambiguous step errors.
 Generic `@step` decorators are treated as wildcards.
 
+## Python Bounded Tokenization
+
+To securely and accurately extract step patterns from Python files without the overhead of a full AST parser, the extension uses a custom bounded tokenizer (`src/tokenizer.ts`).
+This tokenizer reliably parses Python decorators and string literals, accommodating complex string prefixes (`r`, `u`, `f`, `b`, `rf`), multiline triple quotes (`"""` or `'''`), and internal escape sequences.
+
+Dynamic Python expressions (e.g., `@given(MY_CONSTANT)` or function calls) cannot be statically evaluated into text patterns. The tokenizer detects these non-literal expressions and automatically flags them as `evaluable: false`. Like regex compilation errors, these dynamic steps are preserved in the symbol cache for structural navigation but are safely excluded from live text matching loops.
+
 ## Resilient Regex Compilation
 
 Because the extension runs in Node.js, `StepDefinition` patterns written in Python sometimes utilize regular expression constructs that are inherently incompatible with the JavaScript V8 engine (e.g., negative lookbehinds like `(?<!...)` or unsupported group syntax).

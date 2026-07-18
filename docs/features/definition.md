@@ -82,9 +82,16 @@ def step_action(context): ...
 
 ## ⚠️ Limitations
 
-Because Gherkin PowerTools evaluates step matches inside the Node.js (JavaScript) environment, **Python-specific Regex constructs that are not supported by the V8 JavaScript Engine** (such as advanced lookbehinds or specific group referencing syntax) cannot be evaluated dynamically.
+Because Gherkin PowerTools evaluates step matches inside the Node.js (JavaScript) environment, it relies on a custom bounded tokenizer to extract Python step definition patterns without invoking a full Python parser.
 
-If a Python step definition uses an unsupported regex pattern:
-- It **will not** be available for **Go To Definition**, **Hover**, or **Linting validation**.
-- It **will** still be indexed and safely preserved in the Symbol Cache.
-- It **will** still be available for global auto-completion and Workspace Symbols, preventing it from being silently discarded.
+### Supported Python Patterns
+The tokenizer accurately resolves step patterns defined as **string literals**, including:
+- Single and double quotes (`'...'`, `"..."`)
+- Multiline triple quotes (`'''...'''`, `"""..."""`)
+- Prefixed string literals (`r"..."`, `u"..."`, `f"..."`, `b"..."`, `rf"..."`)
+- Escaped quotes within strings (`"I type \"hello\""`)
+
+### Limitations
+
+1. **Dynamic Expressions:** Python steps defined via dynamic expressions, variables, or concatenated strings (e.g., `@given(MY_CONSTANT)` or `@when("str" + "ing")`) cannot be evaluated dynamically. They are preserved for navigation (Go To Definition) but will not support real-time linting or Hover.
+2. **Regex Engine Differences:** Python-specific Regex constructs that are not supported by the V8 JavaScript Engine (such as advanced lookbehinds or specific group referencing syntax) cannot be evaluated dynamically. Like dynamic expressions, these are kept in the index for navigation but excluded from live text matching.
