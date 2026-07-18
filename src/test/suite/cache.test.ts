@@ -245,24 +245,130 @@ Feature: Blast Radius
         assert.strictEqual(featureCache.getTagBlastRadius('@smoke'), 1, '@smoke should only affect 1 scenario');
     });
 
-    test('AST Fallback: Retains data even with severe syntax errors', async () => {
+    test('AST Fallback: Retains data even with severe syntax errors and marks partial', async () => {
         const featureCache = new FeatureCache();
         const featurePath = path.join(tempDir, 'syntax_error.feature');
-        // This file has an unclosed table which causes parser.parse() to throw an error.
-        // If our fallback (builder.getResult()) works, it will still parse the tags above the error.
         const content = `
 @salvaged
 Feature: Fallback Test
+  Background:
+    Given step
+  Background:
+    Given step
   Scenario: Broken Scenario
-    Given unclosed table
-      | header1 | header2
+    Given step
         `;
         fs.writeFileSync(featurePath, content);
         
         await featureCache.updateFile(vscode.Uri.file(featurePath));
         
-        // If the AST was entirely dropped, this would be 0.
-        // Because of our fallback, the AST is salvaged up to the error, retaining the @salvaged tag.
         assert.strictEqual(featureCache.getTagBlastRadius('@salvaged'), 1, 'Tags should still be parsed via AST fallback');
+        
+        const state = featureCache.getFileState(vscode.Uri.file(featurePath));
+        assert.strictEqual(state?.status, 'partial', 'State should be partial when parsing encounters an error');
+        assert.strictEqual(featureCache.hasStaleOrPartialFilesForTag('@salvaged'), true, 'Should report stale/partial for the tag');
+    });
+
+    test('FeatureCache: Uses unsaved open document text instead of disk', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.file(path.join(tempDir, 'unsaved.feature'));
+        
+        // Write old content to disk
+        fs.writeFileSync(uri.fsPath, '@old\nFeature: old\n  Scenario: old scenario\n    Given step');
+
+        // Mock vscode.workspace.textDocuments to return unsaved content
+        const originalTextDocuments = Object.getOwnPropertyDescriptor(vscode.workspace, 'textDocuments');
+        Object.defineProperty(vscode.workspace, 'textDocuments', {
+            get: () => [{
+                uri: uri,
+                getText: () => '@new\nFeature: new\n  Scenario: new scenario\n    Given step'
+            }]
+        });
+
+        await featureCache.updateFile(uri);
+
+        // Restore mock immediately
+        if (originalTextDocuments) {
+            Object.defineProperty(vscode.workspace, 'textDocuments', originalTextDocuments);
+        }
+
+        assert.strictEqual(featureCache.getTagBlastRadius('@old'), 0, 'Should not use disk content');
+        assert.strictEqual(featureCache.getTagBlastRadius('@new'), 1, 'Should use unsaved document content');
+    });
+
+    test('FeatureCache: Handles non-file remote URIs', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.parse('vscode-vfs://github/repo/remote.feature');
+        
+        // We simulate reading this by mocking textDocuments
+        const originalTextDocuments = Object.getOwnPropertyDescriptor(vscode.workspace, 'textDocuments');
+        Object.defineProperty(vscode.workspace, 'textDocuments', {
+            get: () => [{
+                uri: uri,
+                getText: () => '@remote\nFeature: Remote FS\n  Scenario: remote\n    Given step'
+            }]
+        });
+
+        await featureCache.updateFile(uri);
+
+        if (originalTextDocuments) {
+            Object.defineProperty(vscode.workspace, 'textDocuments', originalTextDocuments);
+        }
+
+        assert.strictEqual(featureCache.getTagBlastRadius('@remote'), 1, 'Should handle custom URI schemes');
+    });
+
+    test('FeatureCache: Debounces rapid concurrent update requests for the same URI', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.file(path.join(tempDir, 'debounce.feature'));
+        fs.writeFileSync(uri.fsPath, '@fast\nFeature: fast\n  Scenario: fast\n    Given step');
+
+        // Fire 3 updates rapidly without awaiting the first 2
+        const p1 = featureCache.updateFile(uri);
+        const p2 = featureCache.updateFile(uri);
+        const p3 = featureCache.updateFile(uri);
+
+        await Promise.all([p1, p2, p3]);
+
+        assert.strictEqual(featureCache.getTagBlastRadius('@fast'), 1, 'Debounce should coalesce updates to 1');
+    });
+
+    test('FeatureCache: Retains stale data on temporary read failure', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.file(path.join(tempDir, 'missing.feature'));
+        
+        // First successful pass via mock
+        const originalTextDocuments = Object.getOwnPropertyDescriptor(vscode.workspace, 'textDocuments');
+        Object.defineProperty(vscode.workspace, 'textDocuments', {
+            get: () => [{
+                uri: uri,
+                getText: () => '@retained\nFeature: Retained\n  Scenario: retained\n    Given step'
+            }]
+        });
+        await featureCache.updateFile(uri);
+
+        // Remove mock and file does not exist on disk
+        if (originalTextDocuments) {
+            Object.defineProperty(vscode.workspace, 'textDocuments', originalTextDocuments);
+        }
+
+        // Second pass fails to read
+        await featureCache.updateFile(uri);
+
+        assert.strictEqual(featureCache.getTagBlastRadius('@retained'), 1, 'Should keep old data when read fails');
+        assert.strictEqual(featureCache.getFileState(uri)?.status, 'stale', 'Status should be stale');
+    });
+
+    test('FeatureCache: Removes data incrementally on delete', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.file(path.join(tempDir, 'deleted.feature'));
+        fs.writeFileSync(uri.fsPath, '@del\nFeature: delete me\n  Scenario: del\n    Given step');
+        
+        await featureCache.updateFile(uri);
+        assert.strictEqual(featureCache.getTagBlastRadius('@del'), 1);
+
+        featureCache.removeFile(uri);
+        assert.strictEqual(featureCache.getTagBlastRadius('@del'), 0, 'Should decrement global tags');
+        assert.strictEqual(featureCache.getFileState(uri), undefined);
     });
 });

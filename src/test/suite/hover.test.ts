@@ -39,7 +39,8 @@ suite('Hover Provider Test Suite', () => {
         mockFeatureCache = {
             getTagBlastRadius: (tag: string) => {
                 return tag === '@ui' ? 5 : 0;
-            }
+            },
+            hasStaleOrPartialFilesForTag: () => false
         } as any;
     });
 

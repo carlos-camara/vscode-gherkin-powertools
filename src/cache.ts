@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import { logger } from './logger';
 import { discoveryService } from './discovery';
 import { parseGherkin } from './parser';
@@ -221,19 +220,24 @@ export class SymbolCache {
 }
 
 
-export class FeatureCache {
-    private fileTagCounts: Map<string, Map<string, number>> = new Map();
-    private globalTagCount: Map<string, number> = new Map();
+export interface FileState {
+    counts: Map<string, number>;
+    status: 'current' | 'stale' | 'partial';
+}
 
+export class FeatureCache {
+    private fileTagCounts: Map<string, FileState> = new Map();
+    private globalTagCount: Map<string, number> = new Map();
+    private updateDebounce: Map<string, { timeout: NodeJS.Timeout, resolves: Array<() => void> }> = new Map();
 
     public state: CacheState = 'uninitialized';
     private initPromise: Promise<void> | null = null;
 
     public initialize(): Promise<void> {
-        if (this.state === 'initializing' || this.state === 'ready') {
+        if (this.state === 'ready' || this.state === 'initializing') {
             return this.initPromise!;
         }
-        
+
         this.state = 'initializing';
         this.initPromise = (async () => {
             try {
@@ -253,14 +257,50 @@ export class FeatureCache {
     }
 
     public async updateFile(uri: vscode.Uri): Promise<void> {
-        try {
-            const content = await fs.promises.readFile(uri.fsPath, 'utf8');
-            const { document: doc } = await parseGherkin(content);
-            if (!doc || !doc.feature) {
-                // If completely unparsable, retain the last valid state
-                return;
+        const uriString = uri.toString();
+        
+        return new Promise<void>((resolve) => {
+            const existing = this.updateDebounce.get(uriString);
+            if (existing) {
+                clearTimeout(existing.timeout);
+                existing.resolves.push(resolve);
             }
+            
+            const resolves = existing ? existing.resolves : [resolve];
 
+            const timeout = setTimeout(async () => {
+                this.updateDebounce.delete(uriString);
+                await this.processFile(uri);
+                resolves.forEach(r => r());
+            }, 300);
+
+            this.updateDebounce.set(uriString, { timeout, resolves });
+        });
+    }
+
+    private async processFile(uri: vscode.Uri): Promise<void> {
+        let content: string;
+        try {
+            // Prefer open document
+            const doc = vscode.workspace.textDocuments.find(d => d.uri.toString() === uri.toString());
+            if (doc) {
+                content = doc.getText();
+            } else {
+                const bytes = await vscode.workspace.fs.readFile(uri);
+                content = new TextDecoder('utf8').decode(bytes);
+            }
+        } catch (err) {
+            logger.error(`Error reading feature file ${uri.toString()}:`, err);
+            // File read failure (e.g. temporary unreachability for remote fs). Retain old state but mark stale.
+            const existing = this.fileTagCounts.get(uri.toString());
+            if (existing) {
+                existing.status = 'stale';
+            }
+            return;
+        }
+
+        try {
+            const { document: docAST, errors } = await parseGherkin(content);
             const tagCounts = new Map<string, number>();
 
             const addTagCount = (tag: string, count: number) => {
@@ -296,10 +336,10 @@ export class FeatureCache {
                 }
             };
 
-            if (doc && doc.feature) {
-                const featureTags = processTags(doc.feature.tags);
-                if (doc.feature.children) {
-                    for (const child of doc.feature.children) {
+            if (docAST && docAST.feature) {
+                const featureTags = processTags(docAST.feature.tags);
+                if (docAST.feature.children) {
+                    for (const child of docAST.feature.children) {
                         if (child.rule) {
                             const ruleTags = processTags(child.rule.tags);
                             const combinedRuleTags = [...new Set([...featureTags, ...ruleTags])];
@@ -313,31 +353,77 @@ export class FeatureCache {
                         }
                     }
                 }
+                const status = errors.length > 0 ? 'partial' : 'current';
+                this.updateIncrementalTagCounts(uri.toString(), tagCounts, status);
+            } else {
+                // Partial or unparsable AST, mark existing as partial
+                const existing = this.fileTagCounts.get(uri.toString());
+                if (existing) {
+                    existing.status = 'partial';
+                }
             }
-
-            this.fileTagCounts.set(uri.toString(), tagCounts);
-            this.recalculateGlobalTags();
         } catch (err) {
-            logger.error(`Error updating feature cache for file ${uri.fsPath}:`, err);
-            this.removeFile(uri);
+            logger.error(`Error parsing feature file ${uri.toString()}:`, err);
+            // AST throws error, preserve state as partial
+            const existing = this.fileTagCounts.get(uri.toString());
+            if (existing) {
+                existing.status = 'partial';
+            }
         }
     }
 
-    public removeFile(uri: vscode.Uri): void {
-        this.fileTagCounts.delete(uri.toString());
-        this.recalculateGlobalTags();
+    private updateIncrementalTagCounts(uriString: string, newCounts: Map<string, number>, status: 'current' | 'stale' | 'partial') {
+        const oldState = this.fileTagCounts.get(uriString);
+        const oldCounts = oldState ? oldState.counts : new Map<string, number>();
+
+        // Remove old counts
+        for (const [tag, count] of oldCounts) {
+            const currentGlobal = this.globalTagCount.get(tag) || 0;
+            this.globalTagCount.set(tag, Math.max(0, currentGlobal - count));
+        }
+
+        // Add new counts
+        for (const [tag, count] of newCounts) {
+            const currentGlobal = this.globalTagCount.get(tag) || 0;
+            this.globalTagCount.set(tag, currentGlobal + count);
+        }
+
+        this.fileTagCounts.set(uriString, { counts: newCounts, status });
     }
 
-    private recalculateGlobalTags() {
-        this.globalTagCount.clear();
-        for (const fileCounts of this.fileTagCounts.values()) {
-            for (const [tag, count] of fileCounts.entries()) {
-                this.globalTagCount.set(tag, (this.globalTagCount.get(tag) || 0) + count);
+    public removeFile(uri: vscode.Uri): void {
+        const uriString = uri.toString();
+        const existingTimeout = this.updateDebounce.get(uriString);
+        if (existingTimeout) {
+            clearTimeout(existingTimeout.timeout);
+            existingTimeout.resolves.forEach(r => r()); // resolve dangling promises
+            this.updateDebounce.delete(uriString);
+        }
+
+        const oldState = this.fileTagCounts.get(uriString);
+        if (oldState) {
+            for (const [tag, count] of oldState.counts) {
+                const currentGlobal = this.globalTagCount.get(tag) || 0;
+                this.globalTagCount.set(tag, Math.max(0, currentGlobal - count));
             }
+            this.fileTagCounts.delete(uriString);
         }
     }
 
     public getTagBlastRadius(tag: string): number {
         return this.globalTagCount.get(tag) || 0;
+    }
+
+    public getFileState(uri: vscode.Uri): FileState | undefined {
+        return this.fileTagCounts.get(uri.toString());
+    }
+
+    public hasStaleOrPartialFilesForTag(tag: string): boolean {
+        for (const state of this.fileTagCounts.values()) {
+            if ((state.status === 'stale' || state.status === 'partial') && state.counts.has(tag)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
