@@ -42,13 +42,17 @@ jobs:
           echo "vsix=$VSIX" >> "$GITHUB_OUTPUT"
 
       - name: 📦 Package VSIX
+        env:
+          VSIX_FILE: ${{ steps.vars.outputs.vsix }}
         run: |
-          npx vsce package --out ${{ steps.vars.outputs.vsix }}
+          npx vsce package --out "$VSIX_FILE"
           npx vsce ls
 
       - name: 🛡️ Verify VSIX
+        env:
+          VSIX_FILE: ${{ steps.vars.outputs.vsix }}
         run: |
-          if [ ! -s "${{ steps.vars.outputs.vsix }}" ]; then
+          if [ ! -s "$VSIX_FILE" ]; then
             echo "Error: VSIX file is missing or empty!"
             exit 1
           fi
@@ -56,8 +60,8 @@ jobs:
       - name: 🏷️ Ensure Git Tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.vars.outputs.tag }}
         run: |
-          TAG="${{ steps.vars.outputs.tag }}"
           if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
             echo "Tag $TAG already exists."
           else
@@ -71,8 +75,8 @@ jobs:
       - name: 🚀 Ensure GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.vars.outputs.tag }}
         run: |
-          TAG="${{ steps.vars.outputs.tag }}"
           if gh release view "$TAG" > /dev/null 2>&1; then
             echo "Release $TAG already exists."
           else
@@ -83,21 +87,22 @@ jobs:
       - name: 📎 Upload VSIX Asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.vars.outputs.tag }}
+          VSIX_FILE: ${{ steps.vars.outputs.vsix }}
         run: |
-          TAG="${{ steps.vars.outputs.tag }}"
-          VSIX="${{ steps.vars.outputs.vsix }}"
-          if gh release view "$TAG" --json assets -q ".assets[].name" | grep -qx "$VSIX"; then
-            echo "Asset $VSIX already uploaded to release $TAG."
+          if gh release view "$TAG" --json assets -q ".assets[].name" | grep -qx "$VSIX_FILE"; then
+            echo "Asset $VSIX_FILE already uploaded to release $TAG."
           else
-            echo "Uploading asset $VSIX to release $TAG..."
-            gh release upload "$TAG" "$VSIX" --clobber
+            echo "Uploading asset $VSIX_FILE to release $TAG..."
+            gh release upload "$TAG" "$VSIX_FILE" --clobber
           fi
 
       - name: 🌐 Publish to VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSIX_FILE: ${{ steps.vars.outputs.vsix }}
         run: |
           echo "Publishing to Visual Studio Marketplace..."
           # By passing the pre-packaged VSIX (-i), we prevent vsce from re-running 
           # the build scripts (prepublish) while the PAT is exposed in the environment.
-          npx vsce publish -i ${{ steps.vars.outputs.vsix }}
+          npx vsce publish -i "$VSIX_FILE"
