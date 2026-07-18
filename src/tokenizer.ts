@@ -56,7 +56,6 @@ export function parsePythonDecorators(content: string): TokenizedDecorator[] {
                     const argStartIndex = i;
                     let lastValidStringContent: string | null = null;
                     let nonWhitespaceEncounteredOutsideString = false;
-                    let currentStringContent = "";
 
                     while (i < len && parens > 0) {
                         const c = content[i];

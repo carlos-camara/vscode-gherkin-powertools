@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { logger } from './logger';
 
 export class BehaveFileDiscoveryService {
     private stepWatchers: vscode.FileSystemWatcher[] = [];
