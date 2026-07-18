@@ -23,13 +23,13 @@ suite('E2E UI Test Suite', () => {
         if (ext) {
             await ext.activate();
         }
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         // 2. The E2E Magic: Execute the native VS Code format command
         // (Simulates the user pressing Shift + Alt + F)
         await vscode.commands.executeCommand('editor.action.formatDocument');
         // Give formatting a moment to apply
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         // 3. Verify that OUR extension reacted to the UI and formatted the text
         const newText = document.getText();
