@@ -169,4 +169,37 @@ suite('Statistics Core Logic Test Suite', () => {
             assert.ok(stats.totalBut >= 1, 'Should find But steps');
         }
     });
+
+    test('calculateStatistics: Handles CancellationToken gracefully', async () => {
+        // Mock token
+        const token: vscode.CancellationToken = {
+            isCancellationRequested: true,
+            onCancellationRequested: new vscode.EventEmitter<any>().event
+        };
+
+        const stats = await calculateStatistics(undefined, token);
+        // It returns undefined or partially empty if canceled before doing work
+        // For our implementation, if token is set right away, it exits early or returns partial stats 
+        // We just assert it doesn't throw and returns gracefully.
+        if (stats) {
+            assert.strictEqual(stats.totalFeatures, 0); // Because it cancels processing
+        }
+    });
+
+    test('calculateStatistics: Handles fallback keyword counting (e.g., * wildcard or missing type)', async () => {
+        const docContent = `
+        Feature: Fallback Keyword Test
+        Scenario: Asterisk
+          * I do something undefined
+        `;
+        
+        await vscode.workspace.openTextDocument({ language: 'feature', content: docContent });
+        
+        const stats = await calculateStatistics();
+        assert.ok(stats);
+        if (stats) {
+            assert.ok(stats.totalAnd > 0, 'Should fall back to totalAnd for * or unknown keywords');
+        }
+    });
 });
+

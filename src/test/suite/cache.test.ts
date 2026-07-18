@@ -371,4 +371,33 @@ Feature: Fallback Test
         assert.strictEqual(featureCache.getTagBlastRadius('@del'), 0, 'Should decrement global tags');
         assert.strictEqual(featureCache.getFileState(uri), undefined);
     });
+
+    test('FeatureCache: removeFile cancels pending debounce updates', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.file(path.join(tempDir, 'cancel_debounce.feature'));
+        fs.writeFileSync(uri.fsPath, '@pending\nFeature: pending\n  Scenario: p\n    Given step');
+        
+        // Trigger an update but immediately remove it before debounce fires
+        const p = featureCache.updateFile(uri);
+        featureCache.removeFile(uri);
+
+        await p;
+
+        // Since it was removed, the file state should be completely empty/undefined, and tag count 0
+        assert.strictEqual(featureCache.getTagBlastRadius('@pending'), 0);
+        assert.strictEqual(featureCache.getFileState(uri), undefined);
+    });
+
+    test('FeatureCache: hasStaleOrPartialFilesForTag returns false if no such files exist', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.file(path.join(tempDir, 'healthy.feature'));
+        fs.writeFileSync(uri.fsPath, '@healthy\nFeature: healthy\n  Scenario: h\n    Given step');
+        
+        await featureCache.updateFile(uri);
+        
+        // File is healthy ('current')
+        assert.strictEqual(featureCache.getFileState(uri)?.status, 'current');
+        assert.strictEqual(featureCache.hasStaleOrPartialFilesForTag('@healthy'), false);
+    });
 });
+
