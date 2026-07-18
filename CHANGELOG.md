@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Strict Semantic Matching Fix**: Fixed a critical bug in the linter and definition providers where explicit step keywords (e.g., `Given`, `When`, `Then`) were being incorrectly overridden by the context of preceding steps.
   This resolves issues where perfectly valid steps like `Then align` were falsely flagged as "Undefined Step" when the Python step definition used a strictly-matching decorator like `@then`.
 
+### 🚀 Added
+- **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.
+- **Remote Workspace Compatibility**: Feature files are now parsed correctly over virtual filesystems (e.g., GitHub Codespaces, SSH, and remote tunnels) using VS Code's native `workspace.fs` API.
+- **Robust Parsing Fallback**: If a feature file contains severe syntax errors, the cache will now gracefully downgrade to a "Partial" state and salvage any parsable scenarios, while displaying an inline warning in the hover widget.
+
+### 🛠️ Changed
+- **Architectural Refactor**: Rebuilt the underlying `FeatureCache` to operate asynchronously with a 300ms debounce window and an incremental diffing strategy. This drastically reduces CPU overhead during rapid typing and eliminates full-workspace re-indexing on single-file changes.
+
 ## [1.7.4] - 2026-07-18
 
 ### 🛠️ Changed
