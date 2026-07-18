@@ -35,7 +35,7 @@ jobs:
       - name: 🏷️ Determine Version and Tag
         id: vars
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(jq -r '.version' package.json | tr -d '\n\r')
           TAG="v$VERSION"
           VSIX="gherkin-powertools-$VERSION.vsix"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
@@ -62,14 +62,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.vars.outputs.tag }}
         run: |
-          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
-            echo "Tag $TAG already exists."
+          if git ls-remote --tags origin "refs/tags/$TAG" | grep -Fq "$TAG"; then
+            printf "Tag %s already exists.\n" "$TAG"
           else
-            echo "Creating tag $TAG..."
+            printf "Creating tag %s...\n" "$TAG"
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag "$TAG"
-            git push origin "$TAG"
+            git tag -- "$TAG"
+            git push origin "refs/tags/$TAG"
           fi
 
       - name: 🚀 Ensure GitHub Release
@@ -77,11 +77,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.vars.outputs.tag }}
         run: |
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "Release $TAG already exists."
+          if gh release view -- "$TAG" > /dev/null 2>&1; then
+            printf "Release %s already exists.\n" "$TAG"
           else
-            echo "Creating release $TAG..."
-            gh release create "$TAG" --generate-notes
+            printf "Creating release %s...\n" "$TAG"
+            gh release create -- "$TAG" --generate-notes
           fi
 
       - name: 📎 Upload VSIX Asset
@@ -90,11 +90,11 @@ jobs:
           TAG: ${{ steps.vars.outputs.tag }}
           VSIX_FILE: ${{ steps.vars.outputs.vsix }}
         run: |
-          if gh release view "$TAG" --json assets -q ".assets[].name" | grep -qx "$VSIX_FILE"; then
-            echo "Asset $VSIX_FILE already uploaded to release $TAG."
+          if gh release view -- "$TAG" --json assets -q ".assets[].name" | grep -Fqx "$VSIX_FILE"; then
+            printf "Asset %s already uploaded to release %s.\n" "$VSIX_FILE" "$TAG"
           else
-            echo "Uploading asset $VSIX_FILE to release $TAG..."
-            gh release upload "$TAG" "$VSIX_FILE" --clobber
+            printf "Uploading asset %s to release %s...\n" "$VSIX_FILE" "$TAG"
+            gh release upload -- "$TAG" "$VSIX_FILE" --clobber
           fi
 
       - name: 🌐 Publish to VS Code Marketplace
