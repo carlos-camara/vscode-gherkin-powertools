@@ -30,6 +30,16 @@ To guarantee that you always receive accurate diagnostics regardless of how "bro
 
 ---
 
+## 🌍 Global Dialect Support (i18n)
+
+The linter is fully **dialect-aware**. It automatically reads your `# language: [code]` header and dynamically adjusts all semantic rules, fuzzy-matching logic, and diagnostic messages to match your local language.
+
+- **Localized Quick-Fixes**: Misspellings trigger Quick-Fixes tailored to your dialect (e.g., `Did you mean 'Fonctionnalité:'?` instead of `Feature:`).
+- **Context-Aware Fuzzy Matching**: The text-based heuristic scanner evaluates structural context before offering corrections, ensuring normal prose (like writing "when" or "given" in a sentence) is never aggressively flagged as a syntax error.
+- **Semantic Fallbacks**: Dialect awareness applies even during severe syntax errors. The extension correctly identifies errors like using localized `Examples` under a localized `Scenario` (instead of `Scenario Outline`) seamlessly across French, German, Spanish, Arabic, and over 70 other Gherkin dialects.
+
+---
+
 ## 💡 Intelligent Code Actions (Quick Fixes)
 
 The Linter integrates deeply with VS Code's **Quick Fix** system (the yellow lightbulb 💡). Instead of just pointing out errors, the extension actively offers to fix them for you.

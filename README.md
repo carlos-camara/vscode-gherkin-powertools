@@ -150,7 +150,7 @@ Works with any `.feature` file.
 
 **Problem:** A missing colon or misspelled keyword silently reaches CI and fails the pipeline.
 
-**Result:** The AST linter flags structural errors as you type. Quick Fixes correct the most common mistakes in one keypress.
+**Result:** The fully **dialect-aware** AST linter flags structural errors across 70+ languages as you type. Quick Fixes correct the most common mistakes in one keypress using localized keywords.
 
 <div align="center">
 

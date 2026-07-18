@@ -329,4 +329,74 @@ Feature: Test
         // It should have dropped the payload because ID 1 !== expected ID 2
         assert.strictEqual(diagnostics.length, 0, 'Older request ID should be discarded');
     });
+    test('Dialect ES: Spanish keywords and fallbacks', async () => {
+        const text = `
+# language: es
+Característica: Test ES
+  Escenario: Fallback check
+    Dado un paso
+    Ejemplos:
+      | col |
+        `.trim();
+        const doc = createMockDocument(text, 'file:///spanish.feature');
+        await linter.lint(doc);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        const scenarioWithExamples = diagnostics.find(d => d.code === 'SCENARIO_WITH_EXAMPLES');
+        assert.ok(scenarioWithExamples, 'Should flag SCENARIO_WITH_EXAMPLES in Spanish');
+        assert.ok(scenarioWithExamples?.message.includes("'Escenario'"), 'Should use localized Scenario');
+        assert.ok(scenarioWithExamples?.message.includes("'Ejemplos'"), 'Should use localized Examples');
+        assert.ok(scenarioWithExamples?.message.includes("'Esquema del escenario'"), 'Should use localized Scenario Outline');
+    });
+
+    test('Dialect FR: French keyword typo quick fixes', async () => {
+        // 'Fonctionnalité' misspelled as 'Fonctionalité' without colon
+        const text = `
+# language: fr
+Fonctionalité Test FR
+  Scénario: French scenario
+    Soit a step
+        `.trim();
+        const doc = createMockDocument(text, 'file:///french-typo.feature');
+        await linter.lint(doc);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        const typoDiag = diagnostics.find(d => d.code === 'MISSPELLED_KEYWORD' || d.code === 'MISSING_COLON');
+        assert.ok(typoDiag, 'Should generate a diagnostic for misspelled French keyword');
+        assert.ok(typoDiag?.message.includes("Did you mean 'Fonctionnalité:'?"), 'Message should suggest correct French block keyword with colon');
+    });
+
+    test('Dialect DE: German syntax error fallback', async () => {
+        // Bad block keyword spelling that causes syntax error
+        const text = `
+# language: de
+Funktionalitä Bad
+  Szenario: Bad
+    Angenommen stuff
+    Beispiele:
+      | test |
+        `.trim();
+        const doc = createMockDocument(text, 'file:///german-bad.feature');
+        await linter.lint(doc);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        assert.ok(diagnostics.some(d => d.code === 'SCENARIO_WITH_EXAMPLES'), 'Should flag SCENARIO_WITH_EXAMPLES in German via fallback scan');
+    });
+
+    test('Dialect non-Latin: Arabic Scenario with Examples (fallback)', async () => {
+        const text = `
+# language: ar
+خاصية: Test
+  سيناريو: Arabic
+    بفرض a step
+    امثلة:
+      | col |
+        `.trim();
+        const doc = createMockDocument(text, 'file:///arabic.feature');
+        await linter.lint(doc);
+        
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        const scenarioWithExamples = diagnostics.find(d => d.code === 'SCENARIO_WITH_EXAMPLES');
+        assert.ok(scenarioWithExamples, 'Should flag SCENARIO_WITH_EXAMPLES in Arabic');
+    });
 });
