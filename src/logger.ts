@@ -11,6 +11,14 @@ class Logger {
         this.channel.appendLine(`[INFO  - ${new Date().toLocaleTimeString()}] ${message}`);
     }
 
+    public warn(message: string): void {
+        this.channel.appendLine(`[WARN  - ${new Date().toLocaleTimeString()}] ${message}`);
+    }
+
+    public debug(message: string): void {
+        this.channel.appendLine(`[DEBUG - ${new Date().toLocaleTimeString()}] ${message}`);
+    }
+
     public error(message: string, error?: any): void {
         this.channel.appendLine(`[ERROR - ${new Date().toLocaleTimeString()}] ${message}`);
         if (error) {

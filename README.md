@@ -119,6 +119,7 @@ Works with any `.feature` file.
 | Built-in snippets | ✅ | ✅ | `feature`, `scenario`, `outline`, `rule` |
 
 > **Note:** Formatting and linting work for Cucumber.js, Playwright BDD, SpecFlow, and Karate because they share the Gherkin syntax. These frameworks do not have framework-specific step navigation in this extension.
+> **Note:** Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.
 
 ---
 

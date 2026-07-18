@@ -98,6 +98,33 @@ def general(context): pass
         assert.strictEqual((await cache.getAllStepDefinitions()).length, 0);
     });
 
+    test('Handles invalid regex compilation gracefully', async () => {
+        const mockPythonCode = `
+@given(r'(?P<amount>\\d+)(')
+def step_impl(context):
+    pass
+        `;
+        
+        const tempFile = path.join(tempDir, 'invalid_regex.py');
+        fs.writeFileSync(tempFile, mockPythonCode);
+
+        const uri = vscode.Uri.file(tempFile);
+        await cache.updateFile(uri);
+
+        const definitions = await cache.getAllStepDefinitions();
+        assert.strictEqual(definitions.length, 1);
+        
+        const def = definitions[0];
+        assert.strictEqual(def.evaluable, false);
+        assert.ok(def.compilationError);
+        assert.strictEqual(def.rawPattern, '(?P<amount>\\d+)(');
+
+        // Should not match anything because evaluable is false
+        const match = await cache.getStepDefinition('(?P<amount>\\d+)(');
+        assert.strictEqual(match, null);
+    });
+
+
     test('Filters step definitions by semantic type', async () => {
         const semanticCode = `
 @given('I log in')
