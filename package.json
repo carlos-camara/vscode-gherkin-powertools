@@ -21,10 +21,6 @@
   "publisher": "carloscamara",
   "author": "Carlos Camara",
   "icon": "assets/logo-transparent.png",
-  "galleryBanner": {
-    "color": "#1e1e1e",
-    "theme": "dark"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",
