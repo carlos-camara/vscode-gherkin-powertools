@@ -28,7 +28,13 @@ To guarantee that you always receive accurate diagnostics regardless of how "bro
 2. **Custom Heuristic Fallback**: If the official parser crashes due to a syntax error (e.g., typing `Whe` instead of `When`), our custom engine kicks in. It scans the document via text-based heuristics to ensure structural rules (like forbidding an `Examples` table under a standard `Scenario`) are still enforced.
 3. **Dynamic Line Mapping**: Parsers often silently strip blank lines from descriptions, causing error diagnostics to point to the wrong physical lines in your editor. Our engine dynamically maps AST logic back to the exact physical lines in VS Code, ensuring pixel-perfect accuracy for every red underline.
 
----
+## 🌍 Global Dialect Support (i18n)
+
+The linter is fully **dialect-aware**. It automatically reads your `# language: [code]` header and dynamically adjusts all semantic rules, fuzzy-matching logic, and diagnostic messages to match your local language.
+
+- **Localized Quick-Fixes**: Misspellings trigger Quick-Fixes tailored to your dialect (e.g., `Did you mean 'Fonctionnalité:'?` instead of `Feature:`).
+- **Context-Aware Fuzzy Matching**: The text-based heuristic scanner evaluates structural context before offering corrections, ensuring normal prose (like writing "when" or "given" in a sentence) is never aggressively flagged as a syntax error.
+- **Semantic Fallbacks**: Dialect awareness applies even during severe syntax errors. The extension correctly identifies errors like using localized `Examples` under a localized `Scenario` (instead of `Scenario Outline`) seamlessly across French, German, Spanish, Arabic, and over 70 other Gherkin dialects.
 
 ## 💡 Intelligent Code Actions (Quick Fixes)
 

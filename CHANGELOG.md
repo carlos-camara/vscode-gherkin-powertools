@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🚀 Added
+- **Global Dialect Support for Linter (i18n)**: The semantic linter and diagnostics engine is now fully dialect-aware. It dynamically reads your `# language: [code]` header and validates syntax across 70+ languages, including localized Quick-Fix recommendations (e.g., suggesting `Fonctionnalité:` instead of `Feature:`).
+- **Context-Aware Fuzzy Matching**: The linter now evaluates structural context before offering typo corrections, eliminating aggressive false-positive diagnostics when normal English prose resembles Gherkin keywords.
 - **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.
 - **Remote Workspace Compatibility**: Feature files are now parsed correctly over virtual filesystems (e.g., GitHub Codespaces, SSH, and remote tunnels) using VS Code's native `workspace.fs` API.
 - **Robust Parsing Fallback**: If a feature file contains severe syntax errors, the cache will now gracefully downgrade to a "Partial" state and salvage any parsable scenarios, while displaying an inline warning in the hover widget.

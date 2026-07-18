@@ -138,7 +138,6 @@ export class GherkinLinter {
                             if (bestMatch) {
                                 code = 'MISSPELLED_KEYWORD';
                                 
-                                const blockKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples'];
                                 const isBlockKeyword = blockKeywords.includes(bestMatch);
                                 
                                 if (isBlockKeyword) {
@@ -243,18 +242,24 @@ export class GherkinLinter {
 
         // If parsed successfully, check for undefined steps and semantic issues
         if (gherkinDocument && gherkinDocument.feature) {
-            this.checkDescription(gherkinDocument.feature, diagnostics, document);
+            const dialect = dialectService.getDialect(document);
+            const featureExpectedKeywords = [...dialect.background, ...dialect.rule, ...dialect.scenario, ...dialect.scenarioOutline].map(k => k.trim());
+            const ruleExpectedKeywords = [...dialect.background, ...dialect.scenario, ...dialect.scenarioOutline].map(k => k.trim());
+            const scenarioExpectedKeywords = [...dialect.given, ...dialect.when, ...dialect.then, ...dialect.and, ...dialect.but, ...dialect.examples, ...dialect.scenario, ...dialect.scenarioOutline].map(k => k.trim());
+            const blockKeywords = dialectService.getBlockKeywords(dialect);
+
+            this.checkDescription(gherkinDocument.feature, diagnostics, document, featureExpectedKeywords, blockKeywords);
             if (gherkinDocument.feature.children) {
                 for (const child of gherkinDocument.feature.children) {
                     if (child.rule) {
-                        this.checkDescription(child.rule, diagnostics, document);
+                        this.checkDescription(child.rule, diagnostics, document, ruleExpectedKeywords, blockKeywords);
                         if (child.rule.children) {
                             for (const ruleChild of child.rule.children) {
                                 const ruleScenario = ruleChild.scenario || ruleChild.background;
                                 if (ruleScenario) {
                                     await this.checkSteps(ruleScenario.steps || [], diagnostics, document);
-                                    this.checkScenarioExamples(ruleChild.scenario, diagnostics);
-                                    this.checkDescription(ruleScenario, diagnostics, document);
+                                    this.checkScenarioExamples(ruleChild.scenario, diagnostics, document);
+                                    this.checkDescription(ruleScenario, diagnostics, document, scenarioExpectedKeywords, blockKeywords);
                                 }
                             }
                         }
@@ -262,8 +267,8 @@ export class GherkinLinter {
                         const scenario = child.scenario || child.background;
                         if (scenario) {
                             await this.checkSteps(scenario.steps || [], diagnostics, document);
-                            this.checkScenarioExamples(child.scenario, diagnostics);
-                            this.checkDescription(scenario, diagnostics, document);
+                            this.checkScenarioExamples(child.scenario, diagnostics, document);
+                            this.checkDescription(scenario, diagnostics, document, scenarioExpectedKeywords, blockKeywords);
                         }
                     }
                 }
@@ -272,7 +277,7 @@ export class GherkinLinter {
             // If the document failed to parse (e.g. because of a syntax error like 'Whe'),
             // the AST is null and we can't detect SCENARIO_WITH_EXAMPLES via AST.
             // Let's do a fallback text scan just for this specific semantic error.
-            this.fallbackCheckScenarioExamples(document, diagnostics);
+            this.fallbackCheckScenarioExamples(document, diagnostics, dialect);
         }
 
         // Before publishing, verify we are still the most recent request for this document,
@@ -290,35 +295,50 @@ export class GherkinLinter {
         this.diagnosticCollection.set(document.uri, diagnostics);
     }
 
-    private fallbackCheckScenarioExamples(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[]) {
+    private fallbackCheckScenarioExamples(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[], dialect: any) {
         let currentScenarioLine = -1;
         let currentScenarioStartChar = -1;
         
+        const scenarioKeywords = dialect.scenario.map((k: string) => k.trim());
+        const scenarioOutlineKeywords = dialect.scenarioOutline.map((k: string) => k.trim());
+        const examplesKeywords = dialect.examples.map((k: string) => k.trim());
+        const otherBlockKeywords = [...dialect.feature, ...dialect.background, ...dialect.rule].map((k: string) => k.trim());
+
         for (let i = 0; i < document.lineCount; i++) {
             const line = document.lineAt(i).text;
             const trimmed = line.trim();
             
             if (trimmed.startsWith('#')) continue;
             
-            // Match exactly "Scenario:"
-            if (trimmed.startsWith('Scenario:')) {
+            // Check if line starts with any Scenario keyword + ':'
+            const isScenario = scenarioKeywords.some((k: string) => trimmed.startsWith(k + ':'));
+            const isScenarioOutline = scenarioOutlineKeywords.some((k: string) => trimmed.startsWith(k + ':'));
+            const isExamples = examplesKeywords.some((k: string) => trimmed.startsWith(k + ':'));
+            const isOtherBlock = otherBlockKeywords.some((k: string) => trimmed.startsWith(k + ':'));
+            
+            if (isScenario) {
                 currentScenarioLine = i;
-                currentScenarioStartChar = line.indexOf('Scenario:');
-            } else if (trimmed.startsWith('Scenario Outline:') || trimmed.startsWith('Scenario Template:')) {
+                const matchKeyword = scenarioKeywords.find((k: string) => trimmed.startsWith(k + ':')) || 'Scenario';
+                currentScenarioStartChar = line.indexOf(matchKeyword + ':');
+            } else if (isScenarioOutline) {
                 currentScenarioLine = -1; 
-            } else if (trimmed.startsWith('Background:') || trimmed.startsWith('Rule:') || trimmed.startsWith('Feature:')) {
+            } else if (isOtherBlock) {
                 currentScenarioLine = -1;
-            } else if (trimmed.startsWith('Examples:') || trimmed.startsWith('Scenarios:')) {
+            } else if (isExamples) {
                 if (currentScenarioLine !== -1) {
+                    const matchKeyword = scenarioKeywords.find((k: string) => document.lineAt(currentScenarioLine).text.trim().startsWith(k + ':')) || scenarioKeywords[0] || 'Scenario';
+                    const examplesKeyword = examplesKeywords.find((k: string) => trimmed.startsWith(k + ':')) || examplesKeywords[0] || 'Examples';
+                    const outlineKeyword = scenarioOutlineKeywords[0] || 'Scenario Outline';
+                    
                     const range = new vscode.Range(
                         currentScenarioLine,
                         currentScenarioStartChar,
                         currentScenarioLine,
-                        currentScenarioStartChar + 'Scenario'.length
+                        currentScenarioStartChar + matchKeyword.length
                     );
                     const diagnostic = new vscode.Diagnostic(
                         range,
-                        "A 'Scenario' cannot have 'Examples'. Use 'Scenario Outline' instead.",
+                        `A '${matchKeyword}' cannot have '${examplesKeyword}'. Use '${outlineKeyword}' instead.`,
                         vscode.DiagnosticSeverity.Error
                     );
                     diagnostic.source = 'Gherkin Semantic';
@@ -331,7 +351,7 @@ export class GherkinLinter {
         }
     }
 
-    private checkDescription(node: any, diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
+    private checkDescription(node: any, diagnostics: vscode.Diagnostic[], document: vscode.TextDocument, expectedKeywords: string[], blockKeywords: string[]) {
         if (!node || !node.description) return;
         
         const descLines = node.description.split('\n');
@@ -354,13 +374,14 @@ export class GherkinLinter {
                 }
 
                 const firstWord = trimmed.split(/\s+/)[0];
-                const validKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples', 'Given', 'When', 'Then', 'And', 'But'];
                 
                 let bestMatch = '';
                 let lowestDistance = 999;
                 const normalizedFirst = firstWord.toLowerCase();
 
-                for (const kw of validKeywords) {
+                // Do not scan arbitrary description text aggressively.
+                // We only fuzzily match against structural keywords EXPECTED in this section.
+                for (const kw of expectedKeywords) {
                     const normalizedKw = kw.toLowerCase();
                     if (normalizedFirst.length >= 2 && normalizedKw.startsWith(normalizedFirst)) {
                         bestMatch = kw;
@@ -381,9 +402,8 @@ export class GherkinLinter {
                     const endChar = startChar + firstWord.length;
                     const range = new vscode.Range(currentLineIdx, startChar, currentLineIdx, endChar);
 
-                    const blockKeywords = ['Feature', 'Background', 'Rule', 'Scenario', 'Examples'];
                     const isBlockKeyword = blockKeywords.includes(bestMatch);
-                    
+
                     let code = '';
                     let message = '';
                     let suggestedEdit = '';
@@ -442,16 +462,24 @@ export class GherkinLinter {
         }
     }
 
-    private checkScenarioExamples(scenario: any, diagnostics: vscode.Diagnostic[]) {
-        if (scenario && scenario.keyword && scenario.keyword.trim() === 'Scenario' && scenario.examples && scenario.examples.length > 0) {
+    private checkScenarioExamples(scenario: any, diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
+        const dialect = dialectService.getDialect(document);
+        const scenarioKeywords = dialect.scenario.map(k => k.trim());
+        const examplesKeywords = dialect.examples.map(k => k.trim());
+        
+        if (scenario && scenario.keyword && scenarioKeywords.includes(scenario.keyword.trim()) && scenario.examples && scenario.examples.length > 0) {
             const lineIndex = Math.max(0, scenario.location.line - 1);
             const startChar = Math.max(0, scenario.location.column - 1);
             const endChar = startChar + scenario.keyword.length;
             
+            const matchKeyword = scenario.keyword.trim();
+            const examplesKeyword = examplesKeywords[0] || 'Examples';
+            const outlineKeyword = dialect.scenarioOutline[0]?.trim() || 'Scenario Outline';
+            
             const range = new vscode.Range(lineIndex, startChar, lineIndex, endChar);
             const diagnostic = new vscode.Diagnostic(
                 range,
-                "A 'Scenario' cannot have 'Examples'. Use 'Scenario Outline' instead.",
+                `A '${matchKeyword}' cannot have '${examplesKeyword}'. Use '${outlineKeyword}' instead.`,
                 vscode.DiagnosticSeverity.Error
             );
             diagnostic.source = 'Gherkin Semantic';
