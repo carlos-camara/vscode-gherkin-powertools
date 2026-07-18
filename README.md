@@ -366,6 +366,7 @@ Most features work without any configuration. The settings below are the ones mo
 | `gherkinPowerTools.indentation.steps` | `4` | Spaces to indent steps |
 | `gherkinPowerTools.tables.alignToKeyword` | `true` | Align pipes to the step text start |
 | `gherkinPowerTools.tags.format` | `"wrap"` | `"wrap"` or `"singleLine"` for tag lists |
+| `gherkinPowerTools.tags.sort` | `"preserve"` | `"preserve"` or `"alphabetical"` for tag ordering |
 | `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Empty lines between scenario blocks |
 | `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py", "**/features/steps/**/*.py"]` | Glob patterns for Python step files |
 | `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**", "**/.venv/**", ...]` | Paths to exclude from step indexing |

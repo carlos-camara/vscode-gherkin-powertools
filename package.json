@@ -69,6 +69,15 @@
           "default": "wrap",
           "description": "How to format long lists of tags. 'wrap' splits them across multiple lines (max 80 chars), 'singleLine' keeps them all on one line."
         },
+        "gherkinPowerTools.tags.sort": {
+          "type": "string",
+          "enum": [
+            "preserve",
+            "alphabetical"
+          ],
+          "default": "preserve",
+          "description": "How to sort tags. 'preserve' keeps their original source order, 'alphabetical' sorts them A-Z."
+        },
         "gherkinPowerTools.emptyLines.betweenScenarios": {
           "type": "number",
           "default": 1,

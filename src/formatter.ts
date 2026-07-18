@@ -6,6 +6,7 @@ export interface FormatterOptions {
     stepIndentation: number;
     alignTableToKeyword: boolean;
     tagsFormat: 'wrap' | 'singleLine';
+    tagsSort: 'preserve' | 'alphabetical';
     emptyLinesBetweenScenarios: number;
 }
 
@@ -38,6 +39,7 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
             stepIndentation: config.get<number>('indentation.steps', 4),
             alignTableToKeyword: config.get<boolean>('tables.alignToKeyword', true),
             tagsFormat: config.get<'wrap' | 'singleLine'>('tags.format', 'wrap'),
+            tagsSort: config.get<'preserve' | 'alphabetical'>('tags.sort', 'preserve'),
             emptyLinesBetweenScenarios: config.get<number>('emptyLines.betweenScenarios', 1)
         };
     }
@@ -414,7 +416,11 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         if (!tags || tags.length === 0) return;
         
         const tagLines = Array.from(new Set(tags.map(t => t.location.line))).sort((a,b) => a - b);
-        const tagNames = tags.map(t => t.name).sort();
+        let tagNames = tags.map(t => t.name);
+        if (options.tagsSort === 'alphabetical') {
+            tagNames = [...tagNames].sort();
+        }
+        
         const formattedTagLines: string[] = [];
         const indentStr = ' '.repeat(indent);
         
