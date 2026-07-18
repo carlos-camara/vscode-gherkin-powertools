@@ -118,21 +118,11 @@ Works with any `.feature` file.
 | Syntax highlighting | ✅ | ✅ | |
 | Built-in snippets | ✅ | ✅ | `feature`, `scenario`, `outline`, `rule` |
 
-<br>
-
-<table>
-  <tr>
-    <td width="30" align="center" valign="top">ℹ️</td>
-    <td>
-      <strong>NOTE</strong><br>
-      Formatting and linting work for Cucumber.js, Playwright BDD, SpecFlow, and Karate because they share the Gherkin syntax. These frameworks do not have framework-specific step navigation in this extension.
-      <br><br>
-      Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.
-    </td>
-  </tr>
-</table>
-
-<br>
+> ![Note](https://img.shields.io/badge/Note-1d4ed8?style=flat-square)
+> 
+> Formatting and linting work for Cucumber.js, Playwright BDD, SpecFlow, and Karate because they share the Gherkin syntax. These frameworks do not have framework-specific step navigation in this extension.
+> 
+> Python step definitions using complex regular expressions unsupported by the Node.js V8 engine (like negative lookbehinds) will still be parsed and available for autocomplete, but will not be matched dynamically for Hover or Linting.
 ---
 
 ## Featured Demos
@@ -326,19 +316,9 @@ Both extensions can be installed together. They serve different purposes.
 
 *Last reviewed: 2026-07-17. The Official Cucumber extension is maintained at [github.com/cucumber/vscode](https://github.com/cucumber/vscode).*
 
-<br>
-
-<table>
-  <tr>
-    <td width="30" align="center" valign="top">💡</td>
-    <td>
-      <strong>PRO-TIP</strong><br>
-      Install both extensions. Gherkin PowerTools handles formatting, Python/Behave navigation, and analytics. The Official Cucumber extension provides Language Server Protocol support for other frameworks.
-    </td>
-  </tr>
-</table>
-
-<br>
+> ![Pro Tip](https://img.shields.io/badge/Pro_Tip-f59e0b?style=flat-square)
+> 
+> Install both extensions. Gherkin PowerTools handles formatting, Python/Behave navigation, and analytics. The Official Cucumber extension provides Language Server Protocol support for other frameworks.
 
 ---
 
