@@ -103,7 +103,6 @@ suite('Code Action Provider Test Suite', () => {
 });
 
 suite('createStepDefinition Test Suite', () => {
-    let originalFindFiles: any;
     let originalShowInformationMessage: any;
     let originalShowQuickPick: any;
     let originalShowErrorMessage: any;

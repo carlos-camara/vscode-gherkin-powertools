@@ -2,7 +2,7 @@
   "name": "vscode-gherkin-powertools",
   "displayName": "Gherkin PowerTools - Formatter & Linter",
   "description": "Format, lint, and navigate BDD Gherkin files. Features dynamic table alignment, strict diagnostics, and Python/Behave tooling.",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "engines": {
     "vscode": "^1.93.0"
   },

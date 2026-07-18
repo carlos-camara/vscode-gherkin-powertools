@@ -8,7 +8,7 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.7.4] - 2026-07-18
 
 ### 🛠️ Changed
 - **Centralized File Discovery**: Introduced `BehaveFileDiscoveryService` to act as the single source of truth for locating Behave step files.
@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Multi-Root Workspace Intelligence**: Step definition generation (Quick Fix) now correctly infers the appropriate base workspace folder if multiple roots are opened.
 - **Resilient Regex Compilation (`StepDefinition`)**: The workspace indexer now gracefully handles Python-specific regular expressions (like advanced lookbehinds) that are unsupported by the JavaScript V8 engine.
   Instead of silently discarding these steps, they are preserved in the Symbol Cache and marked as non-evaluable. This ensures they remain visible in global autocompletion and workspace symbols, while being safely excluded from automated text matching (Linting, Go-To-Definition, Hover).
+- **Bounded Python Tokenizer**: Replaced the fragile regex-based parser with a bespoke state-machine to extract Python step decorators reliably without requiring a full AST parser.
+  - **Dynamic Expression Fallback**: The extension now properly identifies and flags dynamic expressions (e.g. `@given(MY_VAR)`) or concatenated strings, preventing runtime crashes during real-time Linter/Hover validation while still indexing them for "Go-To-Definition".
+  - **Robust Literal Parsing**: Accurately tracks multiline triple quotes (`"""`, `'''`), internal escape sequences (`\"`), and complex string prefixes (`r`, `u`, `f`, `b`, `rf`).
 - **Semantic Step Matching (`@given`/`@when`/`@then`)**: The extension now respects Behave's strict semantic decorators.
   Linter diagnostics, autocomplete, hover documentation, and Go-To-Definition links correctly disambiguate identical step patterns based on their `Given`, `When`, or `Then` prefix.
   Localized continuation keywords (`And`, `But`) are dynamically resolved backwards through the scenario block.
