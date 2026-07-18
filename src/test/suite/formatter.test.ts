@@ -421,4 +421,38 @@ suite('Formatter VS Code API Wrapper Tests', () => {
         const result = await runRangeFormat(formatter, unformatted, 3, 4);
         assert.strictEqual(result, '            | u1 | p1 |\n            | u2 | p2 |');
     });
+
+    test('Range formatting: selection inside Examples block expands to full Examples', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Scenario Outline: S',
+            'Given <user>',
+            'Examples:',
+            '|user|',
+            '|u1|',
+            '|u2|'
+        ].join('\n');
+        
+        // select line 5 ('|u1|')
+        const result = await runRangeFormat(formatter, unformatted, 5, 5);
+        // Should expand to encompass Examples block: lines 3, 4, 5, 6
+        assert.strictEqual(result, '\n      Examples:\n        | user |\n        | u1   |\n        | u2   |');
+    });
+
+    test('Range formatting: Background selection', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            'Feature: F',
+            'Background:',
+            'Given bg',
+            'Scenario: S',
+            'Given s'
+        ].join('\n');
+        
+        // select line 1 ('Background:')
+        const result = await runRangeFormat(formatter, unformatted, 1, 1);
+        // Expands to Background and its steps (lines 1 to 2)
+        assert.strictEqual(result, '\n  Background:\n      Given bg');
+    });
 });
