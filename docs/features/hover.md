@@ -19,6 +19,9 @@ If your Python developer left a docstring (`"""..."""` or `'''...'''`) explainin
 ### 3. Tag Blast Radius
 Hovering over any Gherkin tag (e.g., `@regression`) instantly calculates its "Blast Radius". The tooltip dynamically counts and displays the total number of executable scenarios affected by that tag across the entire workspace. This fully supports tag inheritance (from `Feature` or `Rule` levels) and multiplies data rows within `Scenario Outline` tables.
 
+> [!NOTE]
+> **Live & Resilient Analytics:** The tag counter automatically hooks into VS Code's live text buffers, ensuring counts include your active, unsaved edits. Furthermore, if any files in your workspace are temporarily unreachable (like disconnected remote VMs) or suffer from severe syntax errors, the Hover Provider will elegantly display an inline warning indicating that the blast radius might be "stale" or "partial", rather than outright failing.
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif" alt="Hover on Tags Demo" width="600" />
 </div>

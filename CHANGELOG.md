@@ -8,11 +8,7 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.7.5] - 2026-07-18
-
-### 🐛 Fixed
-- **Strict Semantic Matching Fix**: Fixed a critical bug in the linter and definition providers where explicit step keywords (e.g., `Given`, `When`, `Then`) were being incorrectly overridden by the context of preceding steps.
-  This resolves issues where perfectly valid steps like `Then align` were falsely flagged as "Undefined Step" when the Python step definition used a strictly-matching decorator like `@then`.
+## [Unreleased]
 
 ### 🚀 Added
 - **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.
@@ -21,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🛠️ Changed
 - **Architectural Refactor**: Rebuilt the underlying `FeatureCache` to operate asynchronously with a 300ms debounce window and an incremental diffing strategy. This drastically reduces CPU overhead during rapid typing and eliminates full-workspace re-indexing on single-file changes.
+
+## [1.7.5] - 2026-07-18
+
+### 🐛 Fixed
+- **Strict Semantic Matching Fix**: Fixed a critical bug in the linter and definition providers where explicit step keywords (e.g., `Given`, `When`, `Then`) were being incorrectly overridden by the context of preceding steps.
+  This resolves issues where perfectly valid steps like `Then align` were falsely flagged as "Undefined Step" when the Python step definition used a strictly-matching decorator like `@then`.
 
 ## [1.7.4] - 2026-07-18
 
