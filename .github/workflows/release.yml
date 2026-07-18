@@ -45,8 +45,8 @@ jobs:
         env:
           VSIX_FILE: ${{ steps.vars.outputs.vsix }}
         run: |
-          npx vsce package --out "$VSIX_FILE"
-          npx vsce ls
+          ./node_modules/.bin/vsce package --out "$VSIX_FILE"
+          ./node_modules/.bin/vsce ls
 
       - name: 🛡️ Verify VSIX
         env:
@@ -105,4 +105,5 @@ jobs:
           echo "Publishing to Visual Studio Marketplace..."
           # By passing the pre-packaged VSIX (-i), we prevent vsce from re-running 
           # the build scripts (prepublish) while the PAT is exposed in the environment.
-          npx vsce publish -i "$VSIX_FILE"
+          # We use the direct path to the binary to prevent package.json script hijacking via npx.
+          ./node_modules/.bin/vsce publish -i "$VSIX_FILE"
