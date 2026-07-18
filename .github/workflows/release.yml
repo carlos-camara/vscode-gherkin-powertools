@@ -18,6 +18,7 @@ jobs:
     name: Build & Release VSIX
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment: production
     steps:
       - name: 🔍 Checkout Code
         uses: actions/checkout@v7
