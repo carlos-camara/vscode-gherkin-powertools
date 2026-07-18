@@ -82,7 +82,7 @@ def step_action(context): ...
 
 ## ⚠️ Limitations
 
-Because Gherkin PowerTools evaluates step matches inside the Node.js (JavaScript) environment, **Python-specific Regex constructs that are not supported by the V8 JavaScript Engine** (such as advanced lookbehinds or specific group referencing syntax) cannot be evaluated dynamically. 
+Because Gherkin PowerTools evaluates step matches inside the Node.js (JavaScript) environment, **Python-specific Regex constructs that are not supported by the V8 JavaScript Engine** (such as advanced lookbehinds or specific group referencing syntax) cannot be evaluated dynamically.
 
 If a Python step definition uses an unsupported regex pattern:
 - It **will not** be available for **Go To Definition**, **Hover**, or **Linting validation**.

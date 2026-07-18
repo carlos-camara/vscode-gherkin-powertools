@@ -63,7 +63,8 @@ Generic `@step` decorators are treated as wildcards.
 
 Because the extension runs in Node.js, `StepDefinition` patterns written in Python sometimes utilize regular expression constructs that are inherently incompatible with the JavaScript V8 engine (e.g., negative lookbehinds like `(?<!...)` or unsupported group syntax).
 Rather than silently dropping these patterns during cache index compilation (which causes the step to vanish entirely from the editor), the `SymbolCache` explicitly isolates the `RegExp` compilation in a sandbox.
-If compilation throws a `SyntaxError`, the extension flags the `StepDefinition` as `evaluable: false` and preserves it in the cache along with the `compilationError`. This guarantees the symbol remains accessible to workspace symbol resolution and global autocompletion routines, while safely skipping execution loops (such as real-time text matching for Linter, Hover, and Go-To-Definition logic) that would otherwise crash.
+If compilation throws a `SyntaxError`, the extension flags the `StepDefinition` as `evaluable: false` and preserves it in the cache along with the `compilationError`. 
+This guarantees the symbol remains accessible to workspace symbol resolution and global autocompletion routines, while safely skipping execution loops (such as real-time text matching for Linter, Hover, and Go-To-Definition logic) that would otherwise crash.
 
 ## The Formatting Engine
 
