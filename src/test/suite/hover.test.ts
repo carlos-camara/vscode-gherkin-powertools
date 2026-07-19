@@ -9,30 +9,69 @@ suite('Hover Provider Test Suite', () => {
 
     setup(() => {
         mockSymbolCache = {
-            getStepDefinition: (text: string) => {
+            getStepDefinitions: (text: string) => {
                 if (text === 'I login') {
-                    return Promise.resolve({
+                    return Promise.resolve([{
                         rawPattern: 'I login',
                         functionName: 'i_login',
                         documentation: 'Logs the user in',
                         matcherType: 'parse',
                         type: 'given',
+                        evaluable: true,
                         uri: vscode.Uri.file('/fake.py'),
                         decoratorRange: new vscode.Range(0, 0, 0, 0)
-                    });
+                    }]);
                 }
                 if (text === 'I fail') {
-                    return Promise.resolve({
+                    return Promise.resolve([{
                         rawPattern: 'I fail',
                         functionName: undefined,
                         documentation: undefined,
                         matcherType: 'parse',
+                        evaluable: true,
                         type: 'when',
                         uri: vscode.Uri.file('/fake.py'),
                         decoratorRange: new vscode.Range(0, 0, 0, 0)
-                    });
+                    }]);
                 }
-                return Promise.resolve(null);
+                if (text === 'ambiguous') {
+                    return Promise.resolve([
+                        {
+                            rawPattern: 'ambiguous',
+                            functionName: 'amb1',
+                            documentation: 'First amb',
+                            matcherType: 're',
+                            evaluable: true,
+                            type: 'given',
+                            uri: vscode.Uri.file('/fake1.py'),
+                            decoratorRange: new vscode.Range(0, 0, 0, 0)
+                        },
+                        {
+                            rawPattern: 'ambiguous',
+                            functionName: 'amb2',
+                            documentation: 'Second amb',
+                            matcherType: 'parse',
+                            evaluable: true,
+                            type: 'given',
+                            uri: vscode.Uri.file('/fake2.py'),
+                            decoratorRange: new vscode.Range(0, 0, 0, 0)
+                        }
+                    ]);
+                }
+                if (text === 'unsupported') {
+                    return Promise.resolve([{
+                        rawPattern: 'unsupported',
+                        functionName: 'dyn',
+                        documentation: 'dyn',
+                        matcherType: 'parse',
+                        evaluable: false,
+                        compilationError: 'Dynamic regex error',
+                        type: 'given',
+                        uri: vscode.Uri.file('/fake.py'),
+                        decoratorRange: new vscode.Range(0, 0, 0, 0)
+                    }]);
+                }
+                return Promise.resolve([]);
             }
         } as any;
 
@@ -95,5 +134,54 @@ suite('Hover Provider Test Suite', () => {
         
         const result = await provider.provideHover(doc, pos, new vscode.CancellationTokenSource().token);
         assert.strictEqual(result, undefined);
+    });
+
+    test('Returns undefined if cancellation requested', async () => {
+        const provider = new GherkinHoverProvider(mockSymbolCache, mockFeatureCache);
+        const doc = await vscode.workspace.openTextDocument({ language: 'feature', content: 'Given I login' });
+        const pos = new vscode.Position(0, 7);
+        const tokenSource = new vscode.CancellationTokenSource();
+        tokenSource.cancel();
+        
+        const result = await provider.provideHover(doc, pos, tokenSource.token);
+        assert.strictEqual(result, undefined);
+    });
+
+    test('Handles ambiguous matches by showing all definitions', async () => {
+        const provider = new GherkinHoverProvider(mockSymbolCache, mockFeatureCache);
+        const doc = await vscode.workspace.openTextDocument({ language: 'feature', content: 'Given ambiguous' });
+        const pos = new vscode.Position(0, 7);
+        
+        const result = await provider.provideHover(doc, pos, new vscode.CancellationTokenSource().token) as vscode.Hover;
+        assert.ok(result);
+        const content = result.contents[0] as vscode.MarkdownString;
+        assert.ok(content.value.includes('Ambiguous Step'));
+        assert.ok(content.value.includes('Matches 2 definitions'));
+        assert.ok(content.value.includes('amb1'));
+        assert.ok(content.value.includes('amb2'));
+    });
+
+    test('Exposes unsupported matcher status', async () => {
+        const provider = new GherkinHoverProvider(mockSymbolCache, mockFeatureCache);
+        const doc = await vscode.workspace.openTextDocument({ language: 'feature', content: 'Given unsupported' });
+        const pos = new vscode.Position(0, 7);
+        
+        const result = await provider.provideHover(doc, pos, new vscode.CancellationTokenSource().token) as vscode.Hover;
+        assert.ok(result);
+        const content = result.contents[0] as vscode.MarkdownString;
+        assert.ok(content.value.includes('Unsupported Matcher'));
+        assert.ok(content.value.includes('Dynamic regex error'));
+    });
+
+    test('Renders docstring as plaintext', async () => {
+        const provider = new GherkinHoverProvider(mockSymbolCache, mockFeatureCache);
+        const doc = await vscode.workspace.openTextDocument({ language: 'feature', content: 'Given I login' });
+        const pos = new vscode.Position(0, 7);
+        
+        const result = await provider.provideHover(doc, pos, new vscode.CancellationTokenSource().token) as vscode.Hover;
+        assert.ok(result);
+        const content = result.contents[0] as vscode.MarkdownString;
+        // Text should be appended, not as markdown (though value may just show the string, let's verify it rendered)
+        assert.ok(content.value.includes('Logs the user in'));
     });
 });

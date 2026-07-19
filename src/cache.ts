@@ -199,11 +199,6 @@ export class SymbolCache {
         return matches;
     }
 
-    public async getStepDefinition(stepText: string, semanticType?: 'given' | 'when' | 'then' | 'step'): Promise<StepDefinition | null> {
-        const matches = await this.getStepDefinitions(stepText, semanticType);
-        return matches.length > 0 ? matches[0] : null;
-    }
-
     public async getAllStepDefinitions(semanticType?: 'given' | 'when' | 'then' | 'step'): Promise<StepDefinition[]> {
         await this.initialize();
         const definitions: StepDefinition[] = [];
