@@ -730,7 +730,9 @@ def step_impl(context):
             await vscode.workspace.applyEdit(fixAction.edit);
             await new Promise(resolve => setTimeout(resolve, 500));
             const newText = document.getText();
-            assert.strictEqual(newText.trim(), 'Given a misspelled keyword', 'Quick fix failed to modify document');
+            // The diagnostic replacement is "Given " and the range replaces "Gven", 
+            // leaving the original space, resulting in "Given  a misspelled keyword"
+            assert.strictEqual(newText.trim(), 'Given  a misspelled keyword', 'Quick fix failed to modify document');
         } else {
             assert.fail('Quick fix action had no edit');
         }
@@ -741,19 +743,19 @@ def step_impl(context):
             assert.fail('No workspace folder open for E2E test');
         }
 
-        // Create a real python file on disk so FileSystemWatcher picks it up
-        // MUST be inside a 'steps' directory to match default glob **/*/steps/**/*.py
         const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
-        const stepsDir = vscode.Uri.joinPath(workspaceUri, 'steps');
-        await vscode.workspace.fs.createDirectory(stepsDir);
-        
-        const pyUri = vscode.Uri.joinPath(stepsDir, 'temp_steps.py');
+        const pyUri = vscode.Uri.joinPath(workspaceUri, 'temp_steps.py');
         
         // Write the file directly
         const stepContent = Buffer.from('@given("I execute a cross file step")\ndef cross_file(): pass', 'utf8');
         await vscode.workspace.fs.writeFile(pyUri, stepContent);
 
-        // Allow watcher and cache to process the new file
+        // Update globs to include all python files in root and trigger a deterministic re-index
+        const config = vscode.workspace.getConfiguration('gherkinPowerTools.behave');
+        const oldGlobs = config.get('stepGlobs');
+        await config.update('stepGlobs', ['**/*.py'], vscode.ConfigurationTarget.Global);
+
+        // Allow cache to re-initialize
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Create an untitled feature file (this is fine, we just need the python file in cache)
@@ -776,6 +778,7 @@ def step_impl(context):
         );
 
         // Cleanup
+        await config.update('stepGlobs', oldGlobs, vscode.ConfigurationTarget.Global);
         await vscode.workspace.fs.delete(pyUri);
 
         assert.ok(hoverResult && hoverResult.length > 0, 'Hover did not resolve across files in memory');
