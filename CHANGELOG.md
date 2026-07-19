@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **AST-Scoped Range Formatting**: Range formatting (Format Selection) now natively parses the Abstract Syntax Tree to identify the smallest logical node encompassing your selection. Selecting a partial `DataTable`, a multi-line `DocString`, or a block of steps now correctly re-formats the entire structural element atomically, guaranteeing perfect vertical alignment.
 - **Configurable Tag Sorting**: Tag wrapping is now fully decoupled from sorting. By default, the formatter will preserve your original tag order (including duplicates). Added `gherkinPowerTools.tags.sort` setting to optionally sort tags alphabetically.
 - **Remote Workspace Compatibility**: Feature files are now parsed correctly over virtual filesystems (e.g., GitHub Codespaces, SSH, and remote tunnels) using VS Code's native `workspace.fs` API.
+- **Semantic Context-Aware Navigation**: Go To Definition and Hover providers now fully respect strict `Given/When/Then` matching and dynamically resolve `And`/`But` continuations backwards through the scenario.
+- **Ambiguous Step Resolution**: If a step matches multiple Python definitions (e.g., overlapping wildcard regular expressions), Go To Definition now opens a Peek View showing all matches instead of arbitrarily jumping to the first one. The Hover provider also enumerates all matching signatures.
+- **Safe Hover Docstrings**: Python docstrings rendered in the Hover widget are now strictly displayed as plain untrusted text, preventing accidental markdown injection or rendering glitches.
+- **Unsupported Matcher Transparency**: The Hover provider now explicitly warns you if a step definition uses Python-specific regex capabilities (like lookbehinds) that cannot be dynamically evaluated by the extension.
 - **Robust Parsing Fallback**: If a feature file contains severe syntax errors, the cache will now gracefully downgrade to a "Partial" state and salvage any parsable scenarios, while displaying an inline warning in the hover widget.
 
 ### 🛠️ Changed
