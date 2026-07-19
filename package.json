@@ -110,6 +110,19 @@
             "**/env/**"
           ],
           "description": "Glob patterns to ignore when locating Python/Behave step definition files."
+        },
+        "gherkinPowerTools.behave.additionalArguments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional arguments to pass to Behave when executing via CodeLens."
+        },
+        "gherkinPowerTools.behave.command": {
+          "type": "string",
+          "default": "behave",
+          "description": "The base command to run Behave."
         }
       }
     },
@@ -121,6 +134,26 @@
       {
         "command": "gherkinPowerTools.showStatistics",
         "title": "Gherkin: Show Project Statistics"
+      },
+      {
+        "command": "gherkinPowerTools.runFeature",
+        "title": "Run Feature",
+        "category": "Gherkin"
+      },
+      {
+        "command": "gherkinPowerTools.runScenario",
+        "title": "Run Scenario",
+        "category": "Gherkin"
+      },
+      {
+        "command": "gherkinPowerTools.runFeatureWithArgs",
+        "title": "Edit Feature...",
+        "category": "Gherkin"
+      },
+      {
+        "command": "gherkinPowerTools.runScenarioWithArgs",
+        "title": "Edit Scenario...",
+        "category": "Gherkin"
       }
     ],
     "menus": {

@@ -74,6 +74,19 @@
           },
           "default": ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"],
           "description": "Glob patterns to ignore when locating Python/Behave step definition files."
+        },
+        "additionalArguments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional arguments to pass to Behave when executing via CodeLens."
+        },
+        "command": {
+          "type": "string",
+          "default": "behave",
+          "description": "The base command to run Behave."
         }
       }
     }

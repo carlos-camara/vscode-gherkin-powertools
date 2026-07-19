@@ -11,6 +11,8 @@ import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 import { GherkinCompletionProvider } from './completion';
 import { GherkinHoverProvider } from './hover';
 import { discoveryService } from './discovery';
+import { runBehave, runBehaveWithPrompt } from './execution';
+import { BehaveCodeLensProvider } from './codelens';
 
 import { ConfigurationService } from './configuration';
 
@@ -117,6 +119,28 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('gherkinPowerTools.createStepDefinition', createStepDefinition)
     );
+
+    // Register Behave execution commands
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.runFeature', (uri: vscode.Uri) => {
+            runBehave(uri, undefined, configService);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.runScenario', (uri: vscode.Uri, line: number) => {
+            runBehave(uri, line, configService);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.runFeatureWithArgs', (uri: vscode.Uri) => {
+            runBehaveWithPrompt(uri, undefined, configService);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.runScenarioWithArgs', (uri: vscode.Uri, line: number) => {
+            runBehaveWithPrompt(uri, line, configService);
+        })
+    );
     
     context.subscriptions.push(linter);
 
@@ -204,6 +228,10 @@ export async function activate(context: vscode.ExtensionContext) {
                 {
                     providedCodeActionKinds: GherkinCodeActionProvider.providedCodeActionKinds
                 }
+            ),
+            vscode.languages.registerCodeLensProvider(
+                { language },
+                new BehaveCodeLensProvider()
             )
         );
     });

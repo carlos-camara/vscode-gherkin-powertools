@@ -7,7 +7,7 @@ export interface Configuration {
     tables: { alignToKeyword: boolean; };
     tags: { format: 'wrap' | 'singleLine'; sort: 'preserve' | 'alphabetical'; };
     emptyLines: { betweenScenarios: number; };
-    behave: { stepGlobs: string[]; ignoreGlobs: string[]; };
+    behave: { stepGlobs: string[]; ignoreGlobs: string[]; additionalArguments: string[]; command: string; };
 }
 
 export const DEFAULT_CONFIG: Configuration = {
@@ -17,7 +17,9 @@ export const DEFAULT_CONFIG: Configuration = {
     emptyLines: { betweenScenarios: 1 },
     behave: {
         stepGlobs: ["**/steps/**/*.py", "**/features/steps/**/*.py"],
-        ignoreGlobs: ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"]
+        ignoreGlobs: ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"],
+        additionalArguments: [],
+        command: "behave"
     }
 };
 
@@ -110,12 +112,19 @@ export function validateAndMergeConfig(parsed: any): { errors: ConfigError[], co
             }
         } else if (key === 'behave') {
             for (const subKey of Object.keys(section)) {
-                if (subKey === 'stepGlobs' || subKey === 'ignoreGlobs') {
+                if (subKey === 'stepGlobs' || subKey === 'ignoreGlobs' || subKey === 'additionalArguments') {
                     if (!Array.isArray(section[subKey]) || !section[subKey].every((i: any) => typeof i === 'string')) {
                         errors.push({ key: subKey, message: `"behave.${subKey}" must be an array of strings.` });
                     } else {
                         if (subKey === 'stepGlobs') { config.behave.stepGlobs = section[subKey]; }
                         if (subKey === 'ignoreGlobs') { config.behave.ignoreGlobs = section[subKey]; }
+                        if (subKey === 'additionalArguments') { config.behave.additionalArguments = section[subKey]; }
+                    }
+                } else if (subKey === 'command') {
+                    if (typeof section[subKey] !== 'string') {
+                        errors.push({ key: subKey, message: `"behave.command" must be a string.` });
+                    } else {
+                        config.behave.command = section[subKey];
                     }
                 } else {
                     errors.push({ key: subKey, message: `Unknown property in behave: "${subKey}".` });
@@ -226,6 +235,12 @@ export class ConfigurationService {
 
         const ignoreGlobs = workspaceConfig.get<string[]>('behave.ignoreGlobs');
         if (ignoreGlobs !== undefined) config.behave.ignoreGlobs = ignoreGlobs;
+
+        const additionalArguments = workspaceConfig.get<string[]>('behave.additionalArguments');
+        if (additionalArguments !== undefined) config.behave.additionalArguments = additionalArguments;
+
+        const command = workspaceConfig.get<string>('behave.command');
+        if (command !== undefined) config.behave.command = command;
 
         return config;
     }

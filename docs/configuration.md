@@ -13,6 +13,8 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 | `gherkinPowerTools.tags.sort` | `"preserve"` | Choose `"preserve"` to keep their original source order, or `"alphabetical"` to sort them A-Z. |
 | `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py"]` | An array of glob patterns pointing to Python files that contain Behave steps. Used for linking, hovers, linting, and autocomplete. |
 | `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**"]` | An array of glob patterns to exclude from step discovery. |
+| `gherkinPowerTools.behave.additionalArguments` | `[]` | Additional flags passed to Behave when executing via CodeLens. |
+| `gherkinPowerTools.behave.command` | `"behave"` | The base command used to run Behave when executing via CodeLens. |
 
 <br>
 
@@ -32,6 +34,10 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
     "gherkinPowerTools.behave.stepGlobs": [
         "**/steps/**/*.py",
         "**/other_steps/**/*.py"
+    ],
+    "gherkinPowerTools.behave.command": "poetry run behave",
+    "gherkinPowerTools.behave.additionalArguments": [
+        "--no-capture"
     ]
 }
 ```
@@ -74,7 +80,9 @@ The extension provides full JSON schema validation, autocompletion, and hover do
         "ignoreGlobs": [
             "**/node_modules/**",
             "**/.venv/**"
-        ]
+        ],
+        "command": "behave",
+        "additionalArguments": []
     }
 }
 ```

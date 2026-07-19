@@ -63,6 +63,7 @@ nav:
       - Formatter: features/formatter.md
       - Linter: features/linter.md
       - Go To Definition: features/definition.md
+      - Behave Execution: features/execution.md
       - Outline Provider: features/outline.md
       - Statistics Dashboard: features/statistics.md
       - Syntax Highlighting: features/highlighting.md
