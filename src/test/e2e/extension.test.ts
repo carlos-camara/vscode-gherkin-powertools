@@ -663,4 +663,113 @@ def step_impl(context):
         // This test ensures it doesn't crash and returns the list.
         // It should technically return 'when' completions because it inherits from 'When'.
     });
+
+    test('Simulate Dynamic Configuration Workflow (Settings update without reload)', async () => {
+        const uri = vscode.Uri.parse('untitled:config_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        const initialContent = 'Feature: F\nScenario: S\nGiven step';
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), initialContent);
+        });
+
+        // 1. Change settings dynamically
+        const config = vscode.workspace.getConfiguration('gherkinPowerTools');
+        const oldIndent = config.get('indentation.steps');
+        await config.update('indentation.steps', 8, vscode.ConfigurationTarget.Global);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // 2. Format
+        await vscode.commands.executeCommand('editor.action.formatDocument');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const newText = document.getText();
+        assert.ok(newText.includes('        Given step'), 'Dynamic configuration update failed to apply instantly to the formatter');
+
+        // Restore
+        await config.update('indentation.steps', oldIndent, vscode.ConfigurationTarget.Global);
+    });
+
+    test('Simulate Diagnostic to QuickFix Pipeline (End to End)', async () => {
+        const uri = vscode.Uri.parse('untitled:quickfix_pipeline.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        // Typo in keyword
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Gven a misspelled keyword');
+        });
+
+        // Wait for linter (debounce is ~100ms, wait 1000ms just in case)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Get diagnostics
+        const diags = vscode.languages.getDiagnostics(document.uri);
+        assert.ok(diags.length > 0, 'No diagnostics appeared for misspelled keyword');
+
+        // Get code actions
+        const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider',
+            document.uri,
+            diags[0].range,
+            { diagnostics: diags }
+        );
+
+        assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for misspelling');
+        
+        const fixAction = codeActions.find(a => a.title === "Change to 'Given'");
+        assert.ok(fixAction, 'Did not find the "Change to \'Given\'" quick fix');
+
+        // Apply fix (WorkspaceEdit)
+        if (fixAction.edit) {
+            await vscode.workspace.applyEdit(fixAction.edit);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const newText = document.getText();
+            assert.strictEqual(newText.trim(), 'Given a misspelled keyword', 'Quick fix failed to modify document');
+        } else {
+            assert.fail('Quick fix action had no edit');
+        }
+    });
+
+    test('Simulate Cross-file E2E Cache Resolution', async () => {
+        // Create an untitled python file and fake a step definition
+        const pyUri = vscode.Uri.parse('untitled:steps.py');
+        const pyDoc = await vscode.workspace.openTextDocument(pyUri);
+        const pyEditor = await vscode.window.showTextDocument(pyDoc, { viewColumn: vscode.ViewColumn.Beside });
+        await vscode.languages.setTextDocumentLanguage(pyDoc, 'python');
+
+        await pyEditor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), '@given("I execute a cross file step")\ndef cross_file(): pass');
+        });
+
+        // Allow cache to process the new text (SymbolCache uses open document text)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Create an untitled feature file
+        const featUri = vscode.Uri.parse('untitled:cross.feature');
+        const featDoc = await vscode.workspace.openTextDocument(featUri);
+        const featEditor = await vscode.window.showTextDocument(featDoc, { viewColumn: vscode.ViewColumn.One });
+        await vscode.languages.setTextDocumentLanguage(featDoc, 'feature');
+
+        await featEditor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Given I execute a cross file step');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Execute Hover provider
+        const hoverResult = await vscode.commands.executeCommand<vscode.Hover[]>(
+            'vscode.executeHoverProvider',
+            featDoc.uri,
+            new vscode.Position(0, 8)
+        );
+
+        assert.ok(hoverResult && hoverResult.length > 0, 'Hover did not resolve across files in memory');
+        const content = hoverResult[0].contents[0] as vscode.MarkdownString;
+        assert.ok(content.value.includes('cross_file'), 'Hover did not contain the function name');
+    });
 });

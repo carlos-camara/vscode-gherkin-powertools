@@ -45,4 +45,55 @@ suite('Parser Architecture Test Suite', () => {
         assert.strictEqual(validResult.errors.length, 0);
         assert.ok(invalidResult.errors.length > 0, 'Invalid text should have errors');
     });
+
+    test('should handle extremely malformed documents gracefully', async () => {
+        const text = `Feature:
+  | table | without | closing
+  | just | some | | | pipes
+  @tag
+  Garbage
+  Garbage
+  Scenario:
+    Given something
+  @tag2
+  `;
+        const result = await parseGherkin(text);
+        // The AST might be null entirely if it can't parse anything meaningful
+        assert.ok(result.errors.length > 0, 'Should contain syntax errors');
+    });
+
+    test('should parse documents with mixed line endings identically', async () => {
+        const textLF = 'Feature: F\n  Scenario: S\n    Given step\n';
+        const textCRLF = 'Feature: F\r\n  Scenario: S\r\n    Given step\r\n';
+        
+        const [resultLF, resultCRLF] = await Promise.all([
+            parseGherkin(textLF),
+            parseGherkin(textCRLF)
+        ]);
+
+        assert.strictEqual(resultLF.errors.length, 0);
+        assert.strictEqual(resultCRLF.errors.length, 0);
+        // The AST should be equivalent in terms of feature name and scenario name
+        assert.strictEqual(resultLF.document?.feature?.name, resultCRLF.document?.feature?.name);
+        assert.strictEqual(
+            resultLF.document?.feature?.children[0]?.scenario?.name,
+            resultCRLF.document?.feature?.children[0]?.scenario?.name
+        );
+    });
+
+    test('stress test: should parse large documents without crashing', async () => {
+        // Build a 5000 line feature file
+        let text = 'Feature: Large feature\n';
+        for (let i = 0; i < 1000; i++) {
+            text += `  Scenario: Scenario ${i}\n    Given step ${i}\n    When action ${i}\n    Then result ${i}\n`;
+        }
+
+        const startTime = Date.now();
+        const result = await parseGherkin(text);
+        const duration = Date.now() - startTime;
+
+        assert.strictEqual(result.errors.length, 0);
+        assert.ok(result.document?.feature?.children.length === 1000, 'Should parse all 1000 scenarios');
+        assert.ok(duration < 2000, `Parsing should be relatively fast, took ${duration}ms`);
+    });
 });

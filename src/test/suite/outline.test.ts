@@ -95,4 +95,63 @@ Feature: Test
         const symbols = await provider.provideDocumentSymbols(doc, null as any);
         assert.deepStrictEqual(symbols, []);
     });
+
+    test('Handles Scenario Outline with missing Examples gracefully', async () => {
+        const text = `
+Feature: Test
+  Scenario Outline: Missing examples
+    Given I have <thing>
+        `.trim();
+        const doc = createMockDocument(text);
+        const symbols = await provider.provideDocumentSymbols(doc, null as any);
+        
+        assert.ok(symbols);
+        assert.strictEqual(symbols.length, 1);
+        const featureSymbol = symbols[0];
+        assert.strictEqual(featureSymbol.children.length, 1);
+        assert.strictEqual(featureSymbol.children[0].name, 'Scenario Outline: Missing examples');
+        // Steps are nested inside the Scenario Outline even without Examples
+        assert.strictEqual(featureSymbol.children[0].children.length, 1);
+    });
+
+    test('Handles multiple Feature blocks gracefully', async () => {
+        // Technically invalid Gherkin, but the parser returns a partial document usually 
+        // with the first Feature.
+        const text = `
+Feature: First Feature
+  Scenario: S1
+    Given step 1
+Feature: Second Feature
+  Scenario: S2
+    Given step 2
+        `.trim();
+        const doc = createMockDocument(text);
+        const symbols = await provider.provideDocumentSymbols(doc, null as any);
+        
+        // DocumentSymbolProvider should return whatever the AST yields
+        assert.ok(symbols);
+        assert.strictEqual(symbols.length, 1);
+        assert.strictEqual(symbols[0].name, 'Feature: First Feature');
+    });
+
+    test('Handles Background placed incorrectly gracefully', async () => {
+        // Background placed after a Scenario
+        const text = `
+Feature: Test
+  Scenario: S1
+    Given step
+  Background: Misplaced
+    Given background step
+        `.trim();
+        const doc = createMockDocument(text);
+        const symbols = await provider.provideDocumentSymbols(doc, null as any);
+        
+        assert.ok(symbols);
+        assert.strictEqual(symbols.length, 1);
+        const featureSymbol = symbols[0];
+        // The Gherkin AST parser usually drops elements that are placed illegally, 
+        // such as a Background after a Scenario, so it only has 1 child.
+        assert.strictEqual(featureSymbol.children.length, 1);
+        assert.strictEqual(featureSymbol.children[0].name, 'Scenario: S1');
+    });
 });
