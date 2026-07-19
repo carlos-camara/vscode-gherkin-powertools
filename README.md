@@ -342,8 +342,8 @@ For Python/Behave navigation, ensure your step files match the default glob patt
 | Quick Fix | <kbd>⌘.</kbd> | <kbd>Ctrl+.</kbd> |
 | Go to Definition | <kbd>⌘Click</kbd> | <kbd>Ctrl+Click</kbd> / <kbd>F12</kbd> |
 | Trigger IntelliSense | <kbd>⌃Space</kbd> | <kbd>Ctrl+Space</kbd> |
-| Diagnose Workspace | _Command Palette_ | `Gherkin: Diagnose Workspace (First-Run Layout Detection)` |
-| Project Statistics | _Command Palette_ | `Gherkin: Show Project Statistics` |
+| Diagnose Workspace | *Command Palette* | `Gherkin: Diagnose Workspace (First-Run Layout Detection)` |
+| Project Statistics | *Command Palette* | `Gherkin: Show Project Statistics` |
 
 ---
 
