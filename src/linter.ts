@@ -258,7 +258,7 @@ export class GherkinLinter {
                                 const ruleScenario = ruleChild.scenario || ruleChild.background;
                                 if (ruleScenario) {
                                     await this.checkSteps(ruleScenario.steps || [], diagnostics, document);
-                                    this.checkScenarioExamples(ruleChild.scenario, diagnostics, document);
+                                    this.checkScenarioExamples(ruleChild.scenario, diagnostics, document, errors);
                                     this.checkDescription(ruleScenario, diagnostics, document, scenarioExpectedKeywords, blockKeywords);
                                 }
                             }
@@ -267,7 +267,7 @@ export class GherkinLinter {
                         const scenario = child.scenario || child.background;
                         if (scenario) {
                             await this.checkSteps(scenario.steps || [], diagnostics, document);
-                            this.checkScenarioExamples(child.scenario, diagnostics, document);
+                            this.checkScenarioExamples(child.scenario, diagnostics, document, errors);
                             this.checkDescription(scenario, diagnostics, document, scenarioExpectedKeywords, blockKeywords);
                         }
                     }
@@ -310,19 +310,22 @@ export class GherkinLinter {
             
             if (trimmed.startsWith('#')) continue;
             
-            // Check if line starts with any Scenario keyword + ':'
+            // Check if line starts with any Scenario keyword + ':' for strict matching,
+            // but also clear the state if we see the keyword WITHOUT a colon to prevent
+            // false positives when syntax errors (missing colons) are present.
             const isScenario = scenarioKeywords.some((k: string) => trimmed.startsWith(k + ':'));
-            const isScenarioOutline = scenarioOutlineKeywords.some((k: string) => trimmed.startsWith(k + ':'));
+            
+            // To clear the state, we check if it starts with the keyword + space or just the keyword
+            const isScenarioOutlineLike = scenarioOutlineKeywords.some((k: string) => trimmed.startsWith(k));
+            const isOtherBlockLike = otherBlockKeywords.some((k: string) => trimmed.startsWith(k));
+            
             const isExamples = examplesKeywords.some((k: string) => trimmed.startsWith(k + ':'));
-            const isOtherBlock = otherBlockKeywords.some((k: string) => trimmed.startsWith(k + ':'));
             
             if (isScenario) {
                 currentScenarioLine = i;
                 const matchKeyword = scenarioKeywords.find((k: string) => trimmed.startsWith(k + ':')) || 'Scenario';
                 currentScenarioStartChar = line.indexOf(matchKeyword + ':');
-            } else if (isScenarioOutline) {
-                currentScenarioLine = -1; 
-            } else if (isOtherBlock) {
+            } else if (isScenarioOutlineLike || isOtherBlockLike) {
                 currentScenarioLine = -1;
             } else if (isExamples) {
                 if (currentScenarioLine !== -1) {
@@ -462,12 +465,24 @@ export class GherkinLinter {
         }
     }
 
-    private checkScenarioExamples(scenario: any, diagnostics: vscode.Diagnostic[], document: vscode.TextDocument) {
+    private checkScenarioExamples(scenario: any, diagnostics: vscode.Diagnostic[], document: vscode.TextDocument, errors: any[]) {
         const dialect = dialectService.getDialect(document);
         const scenarioKeywords = dialect.scenario.map(k => k.trim());
         const examplesKeywords = dialect.examples.map(k => k.trim());
         
         if (scenario && scenario.keyword && scenarioKeywords.includes(scenario.keyword.trim()) && scenario.examples && scenario.examples.length > 0) {
+            // Suppress this semantic error if there are syntax errors between the Scenario and the Examples.
+            // This prevents false positives when a missing colon on a 'Scenario Outline' causes the parser
+            // to attach its 'Examples' to the preceding valid 'Scenario'.
+            const hasErrorBetween = errors.some(e => 
+                e.location && 
+                e.location.line >= scenario.location.line && 
+                e.location.line <= scenario.examples[0].location.line
+            );
+            if (hasErrorBetween) {
+                return;
+            }
+
             const lineIndex = Math.max(0, scenario.location.line - 1);
             const startChar = Math.max(0, scenario.location.column - 1);
             const endChar = startChar + scenario.keyword.length;
