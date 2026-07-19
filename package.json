@@ -142,6 +142,89 @@
         "language": "feature",
         "path": "./snippets.json"
       }
+    ],
+    "walkthroughs": [
+      {
+        "id": "gherkinPowerTools.walkthrough",
+        "title": "Get Started with Gherkin PowerTools",
+        "description": "Learn how to format, lint, and navigate your BDD features.",
+        "steps": [
+          {
+            "id": "openFeature",
+            "title": "Open or create a feature file",
+            "description": "Open a `.feature` file to activate Gherkin PowerTools.",
+            "media": {
+              "markdown": "assets/walkthrough/1_open.md"
+            }
+          },
+          {
+            "id": "formatDocument",
+            "title": "Format your Gherkin",
+            "description": "Format your features to align tables and standardize indentation. [Format Document](command:editor.action.formatDocument)",
+            "media": {
+              "markdown": "assets/walkthrough/2_format.md"
+            },
+            "completionEvents": [
+              "onCommand:editor.action.formatDocument"
+            ]
+          },
+          {
+            "id": "formatOnSave",
+            "title": "Enable Format on Save",
+            "description": "Save time by enabling VS Code's Format on Save setting for Gherkin files. [Open Settings](command:workbench.action.openSettings?%22%5Bfeature%5D%20editor.formatOnSave%22)",
+            "media": {
+              "markdown": "assets/walkthrough/3_formatOnSave.md"
+            },
+            "completionEvents": [
+              "onSettingChanged:editor.formatOnSave"
+            ]
+          },
+          {
+            "id": "configureGlobs",
+            "title": "Configure Behave Step Discovery",
+            "description": "If your Python steps are not in the default `features/steps` folder, update the Step Globs setting. [Configure Step Globs](command:workbench.action.openSettings?%22gherkinPowerTools.behave.stepGlobs%22)",
+            "media": {
+              "markdown": "assets/walkthrough/4_discovery.md"
+            },
+            "completionEvents": [
+              "onSettingChanged:gherkinPowerTools.behave.stepGlobs"
+            ]
+          },
+          {
+            "id": "goToDefinition",
+            "title": "Navigate to Python Steps",
+            "description": "Right-click a step and select **Go to Definition** (F12) to jump straight to the Python implementation. [Go to Definition](command:editor.action.revealDefinition)",
+            "media": {
+              "markdown": "assets/walkthrough/5_navigation.md"
+            },
+            "completionEvents": [
+              "onCommand:editor.action.revealDefinition"
+            ]
+          },
+          {
+            "id": "projectStatistics",
+            "title": "View BDD Statistics",
+            "description": "Generate an interactive HTML dashboard with your BDD project metrics. [Show Statistics](command:gherkinPowerTools.showStatistics)",
+            "media": {
+              "markdown": "assets/walkthrough/6_statistics.md"
+            },
+            "completionEvents": [
+              "onCommand:gherkinPowerTools.showStatistics"
+            ]
+          },
+          {
+            "id": "documentation",
+            "title": "Find Documentation & Support",
+            "description": "Read the full documentation or ask questions on our GitHub Discussions. [Open Repository](https://github.com/carlos-camara/vscode-gherkin-powertools)",
+            "media": {
+              "markdown": "assets/walkthrough/7_support.md"
+            },
+            "completionEvents": [
+              "onLink:https://github.com/carlos-camara/vscode-gherkin-powertools"
+            ]
+          }
+        ]
+      }
     ]
   },
   "scripts": {
