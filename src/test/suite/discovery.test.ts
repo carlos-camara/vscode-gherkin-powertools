@@ -7,6 +7,14 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
 
     setup(() => {
         service = new BehaveFileDiscoveryService();
+        service.configService = {
+            getConfiguration: () => ({
+                behave: {
+                    stepGlobs: ['**/steps/**/*.py', '**/features/steps/**/*.py'],
+                    ignoreGlobs: ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**']
+                }
+            })
+        } as any;
     });
 
     test('normalizeGlobs returns defaults when provided invalid or empty inputs', () => {
@@ -71,17 +79,18 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
     });
 
     test('setupWatchers deduplicates globs', () => {
-        const originalGetConfiguration = vscode.workspace.getConfiguration;
         const originalCreateFileSystemWatcher = vscode.workspace.createFileSystemWatcher;
 
         let createdWatchers = 0;
 
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['**/steps/**/*.py', '**/steps/**/*.py'];
-                return undefined;
-            }
-        } as any);
+        service.configService = {
+            getConfiguration: () => ({
+                behave: {
+                    stepGlobs: ['**/steps/**/*.py', '**/steps/**/*.py'],
+                    ignoreGlobs: []
+                }
+            })
+        } as any;
 
         (vscode.workspace as any).createFileSystemWatcher = () => {
             createdWatchers++;
@@ -99,36 +108,34 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
 
         service.disposeWatchers();
 
-        vscode.workspace.getConfiguration = originalGetConfiguration;
         (vscode.workspace as any).createFileSystemWatcher = originalCreateFileSystemWatcher;
     });
 
     test('globPattern and excludePattern return correctly formatted strings', () => {
-        const originalGetConfiguration = vscode.workspace.getConfiguration;
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['glob1', 'glob2'];
-                if (key === 'ignoreGlobs') return ['ignore1', 'ignore2'];
-                return undefined;
-            }
-        } as any);
+        service.configService = {
+            getConfiguration: () => ({
+                behave: {
+                    stepGlobs: ['glob1', 'glob2'],
+                    ignoreGlobs: ['ignore1', 'ignore2']
+                }
+            })
+        } as any;
 
-        assert.strictEqual(service.globPattern, '{glob1,glob2}');
-        assert.strictEqual(service.excludePattern, '{ignore1,ignore2}');
+        assert.strictEqual(service.getGlobPattern(), '{glob1,glob2}');
+        assert.strictEqual(service.getExcludePattern(), '{ignore1,ignore2}');
 
         // Single glob
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['glob1'];
-                if (key === 'ignoreGlobs') return ['ignore1'];
-                return undefined;
-            }
-        } as any);
+        service.configService = {
+            getConfiguration: () => ({
+                behave: {
+                    stepGlobs: ['glob1'],
+                    ignoreGlobs: ['ignore1']
+                }
+            })
+        } as any;
 
-        assert.strictEqual(service.globPattern, 'glob1');
-        assert.strictEqual(service.excludePattern, 'ignore1');
-
-        vscode.workspace.getConfiguration = originalGetConfiguration;
+        assert.strictEqual(service.getGlobPattern(), 'glob1');
+        assert.strictEqual(service.getExcludePattern(), 'ignore1');
     });
 
     test('getStepFiles returns array of URIs', async () => {
@@ -138,20 +145,20 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
             return [vscode.Uri.file('/tmp/file1.py'), vscode.Uri.file('/tmp/file2.py')];
         };
 
-        const originalGetConfiguration = vscode.workspace.getConfiguration;
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['glob1'];
-                return undefined;
-            }
-        } as any);
+        service.configService = {
+            getConfiguration: () => ({
+                behave: {
+                    stepGlobs: ['glob1'],
+                    ignoreGlobs: []
+                }
+            })
+        } as any;
 
         const files = await service.getStepFiles();
         assert.strictEqual(files.length, 2);
         assert.ok(files.some(f => f.fsPath.includes('file1.py')));
 
         (vscode.workspace as any).findFiles = originalFindFiles;
-        vscode.workspace.getConfiguration = originalGetConfiguration;
     });
 
     test('getBestWorkspaceFolder returns undefined if no workspace folders exist', () => {

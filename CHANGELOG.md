@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🚀 Added
+- **Shared Project Configuration**: You can now create a `.gherkin-powertoolsrc.json` file in the root of your project. This allows you to enforce team-wide formatting rules, indentation, and step file discovery globs, overriding local VS Code settings. The file includes full schema validation, autocompletion, and hover documentation.
 - **Global Dialect Support for Linter (i18n)**: The semantic linter and diagnostics engine is now fully dialect-aware. It dynamically reads your `# language: [code]` header and validates syntax across 70+ languages, including localized Quick-Fix recommendations (e.g., suggesting `Fonctionnalité:` instead of `Feature:`).
 - **Context-Aware Fuzzy Matching**: The linter now evaluates structural context before offering typo corrections, eliminating aggressive false-positive diagnostics when normal English prose resembles Gherkin keywords.
 - **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.

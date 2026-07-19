@@ -38,8 +38,46 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 
 ## Workspace vs User Settings
 
-- **User Settings**: Apply globally to all your projects.
-- **Workspace Settings**: Apply only to the current project (via `.vscode/settings.json`).
+Gherkin PowerTools supports configuration at three levels, in the following order of precedence:
+
+1. **Project Settings (`.gherkin-powertoolsrc.json`)**: Apply only to the current project and can be committed to source control for team standardization.
+2. **Workspace Settings (`.vscode/settings.json`)**: Apply only to the current workspace in VS Code.
+3. **User Settings (`settings.json`)**: Apply globally to all your projects.
+
+### Shared Project Configuration
+
+You can create a standalone configuration file named `.gherkin-powertoolsrc.json` in the root of your project. This is highly recommended for teams to ensure everyone uses the same formatting and discovery rules, regardless of their editor.
+
+The extension provides full JSON schema validation, autocompletion, and hover documentation when editing this file in VS Code.
+
+**Example `.gherkin-powertoolsrc.json`:**
+```json
+{
+    "indentation": {
+        "steps": 4
+    },
+    "tables": {
+        "alignToKeyword": true
+    },
+    "tags": {
+        "format": "wrap",
+        "sort": "preserve"
+    },
+    "emptyLines": {
+        "betweenScenarios": 1
+    },
+    "behave": {
+        "stepGlobs": [
+            "**/steps/**/*.py",
+            "**/features/steps/**/*.py"
+        ],
+        "ignoreGlobs": [
+            "**/node_modules/**",
+            "**/.venv/**"
+        ]
+    }
+}
+```
 
 !!! tip "Team Standardization"
-    For team projects, commit a `.vscode/settings.json` with your preferred Gherkin PowerTools settings so all contributors use the same formatting rules.
+    Commit a `.gherkin-powertoolsrc.json` to your repository so all contributors share the same formatting rules and step discovery paths!

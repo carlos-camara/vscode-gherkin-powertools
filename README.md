@@ -349,6 +349,21 @@ For Python/Behave navigation, ensure your step files match the default glob patt
 
 Most features work without any configuration. The settings below are the ones most likely to need adjustment.
 
+**Team Standardization (Recommended):**
+Create a `.gherkin-powertoolsrc.json` in the root of your project to share settings across your team. The extension provides full autocompletion and validation for this file.
+
+```json
+{
+    "indentation": { "steps": 4 },
+    "behave": {
+        "stepGlobs": ["**/steps/**/*.py", "**/features/steps/**/*.py"]
+    }
+}
+```
+
+**VS Code User/Workspace Settings:**
+Alternatively, configure the extension via your `settings.json`. Project settings in `.gherkin-powertoolsrc.json` will override these if present.
+
 **Enable Format on Save:**
 
 ```jsonc

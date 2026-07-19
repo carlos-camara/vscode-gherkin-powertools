@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
+import { ConfigurationService } from './configuration';
 
 export class BehaveFileDiscoveryService {
     private stepWatchers: vscode.FileSystemWatcher[] = [];
+    public configService?: ConfigurationService;
 
     // Validates and normalizes an array of glob strings
     public normalizeGlobs(globs: any, defaultGlobs: string[]): string[] {
@@ -12,43 +14,55 @@ export class BehaveFileDiscoveryService {
         return validGlobs.length > 0 ? validGlobs : defaultGlobs;
     }
 
-    public get stepGlobs(): string[] {
-        const config = vscode.workspace.getConfiguration('gherkinPowerTools.behave');
-        return this.normalizeGlobs(
-            config.get('stepGlobs'),
-            ['**/steps/**/*.py', '**/features/steps/**/*.py']
-        );
+    public getStepGlobs(uri?: vscode.Uri): string[] {
+        if (this.configService) {
+            return this.configService.getConfiguration(uri).behave.stepGlobs;
+        }
+        return ['**/steps/**/*.py', '**/features/steps/**/*.py'];
     }
 
-    public get ignoreGlobs(): string[] {
-        const config = vscode.workspace.getConfiguration('gherkinPowerTools.behave');
-        return this.normalizeGlobs(
-            config.get('ignoreGlobs'),
-            ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**']
-        );
+    public getIgnoreGlobs(uri?: vscode.Uri): string[] {
+        if (this.configService) {
+            return this.configService.getConfiguration(uri).behave.ignoreGlobs;
+        }
+        return ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**'];
     }
 
-    public get globPattern(): string {
-        const globs = this.stepGlobs;
+    public getGlobPattern(uri?: vscode.Uri): string {
+        const globs = this.getStepGlobs(uri);
         return globs.length > 1 ? `{${globs.join(',')}}` : globs[0];
     }
 
-    public get excludePattern(): string {
-        const globs = this.ignoreGlobs;
+    public getExcludePattern(uri?: vscode.Uri): string {
+        const globs = this.getIgnoreGlobs(uri);
         return globs.length > 1 ? `{${globs.join(',')}}` : globs[0];
     }
 
     public async getStepFiles(): Promise<vscode.Uri[]> {
-        const stepGlobs = this.stepGlobs;
-        const excludePattern = this.excludePattern;
-        
-        // Use a Map to deduplicate Uris by string path
         const fileMap = new Map<string, vscode.Uri>();
         
-        for (const pattern of stepGlobs) {
-            const files = await vscode.workspace.findFiles(pattern, excludePattern);
-            for (const file of files) {
-                fileMap.set(file.toString(), file);
+        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+            // No workspace folders, fallback to global
+            const stepGlobs = this.getStepGlobs(undefined);
+            const excludePattern = this.getExcludePattern(undefined);
+            for (const pattern of stepGlobs) {
+                const files = await vscode.workspace.findFiles(pattern, excludePattern);
+                for (const file of files) {
+                    fileMap.set(file.toString(), file);
+                }
+            }
+            return Array.from(fileMap.values());
+        }
+
+        for (const folder of vscode.workspace.workspaceFolders) {
+            const stepGlobs = this.getStepGlobs(folder.uri);
+            const excludePattern = this.getExcludePattern(folder.uri);
+            for (const pattern of stepGlobs) {
+                const relativePattern = new vscode.RelativePattern(folder, pattern);
+                const files = await vscode.workspace.findFiles(relativePattern, excludePattern);
+                for (const file of files) {
+                    fileMap.set(file.toString(), file);
+                }
             }
         }
         
@@ -62,17 +76,28 @@ export class BehaveFileDiscoveryService {
     ): vscode.FileSystemWatcher[] {
         this.disposeWatchers();
         
-        // Deduplicate step globs
-        const uniqueGlobs = Array.from(new Set(this.stepGlobs));
-        
-        for (const pattern of uniqueGlobs) {
-            const watcher = vscode.workspace.createFileSystemWatcher(pattern);
-            
-            watcher.onDidCreate(onCreated);
-            watcher.onDidChange(onChanged);
-            watcher.onDidDelete(onDeleted);
-            
-            this.stepWatchers.push(watcher);
+        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+            const uniqueGlobs = Array.from(new Set(this.getStepGlobs(undefined)));
+            for (const pattern of uniqueGlobs) {
+                const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+                watcher.onDidCreate(onCreated);
+                watcher.onDidChange(onChanged);
+                watcher.onDidDelete(onDeleted);
+                this.stepWatchers.push(watcher);
+            }
+            return this.stepWatchers;
+        }
+
+        for (const folder of vscode.workspace.workspaceFolders) {
+            const uniqueGlobs = Array.from(new Set(this.getStepGlobs(folder.uri)));
+            for (const pattern of uniqueGlobs) {
+                const relativePattern = new vscode.RelativePattern(folder, pattern);
+                const watcher = vscode.workspace.createFileSystemWatcher(relativePattern);
+                watcher.onDidCreate(onCreated);
+                watcher.onDidChange(onChanged);
+                watcher.onDidDelete(onDeleted);
+                this.stepWatchers.push(watcher);
+            }
         }
         
         return this.stepWatchers;

@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { GherkinFormattingEditProvider, FormatterOptions } from '../../formatter';
+import { ConfigurationService } from '../../configuration';
 
 const defaultOptions: FormatterOptions = {
     stepIndentation: 2,
@@ -36,9 +37,21 @@ async function runRangeFormat(formatter: GherkinFormattingEditProvider, unformat
     return doc.getText(range); // Idempotent or no-op
 }
 
+
+const mockConfigService = new ConfigurationService({
+    name: 'mock',
+    set: () => {},
+    delete: () => {},
+    clear: () => {},
+    forEach: () => {},
+    get: () => [],
+    has: () => false,
+    dispose: () => {}
+} as any);
+
 suite('Formatter Test Suite', () => {
     test('Format simple feature and scenario with proper spacing', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: Login',
             'Scenario: Success',
@@ -64,7 +77,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Align tables dynamically to preceding step indentation and handle escaped pipes', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: Tables',
             'Scenario: Align',
@@ -86,7 +99,7 @@ suite('Formatter Test Suite', () => {
 
 
     test('Wraps long tag lists', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const tags = Array.from({ length: 10 }, (_, i) => `@tag${i}`).join(' ');
         const unformatted = [
             tags,
@@ -102,7 +115,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Preserves source order and duplicate tags by default', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             '@zebra @apple @zebra @banana',
             'Feature: Tag sorting'
@@ -114,7 +127,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Sorts tags alphabetically when configured', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             '@zebra @apple @zebra @banana',
             'Feature: Tag sorting'
@@ -132,7 +145,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Formats docstrings and standalone comments correctly', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: Docs',
             'Scenario: Docstrings',
@@ -161,7 +174,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Formats Rules, Backgrounds, and Examples', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: complex',
             'Rule: This is a rule',
@@ -191,7 +204,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Preserves parent-relative descriptions and removes trailing empty lines', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: desc',
             'this is a feature description line',
@@ -214,7 +227,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Refuses to format on invalid syntax', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'BlahBlahBlah: test',
             'This is not valid Gherkin at all'
@@ -225,7 +238,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Preserves CRLF', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = 'Feature: CRLF\r\nScenario: test\r\nGiven a step';
         const mockDocument = {
             getText: () => unformatted,
@@ -240,7 +253,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Idempotency - formatting twice yields the same output', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: Idempotency',
             '  Description',
@@ -256,7 +269,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Format feature with language header (i18n)', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             '# language: es',
             'Característica: Inicio de sesión',
@@ -275,7 +288,7 @@ suite('Formatter Test Suite', () => {
     });
 
     test('Format with custom options (no table alignment, custom step indentation)', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Scenario: S',
@@ -309,7 +322,7 @@ suite('Formatter Test Suite', () => {
 
 suite('Formatter VS Code API Wrapper Tests', () => {
     test('provideDocumentFormattingEdits checks idempotency and final newline', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         
         const textWithNewline = 'Feature: Final Newline\n';
         const mockDocument = {
@@ -337,7 +350,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: selection inside a step', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Scenario: S',
@@ -352,7 +365,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: selection across multiple steps expands to Scenario', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Scenario: S',
@@ -367,7 +380,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: table selection expands to full table', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Scenario: S',
@@ -382,7 +395,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: DocString selection', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Scenario: S',
@@ -398,7 +411,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: tags', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             '@t1 @t2 @t3',
             'Feature: F'
@@ -410,7 +423,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: Rule and formatting that inserts blank lines', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Rule: R',
@@ -428,7 +441,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: syntax errors fallback gracefully', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Scenario: S', // Missing Feature keyword causes fatal AST parser error
             'Given 1'
@@ -440,7 +453,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: selection partially inside a Table', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Scenario: S',
@@ -455,7 +468,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: selection inside Examples block expands to full Examples', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Scenario Outline: S',
@@ -473,7 +486,7 @@ suite('Formatter VS Code API Wrapper Tests', () => {
     });
 
     test('Range formatting: Background selection', async () => {
-        const formatter = new GherkinFormattingEditProvider();
+        const formatter = new GherkinFormattingEditProvider(mockConfigService);
         const unformatted = [
             'Feature: F',
             'Background:',
