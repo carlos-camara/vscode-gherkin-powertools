@@ -1,7 +1,7 @@
 {
   "name": "vscode-gherkin-powertools",
-  "displayName": "Gherkin PowerTools - Formatter & Linter",
-  "description": "Format, lint, and navigate BDD Gherkin files. Features dynamic table alignment, strict diagnostics, and Python/Behave tooling.",
+  "displayName": "Gherkin PowerTools: BDD Formatter, Linter & Python Behave",
+  "description": "Advanced BDD extension for feature files. Offers AST-based Gherkin formatting, strict linting, and context-aware Python Behave step definition navigation.",
   "version": "1.7.5",
   "engines": {
     "vscode": "^1.93.0"
@@ -13,10 +13,10 @@
   ],
   "keywords": [
     "gherkin",
-    "cucumber",
     "behave",
+    "cucumber",
     "bdd",
-    "testing"
+    "feature"
   ],
   "publisher": "carloscamara",
   "author": "Carlos Camara",
@@ -30,6 +30,10 @@
     "type": "git",
     "url": "https://github.com/carlos-camara/vscode-gherkin-powertools"
   },
+  "bugs": {
+    "url": "https://github.com/carlos-camara/vscode-gherkin-powertools/issues"
+  },
+  "homepage": "https://github.com/carlos-camara/vscode-gherkin-powertools#readme",
   "activationEvents": [
     "onLanguage:feature"
   ],
