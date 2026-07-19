@@ -1,0 +1,35 @@
+name: "⚡ Performance Problem"
+description: "Report a memory leak, high CPU usage, or slow caching/formatting."
+labels: ["performance", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us optimize the extension! Please provide as much context as possible.
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: "Describe the performance issue"
+      description: "e.g., The extension uses 1GB of memory after 1 hour, or formatting takes 10 seconds."
+    validations:
+      required: true
+  - type: textarea
+    id: workspace-size
+    attributes:
+      label: "Workspace Context"
+      description: "Roughly how many feature files or step definitions are in your workspace?"
+      placeholder: "e.g., 500 feature files, 3000 step definitions"
+    validations:
+      required: true
+  - type: input
+    id: extension-version
+    attributes:
+      label: "Extension Version"
+    validations:
+      required: true
+  - type: input
+    id: vscode-version
+    attributes:
+      label: "VS Code Version"
+    validations:
+      required: true

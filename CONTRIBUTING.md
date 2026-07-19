@@ -97,7 +97,7 @@ This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root dir
 
 <br>
 
-**ℹ️ NOTE:** *If you are planning a large feature or significant architectural change, please open an Issue or Discussion first to align with the project maintainers before writing code.*
+**ℹ️ NOTE:** *If you are planning a large feature or significant architectural change, please open an Issue or Discussion first to align with the project maintainers before writing code. Please use our structured Issue Forms to report bugs, performance problems, or feature requests before starting.*
 
 <br>
 
