@@ -6,6 +6,7 @@ const defaultOptions: FormatterOptions = {
     stepIndentation: 2,
     alignTableToKeyword: true,
     tagsFormat: 'wrap',
+    tagsSort: 'preserve',
     emptyLinesBetweenScenarios: 1
 };
 
@@ -66,8 +67,8 @@ suite('Formatter Test Suite', () => {
         const formatter = new GherkinFormattingEditProvider();
         const unformatted = [
             'Feature: Tables',
-            'Scenario: Tables',
-            'Given the following users:',
+            'Scenario: Align',
+            'Given users:',
             '|username|password|',
             '|user1|pass\\|123|',
             '|admin_user|extremely_long_password|'
@@ -76,7 +77,7 @@ suite('Formatter Test Suite', () => {
         const result = await runFormat(formatter, unformatted);
         const formatted = result.split('\n');
 
-        assert.strictEqual(formatted[3], '    Given the following users:');
+        assert.strictEqual(formatted[3], '    Given users:');
         assert.strictEqual(formatted[4], '          | username   | password                |');
         assert.strictEqual(formatted[5], '          | user1      | pass\\|123               |');
         assert.strictEqual(formatted[6], '          | admin_user | extremely_long_password |');
@@ -84,7 +85,7 @@ suite('Formatter Test Suite', () => {
 
 
 
-    test('Sorts and wraps long tag lists', async () => {
+    test('Wraps long tag lists', async () => {
         const formatter = new GherkinFormattingEditProvider();
         const tags = Array.from({ length: 10 }, (_, i) => `@tag${i}`).join(' ');
         const unformatted = [
@@ -98,6 +99,36 @@ suite('Formatter Test Suite', () => {
         assert.ok(formatted[0].length <= 80);
         assert.ok(formatted[1].length <= 80);
         assert.strictEqual(formatted[formatted.length - 1], 'Feature: Tag wrap');
+    });
+
+    test('Preserves source order and duplicate tags by default', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            '@zebra @apple @zebra @banana',
+            'Feature: Tag sorting'
+        ].join('\n');
+
+        const result = await runFormat(formatter, unformatted);
+        const formatted = result.split('\n');
+        assert.strictEqual(formatted[0], '@zebra @apple @zebra @banana');
+    });
+
+    test('Sorts tags alphabetically when configured', async () => {
+        const formatter = new GherkinFormattingEditProvider();
+        const unformatted = [
+            '@zebra @apple @zebra @banana',
+            'Feature: Tag sorting'
+        ].join('\n');
+
+        const customOptions: FormatterOptions = {
+            ...defaultOptions,
+            tagsSort: 'alphabetical'
+        };
+
+        const resultLines = await formatter.formatGherkin(unformatted, customOptions, { isCancellationRequested: false } as vscode.CancellationToken);
+        const result = resultLines ? resultLines.map(l => l.text).join('\n') : '';
+        const formatted = result.split('\n');
+        assert.strictEqual(formatted[0], '@apple @banana @zebra @zebra');
     });
 
     test('Formats docstrings and standalone comments correctly', async () => {
@@ -257,6 +288,7 @@ suite('Formatter Test Suite', () => {
             stepIndentation: 4, // 2 spaces for scenario + 4 for step = 6 spaces
             alignTableToKeyword: false, // Do not align table to "Given"
             tagsFormat: 'wrap',
+            tagsSort: 'preserve',
             emptyLinesBetweenScenarios: 1
         };
 

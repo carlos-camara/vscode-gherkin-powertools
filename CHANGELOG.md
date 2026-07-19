@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Context-Aware Fuzzy Matching**: The linter now evaluates structural context before offering typo corrections, eliminating aggressive false-positive diagnostics when normal English prose resembles Gherkin keywords.
 - **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.
 - **AST-Scoped Range Formatting**: Range formatting (Format Selection) now natively parses the Abstract Syntax Tree to identify the smallest logical node encompassing your selection. Selecting a partial `DataTable`, a multi-line `DocString`, or a block of steps now correctly re-formats the entire structural element atomically, guaranteeing perfect vertical alignment.
+- **Configurable Tag Sorting**: Tag wrapping is now fully decoupled from sorting. By default, the formatter will preserve your original tag order (including duplicates). Added `gherkinPowerTools.tags.sort` setting to optionally sort tags alphabetically.
 - **Remote Workspace Compatibility**: Feature files are now parsed correctly over virtual filesystems (e.g., GitHub Codespaces, SSH, and remote tunnels) using VS Code's native `workspace.fs` API.
 - **Robust Parsing Fallback**: If a feature file contains severe syntax errors, the cache will now gracefully downgrade to a "Partial" state and salvage any parsable scenarios, while displaying an inline warning in the hover widget.
 
