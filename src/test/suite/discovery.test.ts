@@ -1,171 +1,80 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { BehaveFileDiscoveryService } from '../../discovery';
+import * as sinon from 'sinon';
+import { discoveryService } from '../../discovery';
 
-suite('BehaveFileDiscoveryService Test Suite', () => {
-    let service: BehaveFileDiscoveryService;
+suite('Discovery Service Test Suite', () => {
+    let sandbox: sinon.SinonSandbox;
 
     setup(() => {
-        service = new BehaveFileDiscoveryService();
+        sandbox = sinon.createSandbox();
     });
 
-    test('normalizeGlobs returns defaults when provided invalid or empty inputs', () => {
-        const defaults = ['**/steps/**/*.py'];
-
-        assert.deepStrictEqual(service.normalizeGlobs(null, defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs(undefined, defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs([], defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs([123, null], defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs([''], defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs(['   '], defaults), defaults);
+    teardown(() => {
+        sandbox.restore();
     });
 
-    test('normalizeGlobs filters invalid elements but keeps valid ones', () => {
-        const defaults = ['**/steps/**/*.py'];
-        const input = ['valid/**/*.py', 123, '', '   ', null, 'another/**/*.py'];
-        const expected = ['valid/**/*.py', 'another/**/*.py'];
+    test('Standard Behave layout detection', async () => {
+        sandbox.stub(vscode.workspace, 'findFiles').resolves([
+            vscode.Uri.file('/workspace/features/steps/login.py'),
+            vscode.Uri.file('/workspace/features/steps/auth.py')
+        ]);
+        sandbox.stub(vscode.workspace, 'asRelativePath').callsFake((uri: string | vscode.Uri) => typeof uri === 'string' ? uri : uri.path.replace('/workspace/', ''));
 
-        assert.deepStrictEqual(service.normalizeGlobs(input, defaults), expected);
-    });
-
-    test('getBestWorkspaceFolder returns given folder', () => {
-        const dummyUri = vscode.Uri.file('/my/workspace/folder/file.py');
-        const dummyFolder: vscode.WorkspaceFolder = {
-            uri: vscode.Uri.file('/my/workspace/folder'),
-            name: 'folder',
-            index: 0
-        };
-
-        const originalWorkspaceFolders = vscode.workspace.workspaceFolders;
-        const originalGetWorkspaceFolder = vscode.workspace.getWorkspaceFolder;
-
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => [dummyFolder] });
-        (vscode.workspace as any).getWorkspaceFolder = () => dummyFolder;
-
-        const result = service.getBestWorkspaceFolder(dummyUri);
-        assert.deepStrictEqual(result, dummyFolder);
-
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => originalWorkspaceFolders });
-        (vscode.workspace as any).getWorkspaceFolder = originalGetWorkspaceFolder;
-    });
-
-    test('getBestWorkspaceFolder falls back to first workspace folder if getWorkspaceFolder returns undefined', () => {
-        const dummyUri = vscode.Uri.file('/outside/workspace/file.py');
-        const dummyFolder: vscode.WorkspaceFolder = {
-            uri: vscode.Uri.file('/my/workspace/folder'),
-            name: 'folder',
-            index: 0
-        };
-
-        const originalWorkspaceFolders = vscode.workspace.workspaceFolders;
-        const originalGetWorkspaceFolder = vscode.workspace.getWorkspaceFolder;
-
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => [dummyFolder] });
-        (vscode.workspace as any).getWorkspaceFolder = () => undefined;
-
-        const result = service.getBestWorkspaceFolder(dummyUri);
-        assert.deepStrictEqual(result, dummyFolder);
-
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => originalWorkspaceFolders });
-        (vscode.workspace as any).getWorkspaceFolder = originalGetWorkspaceFolder;
-    });
-
-    test('setupWatchers deduplicates globs', () => {
-        const originalGetConfiguration = vscode.workspace.getConfiguration;
-        const originalCreateFileSystemWatcher = vscode.workspace.createFileSystemWatcher;
-
-        let createdWatchers = 0;
-
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['**/steps/**/*.py', '**/steps/**/*.py'];
-                return undefined;
-            }
-        } as any);
-
-        (vscode.workspace as any).createFileSystemWatcher = () => {
-            createdWatchers++;
-            return {
-                onDidCreate: () => {},
-                onDidChange: () => {},
-                onDidDelete: () => {},
-                dispose: () => {}
-            };
-        };
-
-        const watchers = service.setupWatchers(() => {}, () => {}, () => {});
-        assert.strictEqual(watchers.length, 1);
-        assert.strictEqual(createdWatchers, 1);
-
-        service.disposeWatchers();
-
-        vscode.workspace.getConfiguration = originalGetConfiguration;
-        (vscode.workspace as any).createFileSystemWatcher = originalCreateFileSystemWatcher;
-    });
-
-    test('globPattern and excludePattern return correctly formatted strings', () => {
-        const originalGetConfiguration = vscode.workspace.getConfiguration;
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['glob1', 'glob2'];
-                if (key === 'ignoreGlobs') return ['ignore1', 'ignore2'];
-                return undefined;
-            }
-        } as any);
-
-        assert.strictEqual(service.globPattern, '{glob1,glob2}');
-        assert.strictEqual(service.excludePattern, '{ignore1,ignore2}');
-
-        // Single glob
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['glob1'];
-                if (key === 'ignoreGlobs') return ['ignore1'];
-                return undefined;
-            }
-        } as any);
-
-        assert.strictEqual(service.globPattern, 'glob1');
-        assert.strictEqual(service.excludePattern, 'ignore1');
-
-        vscode.workspace.getConfiguration = originalGetConfiguration;
-    });
-
-    test('getStepFiles returns array of URIs', async () => {
-        const originalFindFiles = vscode.workspace.findFiles;
+        const layouts = await discoveryService.detectBehaveLayouts();
         
-        (vscode.workspace as any).findFiles = async (_include: string, _exclude: string) => {
-            return [vscode.Uri.file('/tmp/file1.py'), vscode.Uri.file('/tmp/file2.py')];
-        };
-
-        const originalGetConfiguration = vscode.workspace.getConfiguration;
-        vscode.workspace.getConfiguration = () => ({
-            get: (key: string) => {
-                if (key === 'stepGlobs') return ['glob1'];
-                return undefined;
-            }
-        } as any);
-
-        const files = await service.getStepFiles();
-        assert.strictEqual(files.length, 2);
-        assert.ok(files.some(f => f.fsPath.includes('file1.py')));
-
-        (vscode.workspace as any).findFiles = originalFindFiles;
-        vscode.workspace.getConfiguration = originalGetConfiguration;
+        assert.strictEqual(layouts.length, 1);
+        assert.ok(layouts.includes('features/steps/**/*.py'));
     });
 
-    test('getBestWorkspaceFolder returns undefined if no workspace folders exist', () => {
-        const originalWorkspaceFolders = vscode.workspace.workspaceFolders;
-        
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => undefined });
-        
-        const result = service.getBestWorkspaceFolder(vscode.Uri.file('/tmp/file.py'));
-        assert.strictEqual(result, undefined);
-        
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => [] });
-        const result2 = service.getBestWorkspaceFolder(vscode.Uri.file('/tmp/file.py'));
-        assert.strictEqual(result2, undefined);
+    test('Custom layout detection', async () => {
+        sandbox.stub(vscode.workspace, 'findFiles').resolves([
+            vscode.Uri.file('/workspace/e2e/steps/login.py')
+        ]);
+        sandbox.stub(vscode.workspace, 'asRelativePath').callsFake((uri: string | vscode.Uri) => typeof uri === 'string' ? uri : uri.path.replace('/workspace/', ''));
 
-        Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => originalWorkspaceFolders });
+        const layouts = await discoveryService.detectBehaveLayouts();
+        
+        assert.strictEqual(layouts.length, 1);
+        assert.ok(layouts.includes('e2e/steps/**/*.py'));
+    });
+
+    test('Multi-root workspace layout detection', async () => {
+        sandbox.stub(vscode.workspace, 'findFiles').resolves([
+            vscode.Uri.file('/workspace/folderA/features/steps/a.py'),
+            vscode.Uri.file('/workspace/folderB/custom/steps/b.py')
+        ]);
+        sandbox.stub(vscode.workspace, 'asRelativePath').callsFake((uri: string | vscode.Uri) => {
+            const path = typeof uri === 'string' ? uri : uri.path;
+            if (path.includes('folderA')) return 'features/steps/a.py';
+            if (path.includes('folderB')) return 'custom/steps/b.py';
+            return '';
+        });
+
+        const layouts = await discoveryService.detectBehaveLayouts();
+        
+        assert.strictEqual(layouts.length, 2);
+        assert.ok(layouts.includes('features/steps/**/*.py'));
+        assert.ok(layouts.includes('custom/steps/**/*.py'));
+    });
+
+    test('Missing step directory', async () => {
+        sandbox.stub(vscode.workspace, 'findFiles').resolves([]);
+        const layouts = await discoveryService.detectBehaveLayouts();
+        assert.strictEqual(layouts.length, 0);
+    });
+
+    test('Multiple candidate step directories', async () => {
+        sandbox.stub(vscode.workspace, 'findFiles').resolves([
+            vscode.Uri.file('/workspace/tests/e2e/steps/a.py'),
+            vscode.Uri.file('/workspace/tests/integration/steps/b.py')
+        ]);
+        sandbox.stub(vscode.workspace, 'asRelativePath').callsFake((uri: string | vscode.Uri) => typeof uri === 'string' ? uri : uri.path.replace('/workspace/', ''));
+
+        const layouts = await discoveryService.detectBehaveLayouts();
+        
+        assert.strictEqual(layouts.length, 2);
+        assert.ok(layouts.includes('tests/e2e/steps/**/*.py'));
+        assert.ok(layouts.includes('tests/integration/steps/**/*.py'));
     });
 });

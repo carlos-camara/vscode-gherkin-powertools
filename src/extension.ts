@@ -89,12 +89,24 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     );
 
+    // Register the diagnose workspace command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.diagnoseWorkspace', () => {
+            discoveryService.diagnoseWorkspace(context, true);
+        })
+    );
+
     // Register the custom command for creating step definitions
     context.subscriptions.push(
         vscode.commands.registerCommand('gherkinPowerTools.createStepDefinition', createStepDefinition)
     );
     
     context.subscriptions.push(linter);
+
+    // Trigger first-run layout detection if needed
+    if (!context.globalState.get('hasRunBehaveFirstRun')) {
+        discoveryService.diagnoseWorkspace(context, false);
+    }
 
 
     const highlighter = new GherkinHighlighter();
