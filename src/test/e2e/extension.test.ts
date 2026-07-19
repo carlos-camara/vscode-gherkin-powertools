@@ -722,8 +722,8 @@ def step_impl(context):
 
         assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for misspelling');
         
-        const fixAction = codeActions.find(a => a.title === "Change to 'Given'");
-        assert.ok(fixAction, 'Did not find the "Change to \'Given\'" quick fix');
+        const fixAction = codeActions.find(a => a.title.includes("Replace with 'Given"));
+        assert.ok(fixAction, 'Did not find the "Replace with \'Given\'" quick fix');
 
         // Apply fix (WorkspaceEdit)
         if (fixAction.edit) {
@@ -742,8 +742,12 @@ def step_impl(context):
         }
 
         // Create a real python file on disk so FileSystemWatcher picks it up
+        // MUST be inside a 'steps' directory to match default glob **/*/steps/**/*.py
         const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
-        const pyUri = vscode.Uri.joinPath(workspaceUri, 'temp_steps.py');
+        const stepsDir = vscode.Uri.joinPath(workspaceUri, 'steps');
+        await vscode.workspace.fs.createDirectory(stepsDir);
+        
+        const pyUri = vscode.Uri.joinPath(stepsDir, 'temp_steps.py');
         
         // Write the file directly
         const stepContent = Buffer.from('@given("I execute a cross file step")\ndef cross_file(): pass', 'utf8');
