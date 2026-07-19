@@ -712,11 +712,12 @@ def step_impl(context):
         assert.ok(diags.length > 0, 'No diagnostics appeared for misspelled keyword');
 
         // Get code actions
+        // vscode.executeCodeActionProvider signature: uri, range, kind?, itemResolveCount?
         const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
             'vscode.executeCodeActionProvider',
             document.uri,
             diags[0].range,
-            { diagnostics: diags }
+            vscode.CodeActionKind.QuickFix.value
         );
 
         assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for misspelling');
@@ -736,20 +737,22 @@ def step_impl(context):
     });
 
     test('Simulate Cross-file E2E Cache Resolution', async () => {
-        // Create an untitled python file and fake a step definition
-        const pyUri = vscode.Uri.parse('untitled:steps.py');
-        const pyDoc = await vscode.workspace.openTextDocument(pyUri);
-        const pyEditor = await vscode.window.showTextDocument(pyDoc, { viewColumn: vscode.ViewColumn.Beside });
-        await vscode.languages.setTextDocumentLanguage(pyDoc, 'python');
+        if (!vscode.workspace.workspaceFolders) {
+            assert.fail('No workspace folder open for E2E test');
+        }
 
-        await pyEditor.edit(editBuilder => {
-            editBuilder.insert(new vscode.Position(0, 0), '@given("I execute a cross file step")\ndef cross_file(): pass');
-        });
+        // Create a real python file on disk so FileSystemWatcher picks it up
+        const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
+        const pyUri = vscode.Uri.joinPath(workspaceUri, 'temp_steps.py');
+        
+        // Write the file directly
+        const stepContent = Buffer.from('@given("I execute a cross file step")\ndef cross_file(): pass', 'utf8');
+        await vscode.workspace.fs.writeFile(pyUri, stepContent);
 
-        // Allow cache to process the new text (SymbolCache uses open document text)
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Allow watcher and cache to process the new file
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Create an untitled feature file
+        // Create an untitled feature file (this is fine, we just need the python file in cache)
         const featUri = vscode.Uri.parse('untitled:cross.feature');
         const featDoc = await vscode.workspace.openTextDocument(featUri);
         const featEditor = await vscode.window.showTextDocument(featDoc, { viewColumn: vscode.ViewColumn.One });
@@ -759,7 +762,7 @@ def step_impl(context):
             editBuilder.insert(new vscode.Position(0, 0), 'Given I execute a cross file step');
         });
 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Execute Hover provider
         const hoverResult = await vscode.commands.executeCommand<vscode.Hover[]>(
@@ -767,6 +770,9 @@ def step_impl(context):
             featDoc.uri,
             new vscode.Position(0, 8)
         );
+
+        // Cleanup
+        await vscode.workspace.fs.delete(pyUri);
 
         assert.ok(hoverResult && hoverResult.length > 0, 'Hover did not resolve across files in memory');
         const content = hoverResult[0].contents[0] as vscode.MarkdownString;
