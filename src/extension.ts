@@ -12,6 +12,8 @@ import { GherkinCompletionProvider } from './completion';
 import { GherkinHoverProvider } from './hover';
 import { discoveryService } from './discovery';
 
+import { ConfigurationService } from './configuration';
+
 const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 
 /**
@@ -23,7 +25,16 @@ const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
 export async function activate(context: vscode.ExtensionContext) {
     logger.info('Extension "vscode-gherkin-powertools" is now active.');
 
-    const formatter = new GherkinFormattingEditProvider();
+    const configDiagnostics = vscode.languages.createDiagnosticCollection('gherkin-configuration');
+    context.subscriptions.push(configDiagnostics);
+    const configService = new ConfigurationService(configDiagnostics);
+
+    const configWatcher = vscode.workspace.createFileSystemWatcher('**/.gherkin-powertoolsrc.json');
+    context.subscriptions.push(configWatcher);
+
+    discoveryService.configService = configService;
+
+    const formatter = new GherkinFormattingEditProvider(configService);
     const symbolProvider = new GherkinDocumentSymbolProvider();
     
     // Initialize Symbol Cache for definitions
@@ -58,15 +69,28 @@ export async function activate(context: vscode.ExtensionContext) {
     };
     setupStepWatchers();
 
+    const rebuildDiscovery = async () => {
+        configService.invalidateCache();
+        setupStepWatchers();
+        await symbolCache.initialize();
+        reLintOpenFiles();
+    };
+
     // Rebuild discovery logic on configuration change
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(async e => {
-        if (e.affectsConfiguration('gherkinPowerTools.behave.stepGlobs') || 
-            e.affectsConfiguration('gherkinPowerTools.behave.ignoreGlobs')) {
-            setupStepWatchers();
-            await symbolCache.initialize();
-            reLintOpenFiles();
+        if (e.affectsConfiguration('gherkinPowerTools')) {
+            configService.invalidateCache();
+            if (e.affectsConfiguration('gherkinPowerTools.behave.stepGlobs') || 
+                e.affectsConfiguration('gherkinPowerTools.behave.ignoreGlobs')) {
+                await rebuildDiscovery();
+            }
         }
     }));
+    
+    // Listen to changes in project configuration files
+    configWatcher.onDidChange(rebuildDiscovery);
+    configWatcher.onDidCreate(rebuildDiscovery);
+    configWatcher.onDidDelete(rebuildDiscovery);
     
     // Watch for changes in feature files to update tag statistics
     const featureWatcher = vscode.workspace.createFileSystemWatcher('**/*.feature');

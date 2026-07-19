@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { parseGherkin } from './parser';
 import type { GherkinDocument, Scenario, Background, TableCell, Tag } from '@cucumber/messages';
+import { ConfigurationService } from './configuration';
 
 export interface FormatterOptions {
     stepIndentation: number;
@@ -33,14 +34,16 @@ interface ASTNodeRange {
 
 export class GherkinFormattingEditProvider implements vscode.DocumentFormattingEditProvider, vscode.DocumentRangeFormattingEditProvider {
     
-    private getOptions(): FormatterOptions {
-        const config = vscode.workspace.getConfiguration('gherkinPowerTools');
+    constructor(private configService: ConfigurationService) {}
+
+    private getOptions(uri?: vscode.Uri): FormatterOptions {
+        const config = this.configService.getConfiguration(uri);
         return {
-            stepIndentation: config.get<number>('indentation.steps', 4),
-            alignTableToKeyword: config.get<boolean>('tables.alignToKeyword', true),
-            tagsFormat: config.get<'wrap' | 'singleLine'>('tags.format', 'wrap'),
-            tagsSort: config.get<'preserve' | 'alphabetical'>('tags.sort', 'preserve'),
-            emptyLinesBetweenScenarios: config.get<number>('emptyLines.betweenScenarios', 1)
+            stepIndentation: config.indentation?.steps ?? 4,
+            alignTableToKeyword: config.tables?.alignToKeyword ?? true,
+            tagsFormat: config.tags?.format ?? 'wrap',
+            tagsSort: config.tags?.sort ?? 'preserve',
+            emptyLinesBetweenScenarios: config.emptyLines?.betweenScenarios ?? 1
         };
     }
 
@@ -49,7 +52,7 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         _options: vscode.FormattingOptions,
         token: vscode.CancellationToken
     ): Promise<vscode.TextEdit[]> {
-        const options = this.getOptions();
+        const options = this.getOptions(document.uri);
         const text = document.getText();
         const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
         const hasFinalNewline = text.endsWith('\n');
@@ -77,7 +80,7 @@ export class GherkinFormattingEditProvider implements vscode.DocumentFormattingE
         _options: vscode.FormattingOptions,
         token: vscode.CancellationToken
     ): Promise<vscode.TextEdit[]> {
-        const options = this.getOptions();
+        const options = this.getOptions(document.uri);
         const text = document.getText();
         const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
 
