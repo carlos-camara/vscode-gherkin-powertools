@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🚀 Added
+- **Interactive Walkthrough**: Added a native VS Code Welcome Walkthrough to guide new users through formatting, Behave step discovery, project statistics, and navigation features.
+- **First-Run Experience**: Added intelligent, non-destructive background detection for Python Behave project layouts (`features/steps`, `steps`, custom directories). If a matching layout is found, the extension securely prompts the user to auto-configure step discovery.
+- **Diagnose Workspace Command**: Added `Gherkin: Diagnose Workspace (First-Run Layout Detection)` to manually re-trigger the step discovery diagnostic at any time.
+- **Improved Marketplace Metadata**: Enhanced extension keywords, description, categories, and links to improve searchability and discoverability.
+- **Structured GitHub Issue Forms**: Added dedicated issue templates for Bug Reports, Feature Requests, Framework Compatibility Problems, and Performance Problems to improve contribution quality.
 - **Global Dialect Support for Linter (i18n)**: The semantic linter and diagnostics engine is now fully dialect-aware. It dynamically reads your `# language: [code]` header and validates syntax across 70+ languages, including localized Quick-Fix recommendations (e.g., suggesting `Fonctionnalité:` instead of `Feature:`).
 - **Context-Aware Fuzzy Matching**: The linter now evaluates structural context before offering typo corrections, eliminating aggressive false-positive diagnostics when normal English prose resembles Gherkin keywords.
 - **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.

@@ -328,20 +328,22 @@ Both extensions can be installed together. They serve different purposes.
 ## Quick Start
 
 1. Install **Gherkin PowerTools** from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools).
-2. Open any `.feature` file.
-3. Formatting and linting are active immediately with no configuration.
+2. Follow the interactive **Welcome Walkthrough** (Help > Get Started > Gherkin PowerTools) to configure formatting and navigation.
+3. Open any `.feature` file to see real-time linting and formatting.
 
 For Python/Behave navigation, ensure your step files match the default glob patterns (`**/steps/**/*.py`, `**/features/steps/**/*.py`) or update `gherkinPowerTools.behave.stepGlobs` in your workspace settings.
 
-### Keyboard shortcuts
+### Keyboard shortcuts & Commands
 
-| Action | macOS | Windows / Linux |
+| Action / Command | macOS | Windows / Linux |
 |--------|-------|-----------------|
 | Format Document | <kbd>⇧⌥F</kbd> | <kbd>Shift+Alt+F</kbd> |
 | Format Selection | <kbd>⌘K ⌘F</kbd> | <kbd>Ctrl+K Ctrl+F</kbd> |
 | Quick Fix | <kbd>⌘.</kbd> | <kbd>Ctrl+.</kbd> |
 | Go to Definition | <kbd>⌘Click</kbd> | <kbd>Ctrl+Click</kbd> / <kbd>F12</kbd> |
 | Trigger IntelliSense | <kbd>⌃Space</kbd> | <kbd>Ctrl+Space</kbd> |
+| Diagnose Workspace | _Command Palette_ | `Gherkin: Diagnose Workspace (First-Run Layout Detection)` |
+| Project Statistics | _Command Palette_ | `Gherkin: Show Project Statistics` |
 
 ---
 
