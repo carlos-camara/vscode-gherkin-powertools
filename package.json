@@ -116,7 +116,7 @@
     "commands": [
       {
         "command": "gherkinPowerTools.format",
-        "title": "Format Gherkin Document"
+        "title": "Gherkin: Format Document"
       },
       {
         "command": "gherkinPowerTools.showStatistics",
