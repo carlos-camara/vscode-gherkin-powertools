@@ -11,6 +11,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 package-lock.json
+node_modules/**
 coverage/**
 .nyc_output/**
 
