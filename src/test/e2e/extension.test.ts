@@ -663,4 +663,126 @@ def step_impl(context):
         // This test ensures it doesn't crash and returns the list.
         // It should technically return 'when' completions because it inherits from 'When'.
     });
+
+    test('Simulate Dynamic Configuration Workflow (Settings update without reload)', async () => {
+        const uri = vscode.Uri.parse('untitled:config_test.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        const initialContent = 'Feature: F\nScenario: S\nGiven step';
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), initialContent);
+        });
+
+        // 1. Change settings dynamically
+        const config = vscode.workspace.getConfiguration('gherkinPowerTools');
+        const oldIndent = config.get('indentation.steps');
+        await config.update('indentation.steps', 8, vscode.ConfigurationTarget.Global);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // 2. Format
+        await vscode.commands.executeCommand('editor.action.formatDocument');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const newText = document.getText();
+        assert.ok(newText.includes('        Given step'), 'Dynamic configuration update failed to apply instantly to the formatter');
+
+        // Restore
+        await config.update('indentation.steps', oldIndent, vscode.ConfigurationTarget.Global);
+    });
+
+    test('Simulate Diagnostic to QuickFix Pipeline (End to End)', async () => {
+        const uri = vscode.Uri.parse('untitled:quickfix_pipeline.feature');
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        await vscode.languages.setTextDocumentLanguage(document, 'feature');
+
+        // Typo in keyword
+        await editor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Gven a misspelled keyword');
+        });
+
+        // Wait for linter (debounce is ~100ms, wait 1000ms just in case)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Get diagnostics
+        const diags = vscode.languages.getDiagnostics(document.uri);
+        assert.ok(diags.length > 0, 'No diagnostics appeared for misspelled keyword');
+
+        // Get code actions
+        // vscode.executeCodeActionProvider signature: uri, range, kind?, itemResolveCount?
+        const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider',
+            document.uri,
+            diags[0].range,
+            vscode.CodeActionKind.QuickFix.value
+        );
+
+        assert.ok(codeActions && codeActions.length > 0, 'No code actions provided for misspelling');
+        
+        const fixAction = codeActions.find(a => a.title.includes("Replace with 'Given"));
+        assert.ok(fixAction, 'Did not find the "Replace with \'Given\'" quick fix');
+
+        // Apply fix (WorkspaceEdit)
+        if (fixAction.edit) {
+            await vscode.workspace.applyEdit(fixAction.edit);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const newText = document.getText();
+            // The diagnostic replacement is "Given " and the range replaces "Gven", 
+            // leaving the original space, resulting in "Given  a misspelled keyword"
+            assert.strictEqual(newText.trim(), 'Given  a misspelled keyword', 'Quick fix failed to modify document');
+        } else {
+            assert.fail('Quick fix action had no edit');
+        }
+    });
+
+    test('Simulate Cross-file E2E Cache Resolution', async () => {
+        if (!vscode.workspace.workspaceFolders) {
+            assert.fail('No workspace folder open for E2E test');
+        }
+
+        const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
+        const pyUri = vscode.Uri.joinPath(workspaceUri, 'temp_steps.py');
+        
+        // Write the file directly
+        const stepContent = Buffer.from('@given("I execute a cross file step")\ndef cross_file(): pass', 'utf8');
+        await vscode.workspace.fs.writeFile(pyUri, stepContent);
+
+        // Update globs to include all python files in root and trigger a deterministic re-index
+        const config = vscode.workspace.getConfiguration('gherkinPowerTools.behave');
+        const oldGlobs = config.get('stepGlobs');
+        await config.update('stepGlobs', ['**/*.py'], vscode.ConfigurationTarget.Global);
+
+        // Allow cache to re-initialize
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Create an untitled feature file (this is fine, we just need the python file in cache)
+        const featUri = vscode.Uri.parse('untitled:cross.feature');
+        const featDoc = await vscode.workspace.openTextDocument(featUri);
+        const featEditor = await vscode.window.showTextDocument(featDoc, { viewColumn: vscode.ViewColumn.One });
+        await vscode.languages.setTextDocumentLanguage(featDoc, 'feature');
+
+        await featEditor.edit(editBuilder => {
+            editBuilder.insert(new vscode.Position(0, 0), 'Given I execute a cross file step');
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Execute Hover provider
+        const hoverResult = await vscode.commands.executeCommand<vscode.Hover[]>(
+            'vscode.executeHoverProvider',
+            featDoc.uri,
+            new vscode.Position(0, 8)
+        );
+
+        // Cleanup
+        await config.update('stepGlobs', oldGlobs, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.fs.delete(pyUri);
+
+        assert.ok(hoverResult && hoverResult.length > 0, 'Hover did not resolve across files in memory');
+        const content = hoverResult[0].contents[0] as vscode.MarkdownString;
+        assert.ok(content.value.includes('cross_file'), 'Hover did not contain the function name');
+    });
 });

@@ -8,13 +8,16 @@ When you hover your mouse cursor over any step (e.g., `Given`, `When`, `Then`) i
 
 ### 1. Python Signature Extraction
 The tooltip displays the exact Python function signature (`def step_impl(context, ...):`) that matches your step. It supports single-line and complex multi-line function declarations.
+- **Semantic Matching**: Hover fully respects `@given`, `@when`, and `@then` semantics, and contextually resolves `And`/`But` chains.
+- **Ambiguous Resolution**: If a step matches multiple wildcard decorators, Hover will explicitly list **all** matching signatures, rather than hiding collisions.
+- **Unsupported Matcher Warnings**: If the matching Python regex uses lookbehinds or other constructs unsupported by the JS engine, Hover surfaces an explicit warning.
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-step.gif" alt="Python Step Hover Demo" width="600" />
 </div>
 
 ### 2. Docstring Parsing
-If your Python developer left a docstring (`"""..."""` or `'''...'''`) explaining what the step does, the Hover Provider will extract it and render it cleanly inside the tooltip using Markdown.
+If your Python developer left a docstring (`"""..."""` or `'''...'''`) explaining what the step does, the Hover Provider will extract it and render it safely inside the tooltip as plain untrusted text. This eliminates formatting bugs caused by stray markdown syntax within docstrings.
 
 ### 3. Tag Blast Radius
 Hovering over any Gherkin tag (e.g., `@regression`) instantly calculates its "Blast Radius". The tooltip dynamically counts and displays the total number of executable scenarios affected by that tag across the entire workspace. This fully supports tag inheritance (from `Feature` or `Rule` levels) and multiplies data rows within `Scenario Outline` tables.

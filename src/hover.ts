@@ -43,36 +43,50 @@ export class GherkinHoverProvider implements vscode.HoverProvider {
         }
 
 
+        if (_token.isCancellationRequested) {
+            return undefined;
+        }
+
         const stepText = match[2].trim();
         const semanticType = dialectService.resolveAndBut(document, position.line);
 
-        const stepDef: StepDefinition | null = await this.symbolCache.getStepDefinition(stepText, semanticType);
+        const stepDefs: StepDefinition[] = await this.symbolCache.getStepDefinitions(stepText, semanticType);
 
-        if (!stepDef) {
+        if (_token.isCancellationRequested || stepDefs.length === 0) {
             return undefined; // No underlying implementation found
         }
 
         // Construct Hover Markdown
         const hoverContent = new vscode.MarkdownString();
         
-        // Add the python function signature
-        if (stepDef.functionName) {
-            if (stepDef.functionRange) {
-                // If we want we could read the actual line, but we can just show a nice format
-            }
-        }
-        
-        // Show matcher type and pattern
-        hoverContent.appendMarkdown(`**Type:** \`${stepDef.matcherType}\`\n\n`);
-        
-        if (stepDef.rawPattern) {
-            const quote = stepDef.rawPattern.includes('\n') ? '"""' : "'";
-            hoverContent.appendCodeblock(`@${stepDef.type}(${quote}${stepDef.rawPattern}${quote})\ndef ${stepDef.functionName || 'step_impl'}(context, ...):`, 'python');
+        if (stepDefs.length > 1) {
+            hoverContent.appendMarkdown(`> ⚠️ **Ambiguous Step:** Matches ${stepDefs.length} definitions.\n\n`);
         }
 
-        // Add the docstring if it exists
-        if (stepDef.documentation) {
-            hoverContent.appendMarkdown(`\n---\n\n${stepDef.documentation}`);
+        for (let i = 0; i < stepDefs.length; i++) {
+            const stepDef = stepDefs[i];
+            
+            if (i > 0) {
+                hoverContent.appendMarkdown(`\n---\n`);
+            }
+
+            // Show matcher type and pattern
+            hoverContent.appendMarkdown(`**Type:** \`${stepDef.matcherType}\`\n\n`);
+            
+            if (!stepDef.evaluable) {
+                hoverContent.appendMarkdown(`> ⚠️ **Unsupported Matcher:** ${stepDef.compilationError || 'Dynamic expression is not supported'}\n\n`);
+            }
+            
+            if (stepDef.rawPattern) {
+                const quote = stepDef.rawPattern.includes('\n') ? '"""' : "'";
+                hoverContent.appendCodeblock(`@${stepDef.type}(${quote}${stepDef.rawPattern}${quote})\ndef ${stepDef.functionName || 'step_impl'}(context, ...):`, 'python');
+            }
+
+            // Add the docstring safely
+            if (stepDef.documentation) {
+                hoverContent.appendMarkdown(`\n\n`);
+                hoverContent.appendCodeblock(stepDef.documentation, 'text');
+            }
         }
 
         return new vscode.Hover(hoverContent);

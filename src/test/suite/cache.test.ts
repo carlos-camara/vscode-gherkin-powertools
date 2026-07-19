@@ -43,12 +43,14 @@ def step_impl_when(context, amount):
         assert.ok(definitions.find(d => d.rawPattern === 'I eat (?P<amount>\\d+) apples'));
 
         // Test matching
-        const givenDef = await cache.getStepDefinition('I have 5 apples');
+        const givenDefs = await cache.getStepDefinitions('I have 5 apples');
+        const givenDef = givenDefs[0];
         assert.ok(givenDef);
         assert.strictEqual(givenDef?.documentation, 'Docstring here');
         assert.strictEqual(givenDef?.functionName, 'step_impl');
 
-        const whenDef = await cache.getStepDefinition('I eat 2 apples');
+        const whenDefs = await cache.getStepDefinitions('I eat 2 apples');
+        const whenDef = whenDefs[0];
         assert.ok(whenDef);
         assert.strictEqual(whenDef?.functionName, 'step_impl_when');
 
@@ -120,8 +122,9 @@ def step_impl(context):
         assert.strictEqual(def.rawPattern, '(?P<amount>\\d+)(');
 
         // Should not match anything because evaluable is false
-        const match = await cache.getStepDefinition('(?P<amount>\\d+)(');
-        assert.strictEqual(match, null);
+        const matches = await cache.getStepDefinitions('(?P<amount>\\d+)(');
+        const match = matches[0];
+        assert.strictEqual(match, undefined);
     });
 
 
@@ -187,7 +190,8 @@ def step_impl(
         const uri = vscode.Uri.file(tempFile);
         await cache.updateFile(uri);
         
-        const def = await cache.getStepDefinition('I have multi');
+        const defs = await cache.getStepDefinitions('I have multi');
+        const def = defs[0];
         assert.ok(def);
         assert.strictEqual(def?.functionName, 'step_impl');
         assert.ok(def?.documentation?.includes('Line 1'));

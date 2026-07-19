@@ -43,8 +43,9 @@ When you request a definition (e.g., clicking on `Given I login as "admin"`):
 
 1. **Extraction**: The extension extracts the semantic step text (`I login as "admin"`).
 2. **Evaluation**: It strips dynamic Gherkin data variables and normalizes the string.
-3. **Lookup**: It queries the Symbol Cache in RAM via `getStepDefinitions()` which returns *all* matches.
-4. **Navigation**: It locates the matching Python decorator and instantly opens the file directly at that exact line. If multiple definitions exist, the editor allows selecting between them.
+3. **Lookup**: It queries the Symbol Cache in RAM via `getStepDefinitions()`. It performs **Semantic Context-Aware Matching**, respecting strict `@given`, `@when`, and `@then` decorators. `And` and `But` steps are dynamically resolved by scanning upwards through the scenario.
+4. **Navigation**: It locates the matching Python decorator and instantly opens the file directly at that exact line.
+   - **Ambiguous Matches**: If your step matches multiple overlapping wildcards, it opens a native Peek View showing all possible definitions instead of arbitrarily picking the first one.
 
 <div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
   <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
