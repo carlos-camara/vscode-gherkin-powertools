@@ -154,6 +154,16 @@
         "command": "gherkinPowerTools.runScenarioWithArgs",
         "title": "Edit Scenario...",
         "category": "Gherkin"
+      },
+      {
+        "command": "gherkinPowerTools.debugFeature",
+        "title": "Debug Feature",
+        "category": "Gherkin"
+      },
+      {
+        "command": "gherkinPowerTools.debugScenario",
+        "title": "Debug Scenario",
+        "category": "Gherkin"
       }
     ],
     "menus": {

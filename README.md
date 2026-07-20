@@ -75,7 +75,7 @@ Works with any `.feature` file.
 
 Cmd-click any Gherkin step to jump to the Python function that implements it. IntelliSense suggests steps from your codebase filtered by keyword context. Hover shows the function signature and docstring inline.
 
-**Test seamlessly:** Execute individual Features or isolated Scenarios with a single click using CodeLens, complete with custom CLI arguments and smart Python environment detection.
+**Test and Debug seamlessly:** Execute or debug individual Features or isolated Scenarios with a single click using CodeLens, complete with custom CLI arguments, interactive breakpoints, and smart Python environment detection.
 
 Requires Python/Behave.
 
@@ -112,7 +112,7 @@ Works with any `.feature` file.
 | Generate step definition | — | ✅ | Writes `.py` stub |
 | Go to Definition | — | ✅ | `@given`, `@when`, `@then`, `@step` decorators |
 | Step IntelliSense | — | ✅ | Context-aware by keyword |
-| Run Feature / Scenario | — | ✅ | Directly via CodeLens |
+| Run & Debug Feature / Scenario | — | ✅ | Directly via CodeLens |
 | Scenario Outline param completion | — | ✅ | |
 | Hover: function signature | — | ✅ | |
 | Tag blast radius | ✅ | ✅ | Counts across workspace |
@@ -207,13 +207,13 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 
 **Problem:** Context-switching between the editor and the terminal to run specific scenarios or inject custom arguments breaks focus.
 
-**Result:** Interactive **Run** and **Edit** buttons appear directly above Features and Scenarios. Click Run for instant, isolated execution utilizing the active VS Code Python environment. Use Edit to inject custom Behave CLI tags seamlessly.
+**Result:** Interactive **Run**, **Edit**, and **Debug** buttons appear directly above Features and Scenarios. Click Run for instant, isolated execution utilizing the active VS Code Python environment. Use Edit to inject custom Behave CLI tags seamlessly. Click Debug to visually step through your Python step definitions using breakpoints.
 
 <div align="center">
 
 ![Execute Scenarios via CodeLens — One-click isolated execution and custom arguments](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
 
-`Run` / `Edit` CodeLens
+`Run` / `Edit` / `Debug` CodeLens
 
 </div>
 
@@ -274,7 +274,7 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 
 ![Hover on a tag — shows the number of scenarios it affects across the workspace](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)
 
-**Run Features and Scenarios**
+**Run and Debug Features and Scenarios**
 
 ![Execute Scenarios via CodeLens](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
 
@@ -425,7 +425,7 @@ Alternatively, configure the extension via your `settings.json`. Project setting
 | Formatter | [features/formatter.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/formatter.html) |
 | Linter and Quick Fixes | [features/linter.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html) |
 | Go to Definition | [features/definition.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html) |
-| Behave Execution | [features/execution.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/execution.html) |
+| Behave Execution & Debugging | [features/execution.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/execution.html) |
 | IntelliSense and snippets | [features/snippets.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/snippets.html) |
 | Hover provider | [features/hover.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/hover.html) |
 | Outline | [features/outline.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/outline.html) |
