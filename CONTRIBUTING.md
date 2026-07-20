@@ -108,3 +108,17 @@ This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root dir
 5. Open a Pull Request against the `main` branch.
 
 Code reviews will be conducted on all submissions.
+
+## 🚀 Release Preparation Process
+
+To ensure high-quality release notes that focus on user value rather than raw commits, follow this workflow when preparing a new release:
+
+1. **Wait for Auto-Generation**: When a PR is merged into `main`, our `.github/workflows/release.yml` will automatically build the VSIX, create a Git Tag, and generate a GitHub Release.
+2. **Review Auto-Categorization**: The automated release uses `.github/release.yml` to automatically categorize all merged PRs into groups (e.g., 🚀 New Capabilities, 🐛 Bug Fixes) based on their labels.
+3. **Enhance with the Template**:
+   - Open `.github/RELEASE_TEMPLATE.md` and copy its contents.
+   - Go to the [GitHub Releases page](https://github.com/carlos-camara/vscode-gherkin-powertools/releases), find the auto-generated release, and click **Edit**.
+   - Paste the template at the top of the release notes.
+   - Fill in the narrative sections (Headline, Short Summary, Why this matters, Visual Demos, etc.) to explain the business and user value of the release.
+   - Retain the auto-generated categorized PR lists at the bottom under the "Contributors" or respective technical sections so users still get the detailed changelog.
+4. **Publish**: Save and publish the updated release notes.
