@@ -4,6 +4,10 @@ import { ConfigurationService } from './configuration';
 let behaveTerminal: vscode.Terminal | undefined;
 let memoryAdditionalArgs: string | undefined = undefined;
 
+export function clearMemoryArgs() {
+    memoryAdditionalArgs = undefined;
+}
+
 function getTerminal(): vscode.Terminal {
     if (behaveTerminal) {
         if (vscode.window.terminals.includes(behaveTerminal)) {
@@ -88,3 +92,84 @@ export async function runBehaveWithPrompt(uri: vscode.Uri, line: number | undefi
         }
     }
 }
+
+export function parseArgsStringToVector(argsString: string): string[] {
+    const args: string[] = [];
+    let currentArg = '';
+    let inQuotes = false;
+    let quoteChar = '';
+
+    for (let i = 0; i < argsString.length; i++) {
+        const char = argsString[i];
+        if (char === ' ' && !inQuotes) {
+            if (currentArg.length > 0) {
+                args.push(currentArg);
+                currentArg = '';
+            }
+        } else if ((char === '"' || char === "'") && !inQuotes) {
+            inQuotes = true;
+            quoteChar = char;
+        } else if (char === quoteChar && inQuotes) {
+            inQuotes = false;
+            quoteChar = '';
+        } else {
+            currentArg += char;
+        }
+    }
+    if (currentArg.length > 0) {
+        args.push(currentArg);
+    }
+    return args;
+}
+
+export async function debugBehave(uri: vscode.Uri, line: number | undefined, configService: ConfigurationService) {
+    const pythonExtension = vscode.extensions.getExtension('ms-python.python');
+    const debugpyExtension = vscode.extensions.getExtension('ms-python.debugpy');
+    
+    if (!pythonExtension && !debugpyExtension) {
+        const action = await vscode.window.showErrorMessage(
+            'The Python extension is required to debug Behave scenarios. Please install it to use this feature.',
+            'Install Python Extension'
+        );
+        if (action === 'Install Python Extension') {
+            vscode.commands.executeCommand('extension.open', 'ms-python.python');
+        }
+        return;
+    }
+
+    const config = configService.getConfiguration(uri);
+    
+    let additionalArgs: string[];
+    if (memoryAdditionalArgs !== undefined) {
+        additionalArgs = parseArgsStringToVector(memoryAdditionalArgs);
+    } else {
+        additionalArgs = [...config.behave.additionalArguments];
+    }
+    
+    let pathArg = uri.fsPath;
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+    if (workspaceFolder) {
+        pathArg = './' + vscode.workspace.asRelativePath(uri, false);
+    }
+
+    if (line !== undefined) {
+        pathArg = `${pathArg}:${line}`;
+    }
+    
+    const debugConfig: vscode.DebugConfiguration = {
+        name: "Debug Behave (PowerTools)",
+        type: "python",
+        request: "launch",
+        module: "behave",
+        args: [...additionalArgs, pathArg],
+        console: "integratedTerminal"
+    };
+    
+    if (!workspaceFolder) {
+        vscode.window.showErrorMessage('A workspace folder must be open to start debugging.');
+        return;
+    }
+
+    vscode.debug.startDebugging(workspaceFolder, debugConfig);
+}
+

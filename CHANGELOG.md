@@ -8,6 +8,13 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 🚀 Added
+- **Behave Execution & Debugging CodeLens**: Execute and debug features and scenarios directly from the editor using new `▶ Run Feature`, `▶ Run Scenario`, and `🐞 Debug` CodeLens buttons.
+  The extension automatically detects your Python interpreter via the official Python extension.
+  The debug feature constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
+
 ## [1.7.6] - 2026-07-20
 
 ### 🚀 Added
@@ -25,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Safe Hover Docstrings**: Python docstrings rendered in the Hover widget are now strictly displayed as plain untrusted text, preventing accidental markdown injection or rendering glitches.
 - **Unsupported Matcher Transparency**: The Hover provider now explicitly warns you if a step definition uses Python-specific regex capabilities (like lookbehinds) that cannot be dynamically evaluated by the extension.
 - **Robust Parsing Fallback**: If a feature file contains severe syntax errors, the cache will now gracefully downgrade to a "Partial" state and salvage any parsable scenarios, while displaying an inline warning in the hover widget.
-- **Behave Execution CodeLens**: Execute features and scenarios directly from the editor using new `▶ Run Feature` and `▶ Run Scenario` CodeLens buttons. The extension automatically detects your Python interpreter via the official Python extension or allows custom fallback configuration through `gherkinPowerTools.behave.pythonPath`.
+
 
 ### 🛠️ Changed
 - **Architectural Refactor**: Rebuilt the underlying `FeatureCache` to operate asynchronously with a 300ms debounce window and an incremental diffing strategy. This drastically reduces CPU overhead during rapid typing and eliminates full-workspace re-indexing on single-file changes.
