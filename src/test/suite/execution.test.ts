@@ -55,13 +55,13 @@ suite('Execution Test Suite', () => {
     test('buildBehaveCommand builds command correctly for file', async () => {
         const uri = vscode.Uri.file('/path/to/test.feature');
         const cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
-        assert.strictEqual(cmd, 'behave --no-capture "/path/to/test.feature"');
+        assert.strictEqual(cmd, `behave --no-capture "${uri.fsPath}"`);
     });
 
     test('buildBehaveCommand builds command correctly for specific line', async () => {
         const uri = vscode.Uri.file('/path/to/test.feature');
         const cmd = await buildBehaveCommand(uri, 42, mockConfigService);
-        assert.strictEqual(cmd, 'behave --no-capture "/path/to/test.feature:42"');
+        assert.strictEqual(cmd, `behave --no-capture "${uri.fsPath}:42"`);
     });
 
     test('runBehave creates terminal and sends command', async () => {
@@ -69,7 +69,7 @@ suite('Execution Test Suite', () => {
         await runBehave(uri, undefined, mockConfigService);
         
         assert.strictEqual(showCalled, true, 'Terminal should be shown');
-        assert.strictEqual(sendTextCalledWith, 'behave --no-capture "/path/to/test.feature"');
+        assert.strictEqual(sendTextCalledWith, `behave --no-capture "${uri.fsPath}"`);
     });
 
     test('runBehave reuses existing terminal if available', async () => {
@@ -90,7 +90,7 @@ suite('Execution Test Suite', () => {
         await runBehave(uri, undefined, mockConfigService);
         
         assert.strictEqual(createTerminalCallCount, 0, 'Should not create a new terminal if one exists');
-        assert.strictEqual(sendTextCalledWith, 'behave --no-capture "/path/to/test.feature"');
+        assert.strictEqual(sendTextCalledWith, `behave --no-capture "${uri.fsPath}"`);
     });
 
     test('runBehaveWithPrompt does nothing if user cancels prompt', async () => {
@@ -121,7 +121,7 @@ suite('Execution Test Suite', () => {
 
         // Next time buildBehaveCommand is called, it should use the memory args
         const cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
-        assert.strictEqual(cmd, 'behave --no-capture --tags=@wip "/path/to/test.feature"');
+        assert.strictEqual(cmd, `behave --no-capture --tags=@wip "${uri.fsPath}"`);
     });
     
     test('runBehaveWithPrompt does not save memory args if command format is completely changed', async () => {
@@ -141,6 +141,6 @@ suite('Execution Test Suite', () => {
         // Memory should not be updated with echo hello
         const cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
         // It should still have the previously saved --no-capture --tags=@wip
-        assert.strictEqual(cmd, 'behave --no-capture --tags=@wip "/path/to/test.feature"');
+        assert.strictEqual(cmd, `behave --no-capture --tags=@wip "${uri.fsPath}"`);
     });
 });
