@@ -4,7 +4,7 @@ import type { Dialect } from '@cucumber/gherkin';
 
 const dialects = require('@cucumber/gherkin/dist/gherkin-languages.json');
 
-class DialectService {
+export class DialectService {
     private cache = new Map<string, { version: number, dialect: Dialect }>();
 
     public getDialect(documentOrText: vscode.TextDocument | string): Dialect {

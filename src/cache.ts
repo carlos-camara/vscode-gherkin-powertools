@@ -215,7 +215,7 @@ export class SymbolCache {
 }
 
 
-interface FileState {
+export interface FileState {
     counts: Map<string, number>;
     status: 'current' | 'stale' | 'partial';
 }

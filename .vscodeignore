@@ -28,4 +28,3 @@ test-results/**
 .vscode-test.js
 esbuild.js
 *.vsix
-node_modules/**

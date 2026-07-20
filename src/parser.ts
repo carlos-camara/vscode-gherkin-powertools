@@ -1,6 +1,6 @@
 import type { GherkinDocument } from '@cucumber/messages';
 
-interface ParseResult {
+export interface ParseResult {
     document: GherkinDocument | null;
     errors: any[];
 }
