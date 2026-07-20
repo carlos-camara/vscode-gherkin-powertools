@@ -29,9 +29,9 @@ Sometimes you want to pass extra flags to Behave during a quick testing session,
 Clicking the **Edit** button will:
 1. Open a command palette input box pre-filled with the exact command the extension is about to run.
 2. Allow you to manually add parameters anywhere in the string (e.g., adding `-D env=test` or `--no-capture`).
-3. Save your customized arguments globally for the session so that you can execute them by clicking **Run** on any scenario.
+3. Save your customized arguments globally for the session so that you can execute them by clicking **Run** or **Debug** on any scenario.
 
-**✨ Smart Persistence:** During your VS Code session, Gherkin PowerTools will remember any extra arguments you added! The next time you click **Run** or **Edit**, your previous arguments will automatically be included in the command. If you want to clear them, simply click **Edit** again and remove them.
+**✨ Smart Persistence:** During your VS Code session, Gherkin PowerTools will remember any extra arguments you added! The next time you click **Run**, **Debug**, or **Edit**, your previous arguments will automatically be included in the command. If you want to clear them, simply click **Edit** again and remove them.
 
 ### `🐞 Debug`
 
