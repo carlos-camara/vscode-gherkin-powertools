@@ -46,7 +46,9 @@ When you click **Debug**:
 
 #### Debugging Limitations
 
-- **Scenario Outlines**: Debugging specific examples within a `Scenario Outline` using the line number relies on Behave's name-matching fallback behavior if line number resolution is disabled in Behave or if the debugger strips the line number. Due to Behave's runner logic, if you have multiple scenarios with the exact same name across different feature files (or identical examples), the debugger might execute all matching scenarios instead of just the one selected. To avoid this, ensure your scenarios have unique names.
+- **Scenario Outlines**: Debugging specific examples within a `Scenario Outline` using the line number relies on Behave's name-matching fallback behavior if line number resolution is disabled in Behave or if the debugger strips the line number. 
+  Due to Behave's runner logic, if you have multiple scenarios with the exact same name across different feature files (or identical examples), the debugger might execute all matching scenarios instead of just the one selected. 
+  To avoid this, ensure your scenarios have unique names.
 - **Rule Backgrounds**: If the scenario is inside a `Rule`, Behave's execution engine might exhibit similar grouping behaviors when launched via a debug adapter.
 
 ## Configuration
