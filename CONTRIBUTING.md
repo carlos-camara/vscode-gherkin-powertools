@@ -115,7 +115,7 @@ To ensure high-quality release notes that focus on user value rather than raw co
 
 1. **Wait for Auto-Generation**: When a PR is merged into `main`, our `.github/workflows/release.yml` will automatically build the VSIX, create a Git Tag, and generate a GitHub Release.
 2. **Review Auto-Categorization**: The automated release uses `.github/release.yml` to automatically categorize all merged PRs into groups (e.g., 🚀 New Capabilities, 🐛 Bug Fixes) based on their labels.
-3. **Enhance with the Template**: 
+3. **Enhance with the Template**:
    - Open `.github/RELEASE_TEMPLATE.md` and copy its contents.
    - Go to the [GitHub Releases page](https://github.com/carlos-camara/vscode-gherkin-powertools/releases), find the auto-generated release, and click **Edit**.
    - Paste the template at the top of the release notes.

@@ -1,6 +1,6 @@
 # 🚀 Release Headline
 
-**Short Summary:** 
+**Short Summary:**
 <!-- 1-2 sentences summarizing the core value of this release -->
 
 ## 🤔 Why this matters
