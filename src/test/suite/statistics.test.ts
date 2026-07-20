@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { calculateStatistics, getDashboardHtml, getErrorHtml, getLoadingHtml, GherkinStats, escapeHtml } from '../../statistics';
+import { calculateStatistics, getDashboardHtml, getErrorHtml, getLoadingHtml, GherkinStats, escapeHtml, showStatisticsDashboard } from '../../statistics';
 import * as vscode from 'vscode';
 
 suite('Statistics Security (XSS & Escaping) Test Suite', () => {
@@ -201,5 +201,67 @@ suite('Statistics Core Logic Test Suite', () => {
             assert.ok(stats.totalAnd > 0, 'Should fall back to totalAnd for * or unknown keywords');
         }
     });
-});
+    test('showStatisticsDashboard: creates webview and calculates stats', async () => {
+        let webviewHtml = '';
+        let webviewDisposed = false;
+        
+        const mockContext = {
+            extension: {
+                packageJSON: { version: '2.0.0' }
+            }
+        } as any;
+        
+        const originalCreateWebviewPanel = vscode.window.createWebviewPanel;
+        const originalWithProgress = vscode.window.withProgress;
+        
+        vscode.window.createWebviewPanel = () => ({
+            webview: {
+                set html(value: string) { webviewHtml = value; }
+            },
+            dispose: () => { webviewDisposed = true; }
+        } as any);
+        
+        vscode.window.withProgress = async (_options, task) => {
+            return task({ report: () => {} } as any, { isCancellationRequested: false } as any);
+        };
+        
+        await showStatisticsDashboard(mockContext);
+        
+        assert.ok(webviewHtml.includes('Score Breakdown') || webviewHtml.includes('No tags found'), 'Dashboard HTML should be set');
+        assert.ok(!webviewDisposed, 'Panel should not be disposed');
+        
+        vscode.window.createWebviewPanel = originalCreateWebviewPanel;
+        vscode.window.withProgress = originalWithProgress;
+    });
 
+    test('showStatisticsDashboard: handles error gracefully', async () => {
+        let webviewHtml = '';
+        
+        const mockContext = {
+            extension: {
+                packageJSON: { version: '2.0.0' }
+            }
+        } as any;
+        
+        const originalCreateWebviewPanel = vscode.window.createWebviewPanel;
+        const originalWithProgress = vscode.window.withProgress;
+        
+        vscode.window.createWebviewPanel = () => ({
+            webview: {
+                set html(value: string) { webviewHtml = value; }
+            },
+            dispose: () => {}
+        } as any);
+        
+        vscode.window.withProgress = async () => {
+            throw new Error('Simulation of an error');
+        };
+        
+        await showStatisticsDashboard(mockContext);
+        
+        assert.ok(webviewHtml.includes('Error parsing workspace'), 'Error HTML should be shown');
+        
+        vscode.window.createWebviewPanel = originalCreateWebviewPanel;
+        vscode.window.withProgress = originalWithProgress;
+    });
+});

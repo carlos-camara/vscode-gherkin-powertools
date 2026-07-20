@@ -142,4 +142,66 @@ suite('ConfigurationService Test Suite', () => {
         assert.strictEqual(diagnostics.length, 1);
         assert.ok(diagnostics[0].message.includes('must be a number'));
     });
+
+    test('Loads behave execution settings from config', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        
+        fs.writeFileSync(configPath, JSON.stringify({
+            behave: {
+                command: 'poetry run behave',
+                additionalArguments: ['-f', 'json']
+            }
+        }));
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+
+        assert.strictEqual(config.behave.command, 'poetry run behave');
+        assert.deepStrictEqual(config.behave.additionalArguments, ['-f', 'json']);
+    });
+
+    test('Validates all schema errors in validateAndMergeConfig', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        
+        fs.writeFileSync(configPath, JSON.stringify({
+            unknownSection: { steps: 2 },
+            indentation: null,
+            tables: { alignToKeyword: "yes", unknownProp: 1 },
+            tags: { format: "invalid", sort: "invalid", unknownProp: 1 },
+            emptyLines: { betweenScenarios: "one", unknownProp: 1 },
+            behave: { stepGlobs: "not an array", command: 123, unknownProp: 1 }
+        }));
+
+        let diagnostics: vscode.Diagnostic[] = [];
+        mockDiagnostics.set = ((_uri: any, diags: vscode.Diagnostic[]) => { diagnostics = diags; }) as any;
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+
+        // Verify defaults fallback
+        assert.strictEqual(config.indentation.steps, 4);
+        assert.strictEqual(config.tables.alignToKeyword, true);
+        assert.strictEqual(config.tags.format, 'wrap');
+        assert.strictEqual(config.tags.sort, 'preserve');
+        assert.strictEqual(config.emptyLines.betweenScenarios, 1);
+        assert.strictEqual(config.behave.command, 'behave');
+        
+        // Verify multiple errors reported
+        assert.ok(diagnostics.length > 5, 'Should report multiple validation errors');
+    });
+
+    test('Invalidate cache clears values', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        fs.writeFileSync(configPath, JSON.stringify({ indentation: { steps: 8 } }));
+        
+        const uri = vscode.workspace.workspaceFolders?.[0].uri;
+        let config = configService.getConfiguration(uri);
+        assert.strictEqual(config.indentation.steps, 8);
+
+        // Delete file and invalidate
+        fs.unlinkSync(configPath);
+        configService.invalidateCache(uri);
+        
+        // Next fetch should get VS Code default (4)
+        config = configService.getConfiguration(uri);
+        assert.strictEqual(config.indentation.steps, 4);
+    });
 });

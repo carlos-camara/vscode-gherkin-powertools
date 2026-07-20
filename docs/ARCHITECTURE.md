@@ -26,6 +26,9 @@ graph LR
     A --> M[parser.ts]
     A --> N[dialect.ts]
     A --> O[discovery.ts]
+    A --> P[execution.ts]
+    A --> Q[codelens.ts]
+    A --> R[configuration.ts]
 ```
 
 | Module | Responsibility |
@@ -45,6 +48,9 @@ graph LR
 | `parser.ts`    | Handles AST parsing and caching of Gherkin documents |
 | `dialect.ts`   | Provides i18n support by matching localized Gherkin keywords |
 | `discovery.ts` | Centralized Behave file discovery service handling glob normalization and reactive file watchers |
+| `execution.ts` | Terminal and execution orchestration for Behave runs |
+| `codelens.ts`  | Injects Run/Edit lenses above features and scenarios |
+| `configuration.ts`| Provides typesafe access to user and workspace configuration settings |
 
 ## Hot-Reloading Configuration
 

@@ -71,13 +71,15 @@ Works with any `.feature` file.
 </td>
 <td width="25%" valign="top">
 
-### Navigate
+### Navigate & Execute
 
 Cmd-click any Gherkin step to jump to the Python function that implements it. IntelliSense suggests steps from your codebase filtered by keyword context. Hover shows the function signature and docstring inline.
 
+**Test seamlessly:** Execute individual Features or isolated Scenarios with a single click using CodeLens, complete with custom CLI arguments and smart Python environment detection.
+
 Requires Python/Behave.
 
-[→ Navigation docs](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html)
+[→ Navigation & Execution docs](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html)
 
 </td>
 <td width="25%" valign="top">
@@ -110,6 +112,7 @@ Works with any `.feature` file.
 | Generate step definition | — | ✅ | Writes `.py` stub |
 | Go to Definition | — | ✅ | `@given`, `@when`, `@then`, `@step` decorators |
 | Step IntelliSense | — | ✅ | Context-aware by keyword |
+| Run Feature / Scenario | — | ✅ | Directly via CodeLens |
 | Scenario Outline param completion | — | ✅ | |
 | Hover: function signature | — | ✅ | |
 | Tag blast radius | ✅ | ✅ | Counts across workspace |
@@ -200,6 +203,24 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 
 ---
 
+### One-Click Execution via CodeLens
+
+**Problem:** Context-switching between the editor and the terminal to run specific scenarios or inject custom arguments breaks focus.
+
+**Result:** Interactive **Run** and **Edit** buttons appear directly above Features and Scenarios. Click Run for instant, isolated execution utilizing the active VS Code Python environment. Use Edit to inject custom Behave CLI tags seamlessly.
+
+<div align="center">
+
+![Execute Scenarios via CodeLens — One-click isolated execution and custom arguments](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
+
+`Run` / `Edit` CodeLens
+
+</div>
+
+<sub>📖 [Execution documentation](https://carlos-camara.github.io/vscode-gherkin-powertools/features/execution.html)</sub>
+
+---
+
 ## Demo Gallery
 
 <details>
@@ -252,6 +273,10 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 **Hover — tag blast radius**
 
 ![Hover on a tag — shows the number of scenarios it affects across the workspace](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)
+
+**Run Features and Scenarios**
+
+![Execute Scenarios via CodeLens](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
 
 **Generate empty step definition**
 
@@ -384,7 +409,9 @@ Alternatively, configure the extension via your `settings.json`. Project setting
 | `gherkinPowerTools.tags.sort` | `"preserve"` | `"preserve"` or `"alphabetical"` for tag ordering |
 | `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Empty lines between scenario blocks |
 | `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py", "**/features/steps/**/*.py"]` | Glob patterns for Python step files |
-| `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**", "**/.venv/**", ...]` | Paths to exclude from step indexing |
+| `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"]` | Paths to exclude from step indexing |
+| `gherkinPowerTools.behave.additionalArguments` | `[]` | Additional flags passed to Behave |
+| `gherkinPowerTools.behave.command` | `"behave"` | The base command used to run Behave via CodeLens |
 
 📖 [Full configuration reference](https://carlos-camara.github.io/vscode-gherkin-powertools/configuration/)
 
@@ -398,6 +425,7 @@ Alternatively, configure the extension via your `settings.json`. Project setting
 | Formatter | [features/formatter.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/formatter.html) |
 | Linter and Quick Fixes | [features/linter.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/linter.html) |
 | Go to Definition | [features/definition.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/definition.html) |
+| Behave Execution | [features/execution.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/execution.html) |
 | IntelliSense and snippets | [features/snippets.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/snippets.html) |
 | Hover provider | [features/hover.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/hover.html) |
 | Outline | [features/outline.html](https://carlos-camara.github.io/vscode-gherkin-powertools/features/outline.html) |
