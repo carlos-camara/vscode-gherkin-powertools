@@ -2,7 +2,7 @@
   "name": "vscode-gherkin-powertools",
   "displayName": "Gherkin PowerTools: BDD Formatter, Linter & Python Behave",
   "description": "Advanced BDD extension for feature files. Offers AST-based Gherkin formatting, strict linting, and context-aware Python Behave step definition navigation.",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -243,6 +243,28 @@
             },
             "completionEvents": [
               "onCommand:gherkinPowerTools.showStatistics"
+            ]
+          },
+          {
+            "id": "execution",
+            "title": "Execute Behave Tests",
+            "description": "Run and Edit your features directly from the editor using CodeLens. [Run Feature](command:gherkinPowerTools.runFeature)",
+            "media": {
+              "markdown": "assets/walkthrough/8_execution.md"
+            },
+            "completionEvents": [
+              "onCommand:gherkinPowerTools.runFeature"
+            ]
+          },
+          {
+            "id": "codeActions",
+            "title": "Intelligent Quick Fixes",
+            "description": "Press `Cmd + .` or `Ctrl + .` to generate missing steps, insert colons, or fix block structure. [Quick Fix](command:editor.action.quickFix)",
+            "media": {
+              "markdown": "assets/walkthrough/9_codeactions.md"
+            },
+            "completionEvents": [
+              "onCommand:editor.action.quickFix"
             ]
           },
           {

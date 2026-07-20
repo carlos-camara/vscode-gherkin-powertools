@@ -74,7 +74,8 @@ Works with any `.feature` file.
 ### Navigate & Execute
 
 Cmd-click any Gherkin step to jump to the Python function that implements it. IntelliSense suggests steps from your codebase filtered by keyword context. Hover shows the function signature and docstring inline.
-Execute features and scenarios directly from CodeLens buttons.
+
+**Test seamlessly:** Execute individual Features or isolated Scenarios with a single click using CodeLens, complete with custom CLI arguments and smart Python environment detection.
 
 Requires Python/Behave.
 
@@ -202,6 +203,24 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 
 ---
 
+### One-Click Execution via CodeLens
+
+**Problem:** Context-switching between the editor and the terminal to run specific scenarios or inject custom arguments breaks focus.
+
+**Result:** Interactive **Run** and **Edit** buttons appear directly above Features and Scenarios. Click Run for instant, isolated execution utilizing the active VS Code Python environment. Use Edit to inject custom Behave CLI tags seamlessly.
+
+<div align="center">
+
+![Execute Scenarios via CodeLens — One-click isolated execution and custom arguments](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
+
+`Run` / `Edit` CodeLens
+
+</div>
+
+<sub>📖 [Execution documentation](https://carlos-camara.github.io/vscode-gherkin-powertools/features/execution.html)</sub>
+
+---
+
 ## Demo Gallery
 
 <details>
@@ -257,7 +276,7 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 
 **Run Features and Scenarios**
 
-Run individual features or scenarios via CodeLens buttons directly from the editor. Uses the official Python extension for environment detection.
+![Execute Scenarios via CodeLens](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
 
 **Generate empty step definition**
 
@@ -390,7 +409,7 @@ Alternatively, configure the extension via your `settings.json`. Project setting
 | `gherkinPowerTools.tags.sort` | `"preserve"` | `"preserve"` or `"alphabetical"` for tag ordering |
 | `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Empty lines between scenario blocks |
 | `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py", "**/features/steps/**/*.py"]` | Glob patterns for Python step files |
-| `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**", "**/.venv/**", ...]` | Paths to exclude from step indexing |
+| `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"]` | Paths to exclude from step indexing |
 | `gherkinPowerTools.behave.additionalArguments` | `[]` | Additional flags passed to Behave |
 | `gherkinPowerTools.behave.command` | `"behave"` | The base command used to run Behave via CodeLens |
 

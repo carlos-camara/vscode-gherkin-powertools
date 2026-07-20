@@ -8,7 +8,7 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.7.6] - 2026-07-20
 
 ### 🚀 Added
 - **Shared Project Configuration**: You can now create a `.gherkin-powertoolsrc.json` file in the root of your project. This allows you to enforce team-wide formatting rules, indentation, and step file discovery globs, overriding local VS Code settings. The file includes full schema validation, autocompletion, and hover documentation.
@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.
 - **AST-Scoped Range Formatting**: Range formatting (Format Selection) now natively parses the Abstract Syntax Tree to identify the smallest logical node encompassing your selection. Selecting a partial `DataTable`, a multi-line `DocString`, or a block of steps now correctly re-formats the entire structural element atomically, guaranteeing perfect vertical alignment.
 - **Configurable Tag Sorting**: Tag wrapping is now fully decoupled from sorting. By default, the formatter will preserve your original tag order (including duplicates). Added `gherkinPowerTools.tags.sort` setting to optionally sort tags alphabetically.
+- **CodeLens Execution**: Run and Edit features/scenarios directly from the editor using a dedicated terminal and persistent arguments.
+- **Code Actions (Quick Fixes)**: Intelligent quick fixes for Gherkin syntax errors, including generating undefined Python step stubs, inserting missing colons, and converting Scenarios to Scenario Outlines.
 - **Remote Workspace Compatibility**: Feature files are now parsed correctly over virtual filesystems (e.g., GitHub Codespaces, SSH, and remote tunnels) using VS Code's native `workspace.fs` API.
 - **Semantic Context-Aware Navigation**: Go To Definition and Hover providers now fully respect strict `Given/When/Then` matching and dynamically resolve `And`/`But` continuations backwards through the scenario.
 - **Ambiguous Step Resolution**: If a step matches multiple Python definitions (e.g., overlapping wildcard regular expressions), Go To Definition now opens a Peek View showing all matches instead of arbitrarily jumping to the first one. The Hover provider also enumerates all matching signatures.

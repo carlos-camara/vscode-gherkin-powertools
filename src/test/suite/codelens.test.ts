@@ -72,4 +72,99 @@ Feature: Sample
         
         assert.strictEqual(lenses.length, 0, 'Should not generate CodeLenses for non-feature files');
     });
+
+    test('Provides CodeLens for Rules', async () => {
+        const text = `
+Feature: Sample with Rules
+  Rule: A rule
+    Scenario: Rule Scenario
+      Given a step inside rule
+`;
+        const document = {
+            languageId: 'feature',
+            getText: () => text,
+            uri: vscode.Uri.file('/path/to/test.feature')
+        } as unknown as vscode.TextDocument;
+        
+        const provider = new BehaveCodeLensProvider();
+        const cancelToken = new vscode.CancellationTokenSource().token;
+        const lenses = await provider.provideCodeLenses(document, cancelToken);
+        
+        // 2 for Feature, 0 for Rule (we don't run rules directly), 2 for Rule Scenario
+        assert.strictEqual(lenses.length, 4, 'Should generate 4 CodeLenses');
+        
+        // Check Rule Scenario
+        assert.strictEqual(lenses[2].command?.title, '▶ Run Scenario');
+        assert.strictEqual(lenses[2].range.start.line, 3, 'Scenario should be on line 3 (0-indexed)');
+    });
+
+    test('Stops generating CodeLenses if cancellation is requested', async () => {
+        const text = `
+Feature: Sample
+  Scenario: First
+    Given a step
+  Scenario: Second
+    Given another step
+`;
+        const document = {
+            languageId: 'feature',
+            getText: () => text,
+            uri: vscode.Uri.file('/path/to/test.feature')
+        } as unknown as vscode.TextDocument;
+        
+        const provider = new BehaveCodeLensProvider();
+        const cancelTokenSource = new vscode.CancellationTokenSource();
+        cancelTokenSource.cancel();
+        
+        const lenses = await provider.provideCodeLenses(document, cancelTokenSource.token);
+        
+        // It should still give the feature lenses before the loop, but break on children
+        assert.strictEqual(lenses.length, 2, 'Should only generate Feature CodeLenses and stop');
+    });
+
+    test('Stops generating CodeLenses if cancellation is requested inside Rule', async () => {
+        const text = `
+Feature: Sample
+  Rule: Some rule
+    Scenario: First
+      Given a step
+`;
+        const document = {
+            languageId: 'feature',
+            getText: () => text,
+            uri: vscode.Uri.file('/path/to/test.feature')
+        } as unknown as vscode.TextDocument;
+        
+        const provider = new BehaveCodeLensProvider();
+        
+        // Mock token that cancels after Feature is processed
+        let callCount = 0;
+        const mockToken = {
+            get isCancellationRequested() {
+                callCount++;
+                return callCount > 1; // Cancels when inside the Rule loop
+            },
+            onCancellationRequested: new vscode.EventEmitter<any>().event
+        } as vscode.CancellationToken;
+        
+        const lenses = await provider.provideCodeLenses(document, mockToken);
+        
+        // Should have feature lenses, but no scenario inside rule because it got cancelled
+        assert.strictEqual(lenses.length, 2, 'Should not generate scenario lenses if cancelled inside rule');
+    });
+
+    test('Returns empty array on invalid Gherkin', async () => {
+        const text = `Invalid syntax completely \n \n`;
+        const document = {
+            languageId: 'feature',
+            getText: () => text,
+            uri: vscode.Uri.file('/path/to/test.feature')
+        } as unknown as vscode.TextDocument;
+        
+        const provider = new BehaveCodeLensProvider();
+        const cancelToken = new vscode.CancellationTokenSource().token;
+        const lenses = await provider.provideCodeLenses(document, cancelToken);
+        
+        assert.strictEqual(lenses.length, 0, 'Should not generate CodeLenses for invalid file');
+    });
 });

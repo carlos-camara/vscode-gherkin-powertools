@@ -25,6 +25,11 @@ export async function buildBehaveCommand(uri: vscode.Uri, line: number | undefin
     const baseCommand = config.behave.command || 'behave';
     
     let pathArg = uri.fsPath;
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+    if (workspaceFolder) {
+        pathArg = './' + vscode.workspace.asRelativePath(uri, false);
+    }
+
     if (line !== undefined) {
         pathArg = `${pathArg}:${line}`;
     }
@@ -54,20 +59,32 @@ export async function runBehaveWithPrompt(uri: vscode.Uri, line: number | undefi
     if (command) {
         const config = configService.getConfiguration(uri);
         const baseCommand = config.behave.command || 'behave';
+        
         let pathArg = uri.fsPath;
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+        if (workspaceFolder) {
+            pathArg = './' + vscode.workspace.asRelativePath(uri, false);
+        }
+
         if (line !== undefined) {
             pathArg = `${pathArg}:${line}`;
         }
         const quotedPathArg = `"${pathArg}"`;
         
         const prefix = baseCommand + " ";
-        if (command.startsWith(prefix) && command.endsWith(quotedPathArg)) {
-            const newArgsStr = command.substring(prefix.length, command.length - quotedPathArg.length).trim();
+        if (command.startsWith(prefix)) {
+            let newArgsStr = command.substring(prefix.length).trim();
+            
+            if (newArgsStr.includes(quotedPathArg)) {
+                newArgsStr = newArgsStr.replace(quotedPathArg, '').replace(/\s+/g, ' ').trim();
+            } else if (newArgsStr.includes(pathArg)) {
+                newArgsStr = newArgsStr.replace(pathArg, '').replace(/\s+/g, ' ').trim();
+            }
+            
             memoryAdditionalArgs = newArgsStr;
+            vscode.window.showInformationMessage('Execution arguments updated successfully. Click "Run" to execute.');
+        } else {
+            vscode.window.showErrorMessage('Command must start with the configured Behave base command.');
         }
-
-        const t = getTerminal();
-        t.show(true); 
-        t.sendText(command);
     }
 }
