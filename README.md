@@ -207,13 +207,13 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 
 **Problem:** Context-switching between the editor and the terminal to run specific scenarios or inject custom arguments breaks focus.
 
-**Result:** Interactive **Run**, **Edit**, and **Debug** buttons appear directly above Features and Scenarios. Click Run for instant, isolated execution utilizing the active VS Code Python environment. Use Edit to inject custom Behave CLI tags seamlessly. Click Debug to visually step through your Python step definitions using breakpoints.
+**Result:** Interactive **Run**, **Debug**, and **Edit** buttons appear directly above Features and Scenarios. Click Run for instant, isolated execution utilizing the active VS Code Python environment. Click Debug to visually step through your Python step definitions using breakpoints. Use Edit to inject custom Behave CLI tags seamlessly.
 
 <div align="center">
 
-![Execute Scenarios via CodeLens — One-click isolated execution and custom arguments](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
+![Execute Scenarios via CodeLens — One-click isolated execution and custom arguments](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif)
 
-`Run` / `Edit` / `Debug` CodeLens
+`Run` / `Debug` / `Edit` CodeLens
 
 </div>
 
@@ -276,7 +276,7 @@ Command palette: `Gherkin: Show Project Statistics` · or right-click inside any
 
 **Run and Debug Features and Scenarios**
 
-![Execute Scenarios via CodeLens](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif)
+![Execute Scenarios via CodeLens](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif)
 
 **Generate empty step definition**
 

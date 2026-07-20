@@ -23,7 +23,7 @@ export const DEFAULT_CONFIG: Configuration = {
     }
 };
 
-export interface ConfigError {
+interface ConfigError {
     key: string;
     message: string;
 }
@@ -32,7 +32,7 @@ export interface ConfigError {
  * Pure function to validate and merge parsed JSON against the default configuration.
  * Extracted to allow CLI usage without depending on VS Code API.
  */
-export function validateAndMergeConfig(parsed: any): { errors: ConfigError[], config: Configuration } {
+function validateAndMergeConfig(parsed: any): { errors: ConfigError[], config: Configuration } {
     const errors: ConfigError[] = [];
     const config: Configuration = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
 

@@ -32,9 +32,11 @@ Feature: Sample
         assert.strictEqual(lenses[0].command?.command, 'gherkinPowerTools.runFeature');
         assert.strictEqual(lenses[0].range.start.line, 1, 'Feature should be on line 1 (0-indexed)');
         
-        assert.strictEqual(lenses[1].command?.title, '$(edit)\u00A0Edit');
-        assert.strictEqual(lenses[1].command?.command, 'gherkinPowerTools.runFeatureWithArgs');
-        assert.strictEqual(lenses[1].range.start.line, 1, 'Feature args lens should be on line 1 (0-indexed)');
+        assert.strictEqual(lenses[1].command?.title, '🐞 Debug');
+        
+        assert.strictEqual(lenses[2].command?.title, '$(edit)\u00A0Edit');
+        assert.strictEqual(lenses[2].command?.command, 'gherkinPowerTools.runFeatureWithArgs');
+        assert.strictEqual(lenses[2].range.start.line, 1, 'Feature args lens should be on line 1 (0-indexed)');
         
         // Scenario
         assert.strictEqual(lenses[3].command?.title, '▶ Run Scenario');
@@ -42,12 +44,12 @@ Feature: Sample
         assert.strictEqual(lenses[3].range.start.line, 2, 'Scenario should be on line 2 (0-indexed)');
         assert.strictEqual(lenses[3].command?.arguments?.[1], 3, 'Should pass line number 3 to runScenario command');
         
-        assert.strictEqual(lenses[4].command?.title, '$(edit)\u00A0Edit');
-        assert.strictEqual(lenses[4].command?.command, 'gherkinPowerTools.runScenarioWithArgs');
-        assert.strictEqual(lenses[4].range.start.line, 2, 'Scenario args lens should be on line 2 (0-indexed)');
-        assert.strictEqual(lenses[4].command?.arguments?.[1], 3, 'Should pass line number 3 to runScenarioWithArgs command');
-
-        assert.strictEqual(lenses[5].command?.title, '🐞 Debug');
+        assert.strictEqual(lenses[4].command?.title, '🐞 Debug');
+        
+        assert.strictEqual(lenses[5].command?.title, '$(edit)\u00A0Edit');
+        assert.strictEqual(lenses[5].command?.command, 'gherkinPowerTools.runScenarioWithArgs');
+        assert.strictEqual(lenses[5].range.start.line, 2, 'Scenario args lens should be on line 2 (0-indexed)');
+        assert.strictEqual(lenses[5].command?.arguments?.[1], 3, 'Should pass line number 3 to runScenarioWithArgs command');
 
         // Scenario Outline
         assert.strictEqual(lenses[6].command?.title, '▶ Run Scenario');
@@ -55,12 +57,12 @@ Feature: Sample
         assert.strictEqual(lenses[6].range.start.line, 5, 'Scenario Outline should be on line 5 (0-indexed)');
         assert.strictEqual(lenses[6].command?.arguments?.[1], 6, 'Should pass line number 6 to runScenario command');
 
-        assert.strictEqual(lenses[7].command?.title, '$(edit)\u00A0Edit');
-        assert.strictEqual(lenses[7].command?.command, 'gherkinPowerTools.runScenarioWithArgs');
-        assert.strictEqual(lenses[7].range.start.line, 5, 'Scenario Outline args lens should be on line 5 (0-indexed)');
-        assert.strictEqual(lenses[7].command?.arguments?.[1], 6, 'Should pass line number 6 to runScenarioWithArgs command');
+        assert.strictEqual(lenses[7].command?.title, '🐞 Debug');
 
-        assert.strictEqual(lenses[8].command?.title, '🐞 Debug');
+        assert.strictEqual(lenses[8].command?.title, '$(edit)\u00A0Edit');
+        assert.strictEqual(lenses[8].command?.command, 'gherkinPowerTools.runScenarioWithArgs');
+        assert.strictEqual(lenses[8].range.start.line, 5, 'Scenario Outline args lens should be on line 5 (0-indexed)');
+        assert.strictEqual(lenses[8].command?.arguments?.[1], 6, 'Should pass line number 6 to runScenarioWithArgs command');
     });
 
     test('Ignores non-feature documents', async () => {

@@ -3,15 +3,15 @@
 Gherkin PowerTools allows you to execute your Behave tests directly from the editor without switching to the terminal.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-edit.gif" alt="Execute Scenarios via CodeLens" width="600" />
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif" alt="Execute Scenarios via CodeLens" width="600" />
 </div>
 
 ## Run Feature and Run Scenario CodeLens
 
 Above every `Feature`, `Scenario`, and `Scenario Outline` in your `.feature` files, you will see three CodeLens buttons:
 - `▶ Run Feature` (or Scenario)
-- `📝  Edit`
 - `🐞 Debug`
+- `✎ Edit`
 
 ### `▶ Run`
 
@@ -22,7 +22,7 @@ Clicking the **Run** button will:
 
 > **Note:** When running a scenario, the extension passes the exact line number of the scenario to Behave (e.g. `behave "features/login.feature:12"`), ensuring that only that scenario runs.
 
-### `📝 Edit` (Persistent Arguments)
+### `✎ Edit` (Persistent Arguments)
 
 Sometimes you want to pass extra flags to Behave during a quick testing session, such as `--tags=@wip` or `--no-capture`.
 

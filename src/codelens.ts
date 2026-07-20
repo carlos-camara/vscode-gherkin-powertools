@@ -35,19 +35,19 @@ export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
             };
             lenses.push(new vscode.CodeLens(range, command));
 
-            const argsCommand: vscode.Command = {
-                title: "$(edit)\u00A0Edit",
-                command: "gherkinPowerTools.runFeatureWithArgs",
-                arguments: [document.uri]
-            };
-            lenses.push(new vscode.CodeLens(range, argsCommand));
-
             const debugCommand: vscode.Command = {
                 title: "🐞 Debug",
                 command: "gherkinPowerTools.debugFeature",
                 arguments: [document.uri]
             };
             lenses.push(new vscode.CodeLens(range, debugCommand));
+
+            const argsCommand: vscode.Command = {
+                title: "$(edit)\u00A0Edit",
+                command: "gherkinPowerTools.runFeatureWithArgs",
+                arguments: [document.uri]
+            };
+            lenses.push(new vscode.CodeLens(range, argsCommand));
         }
 
         for (const child of feature.children) {
@@ -64,19 +64,19 @@ export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
                 };
                 lenses.push(new vscode.CodeLens(range, command));
 
-                const argsCommand: vscode.Command = {
-                    title: "$(edit)\u00A0Edit",
-                    command: "gherkinPowerTools.runScenarioWithArgs",
-                    arguments: [document.uri, child.scenario.location.line]
-                };
-                lenses.push(new vscode.CodeLens(range, argsCommand));
-
                 const debugCommand: vscode.Command = {
                     title: "🐞 Debug",
                     command: "gherkinPowerTools.debugScenario",
                     arguments: [document.uri, child.scenario.location.line]
                 };
                 lenses.push(new vscode.CodeLens(range, debugCommand));
+
+                const argsCommand: vscode.Command = {
+                    title: "$(edit)\u00A0Edit",
+                    command: "gherkinPowerTools.runScenarioWithArgs",
+                    arguments: [document.uri, child.scenario.location.line]
+                };
+                lenses.push(new vscode.CodeLens(range, argsCommand));
             } else if (child.rule) {
                 for (const ruleChild of child.rule.children) {
                     if (token.isCancellationRequested) {
@@ -92,19 +92,19 @@ export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
                         };
                         lenses.push(new vscode.CodeLens(range, command));
 
-                        const argsCommand: vscode.Command = {
-                            title: "$(edit)\u00A0Edit",
-                            command: "gherkinPowerTools.runScenarioWithArgs",
-                            arguments: [document.uri, ruleChild.scenario.location.line]
-                        };
-                        lenses.push(new vscode.CodeLens(range, argsCommand));
-
                         const debugCommand: vscode.Command = {
                             title: "🐞 Debug",
                             command: "gherkinPowerTools.debugScenario",
                             arguments: [document.uri, ruleChild.scenario.location.line]
                         };
                         lenses.push(new vscode.CodeLens(range, debugCommand));
+
+                        const argsCommand: vscode.Command = {
+                            title: "$(edit)\u00A0Edit",
+                            command: "gherkinPowerTools.runScenarioWithArgs",
+                            arguments: [document.uri, ruleChild.scenario.location.line]
+                        };
+                        lenses.push(new vscode.CodeLens(range, argsCommand));
                     }
                 }
             }

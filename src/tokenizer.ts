@@ -1,4 +1,4 @@
-export interface TokenizedDecorator {
+interface TokenizedDecorator {
     type: 'given' | 'when' | 'then' | 'step';
     argumentText: string;
     isStringLiteral: boolean;

@@ -174,6 +174,29 @@ suite('Execution Test Suite', () => {
         assert.strictEqual(cmd, `behave --no-capture "${uri.fsPath}"`);
     });
 
+    test('clearMemoryArgs correctly resets additional arguments to configuration defaults', async () => {
+        const uri = vscode.Uri.file('/path/to/test.feature');
+        
+        // Mock prompt to set custom args
+        (vscode.window as any).showInputBox = async (options: any) => {
+            return options.value.replace('--no-capture', '--tags=@fast');
+        };
+        (vscode.window as any).showInformationMessage = async () => {};
+        
+        await runBehaveWithPrompt(uri, undefined, mockConfigService);
+        
+        // Verify args are changed
+        let cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
+        assert.strictEqual(cmd, `behave --tags=@fast "${uri.fsPath}"`);
+        
+        // Clear memory
+        clearMemoryArgs();
+        
+        // Verify args are back to default config
+        cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
+        assert.strictEqual(cmd, `behave --no-capture "${uri.fsPath}"`);
+    });
+
     test('parseArgsStringToVector correctly splits arguments and unquotes strings', () => {
         const args = parseArgsStringToVector('--no-capture --tags "@wip or @dev" -D env=test');
         assert.deepStrictEqual(args, ['--no-capture', '--tags', '@wip or @dev', '-D', 'env=test']);
