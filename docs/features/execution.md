@@ -23,7 +23,7 @@ Clicking the **Run** button will:
 
 ### `📝 Edit` (Persistent Arguments)
 
-Sometimes you want to pass extra flags to Behave during a quick testing session, such as `--tags=@wip` or `--no-capture`. 
+Sometimes you want to pass extra flags to Behave during a quick testing session, such as `--tags=@wip` or `--no-capture`.
 
 Clicking the **Edit** button will:
 1. Open a command palette input box pre-filled with the exact command the extension is about to run.
@@ -38,14 +38,14 @@ You can customize the execution behavior using the following settings:
 
 ### `gherkinPowerTools.behave.command`
 The base command used to run Behave. If you use a virtual environment, `pipenv`, or `poetry`, you can change this to suit your project (e.g., `poetry run behave` or `pipenv run behave`).
-*   **Type:** `string`
-*   **Default:** `"behave"`
+* **Type:** `string`
+* **Default:** `"behave"`
 
 ### `gherkinPowerTools.behave.additionalArguments`
 If you want to pass extra flags to Behave permanently across all sessions (like `--format progress`), you can add them to this array.
-*   **Type:** `array` of `string`
-*   **Default:** `[]`
-*   **Example:** `["--no-capture", "--tags", "@wip"]`
+* **Type:** `array` of `string`
+* **Default:** `[]`
+* **Example:** `["--no-capture", "--tags", "@wip"]`
 
 ---
 
