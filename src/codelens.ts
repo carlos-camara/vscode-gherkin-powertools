@@ -41,6 +41,13 @@ export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
                 arguments: [document.uri]
             };
             lenses.push(new vscode.CodeLens(range, argsCommand));
+
+            const debugCommand: vscode.Command = {
+                title: "🐞 Debug",
+                command: "gherkinPowerTools.debugFeature",
+                arguments: [document.uri]
+            };
+            lenses.push(new vscode.CodeLens(range, debugCommand));
         }
 
         for (const child of feature.children) {
@@ -63,6 +70,13 @@ export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
                     arguments: [document.uri, child.scenario.location.line]
                 };
                 lenses.push(new vscode.CodeLens(range, argsCommand));
+
+                const debugCommand: vscode.Command = {
+                    title: "🐞 Debug",
+                    command: "gherkinPowerTools.debugScenario",
+                    arguments: [document.uri, child.scenario.location.line]
+                };
+                lenses.push(new vscode.CodeLens(range, debugCommand));
             } else if (child.rule) {
                 for (const ruleChild of child.rule.children) {
                     if (token.isCancellationRequested) {
@@ -84,6 +98,13 @@ export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
                             arguments: [document.uri, ruleChild.scenario.location.line]
                         };
                         lenses.push(new vscode.CodeLens(range, argsCommand));
+
+                        const debugCommand: vscode.Command = {
+                            title: "🐞 Debug",
+                            command: "gherkinPowerTools.debugScenario",
+                            arguments: [document.uri, ruleChild.scenario.location.line]
+                        };
+                        lenses.push(new vscode.CodeLens(range, debugCommand));
                     }
                 }
             }

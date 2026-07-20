@@ -8,9 +8,10 @@ Gherkin PowerTools allows you to execute your Behave tests directly from the edi
 
 ## Run Feature and Run Scenario CodeLens
 
-Above every `Feature`, `Scenario`, and `Scenario Outline` in your `.feature` files, you will see two CodeLens buttons:
+Above every `Feature`, `Scenario`, and `Scenario Outline` in your `.feature` files, you will see three CodeLens buttons:
 - `▶ Run Feature` (or Scenario)
 - `📝  Edit`
+- `🐞 Debug`
 
 ### `▶ Run`
 
@@ -31,6 +32,22 @@ Clicking the **Edit** button will:
 3. Save your customized arguments globally for the session so that you can execute them by clicking **Run** on any scenario.
 
 **✨ Smart Persistence:** During your VS Code session, Gherkin PowerTools will remember any extra arguments you added! The next time you click **Run** or **Edit**, your previous arguments will automatically be included in the command. If you want to clear them, simply click **Edit** again and remove them.
+
+### `🐞 Debug`
+
+Clicking the **Debug** button allows you to visually debug Python step definitions for the specific scenario.
+
+When you click **Debug**:
+1. The extension constructs a temporary debugging configuration for Behave.
+2. It launches Behave using the official VS Code Python debugger (`ms-python.python`).
+3. Execution pauses at any breakpoints you have placed in your Python step definitions, allowing you to inspect variables and step through code.
+
+> **Important:** The debug button requires the **Python extension** (`ms-python.python`) to be installed in VS Code. It uses your workspace's configured Python interpreter and correctly handles any arguments defined in `additionalArguments` or via `Edit`.
+
+#### Debugging Limitations
+
+- **Scenario Outlines**: Debugging specific examples within a `Scenario Outline` using the line number relies on Behave's name-matching fallback behavior if line number resolution is disabled in Behave or if the debugger strips the line number. Due to Behave's runner logic, if you have multiple scenarios with the exact same name across different feature files (or identical examples), the debugger might execute all matching scenarios instead of just the one selected. To avoid this, ensure your scenarios have unique names.
+- **Rule Backgrounds**: If the scenario is inside a `Rule`, Behave's execution engine might exhibit similar grouping behaviors when launched via a debug adapter.
 
 ## Configuration
 

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { buildBehaveCommand, runBehave, runBehaveWithPrompt } from '../../execution';
+import { buildBehaveCommand, runBehave, runBehaveWithPrompt, parseArgsStringToVector, debugBehave, clearMemoryArgs } from '../../execution';
 import { ConfigurationService } from '../../configuration';
 
 suite('Execution Test Suite', () => {
@@ -10,6 +10,12 @@ suite('Execution Test Suite', () => {
     let mockTerminal: any;
     let sendTextCalledWith: string | undefined;
     let showCalled: boolean;
+    let originalGetExtension: any;
+    let originalStartDebugging: any;
+    let originalAsRelativePath: any;
+    let originalWorkspaceFolder: any;
+    let getExtensionMock: (name: string) => any;
+    let startDebuggingCalledWith: any;
 
     const mockConfigService = {
         getConfiguration: () => ({
@@ -42,6 +48,25 @@ suite('Execution Test Suite', () => {
         };
         // Always make window.terminals return the last created terminal so `includes` check passes
         Object.defineProperty(vscode.window, 'terminals', { get: () => lastCreatedTerminal ? [lastCreatedTerminal] : [], configurable: true });
+
+        originalGetExtension = vscode.extensions.getExtension;
+        originalStartDebugging = vscode.debug.startDebugging;
+        originalWorkspaceFolder = vscode.workspace.getWorkspaceFolder;
+        originalAsRelativePath = vscode.workspace.asRelativePath;
+        
+        getExtensionMock = (name: string) => {
+            if (name === 'ms-python.python') { return { id: name }; }
+            return undefined;
+        };
+        (vscode.extensions as any).getExtension = (name: string) => getExtensionMock(name);
+        
+        startDebuggingCalledWith = undefined;
+        (vscode.debug as any).startDebugging = async (folder: any, config: any) => {
+            startDebuggingCalledWith = { folder, config };
+            return true;
+        };
+        (vscode.workspace as any).getWorkspaceFolder = () => undefined; // Default: no workspace
+        (vscode.workspace as any).asRelativePath = () => 'features/test.feature';
     });
 
     teardown(() => {
@@ -50,6 +75,11 @@ suite('Execution Test Suite', () => {
         if (originalTerminals) {
             Object.defineProperty(vscode.window, 'terminals', { get: originalTerminals });
         }
+        (vscode.extensions as any).getExtension = originalGetExtension;
+        (vscode.debug as any).startDebugging = originalStartDebugging;
+        (vscode.workspace as any).getWorkspaceFolder = originalWorkspaceFolder;
+        (vscode.workspace as any).asRelativePath = originalAsRelativePath;
+        clearMemoryArgs();
     });
 
     test('buildBehaveCommand builds command correctly for file', async () => {
@@ -140,7 +170,40 @@ suite('Execution Test Suite', () => {
 
         // Memory should not be updated with echo hello
         const cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
-        // It should still have the previously saved --no-capture --tags=@wip
-        assert.strictEqual(cmd, `behave --no-capture --tags=@wip "${uri.fsPath}"`);
+        // It should remain undefined, so it uses the original additional arguments
+        assert.strictEqual(cmd, `behave --no-capture "${uri.fsPath}"`);
+    });
+
+    test('parseArgsStringToVector correctly splits arguments and unquotes strings', () => {
+        const args = parseArgsStringToVector('--no-capture --tags "@wip or @dev" -D env=test');
+        assert.deepStrictEqual(args, ['--no-capture', '--tags', '@wip or @dev', '-D', 'env=test']);
+    });
+
+    test('debugBehave creates valid debug configuration', async () => {
+        (vscode.workspace as any).getWorkspaceFolder = () => ({ uri: vscode.Uri.file('/workspace'), name: 'workspace', index: 0 });
+        const uri = vscode.Uri.file('/workspace/features/test.feature');
+        await debugBehave(uri, 42, mockConfigService);
+        
+        assert.ok(startDebuggingCalledWith, 'startDebugging should have been called');
+        const config = startDebuggingCalledWith.config;
+        assert.strictEqual(config.name, 'Debug Behave (PowerTools)');
+        assert.strictEqual(config.type, 'python');
+        assert.strictEqual(config.request, 'launch');
+        assert.strictEqual(config.module, 'behave');
+        assert.deepStrictEqual(config.args, ['--no-capture', './features/test.feature:42']);
+        assert.strictEqual(config.console, 'integratedTerminal');
+    });
+
+    test('debugBehave prompts for missing Python extension', async () => {
+        getExtensionMock = () => undefined; // Simulate no Python extension
+        
+        let errorMessageShown = false;
+        (vscode.window as any).showErrorMessage = async () => { errorMessageShown = true; return undefined; };
+        
+        const uri = vscode.Uri.file('/workspace/features/test.feature');
+        await debugBehave(uri, undefined, mockConfigService);
+        
+        assert.strictEqual(startDebuggingCalledWith, undefined, 'startDebugging should NOT have been called');
+        assert.strictEqual(errorMessageShown, true, 'Error message should be shown prompting installation');
     });
 });
