@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🚀 Added
-- **Behave Execution & Debugging CodeLens**: Execute and debug features and scenarios directly from the editor using new `▶ Run Feature`, `▶ Run Scenario`, and `🐞 Debug` CodeLens buttons. 
-  The extension automatically detects your Python interpreter via the official Python extension. 
+- **Behave Execution & Debugging CodeLens**: Execute and debug features and scenarios directly from the editor using new `▶ Run Feature`, `▶ Run Scenario`, and `🐞 Debug` CodeLens buttons.
+  The extension automatically detects your Python interpreter via the official Python extension.
   The debug feature constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
 
 ## [1.7.6] - 2026-07-20
