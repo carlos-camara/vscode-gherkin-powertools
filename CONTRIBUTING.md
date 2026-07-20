@@ -109,8 +109,6 @@ This will generate a `vscode-gherkin-powertools-x.x.x.vsix` file in the root dir
 
 Code reviews will be conducted on all submissions.
 
----
-
 ## 🚀 Release Preparation Process
 
 To ensure high-quality release notes that focus on user value rather than raw commits, follow this workflow when preparing a new release:
