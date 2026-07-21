@@ -325,7 +325,8 @@
   },
   "overrides": {
     "serialize-javascript": "^7.0.5",
-    "brace-expansion": "^2.1.2"
+    "brace-expansion": "^2.1.2",
+    "js-yaml": "^4.3.0"
   },
   "dependencies": {
     "@cucumber/gherkin": "^41.0.0",
