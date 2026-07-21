@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Single Typed Configuration Contract & Precedence Pipeline**:
   Configuration resolution now strictly enforces property-level precedence: Project (`.gherkin-powertoolsrc.json`) > Workspace Settings > User Settings > Defaults. Partial project config files now seamlessly inherit unmentioned fields from workspace/user settings.
 - **Automated CI Configuration Drift Guard**: Added `check:config` task and CI verification step (`scripts/check-config-sync.js`) that enforces 100% synchronization between implemented settings, JSON schema, `package.json`, and documentation.
+- **Gherkin: Diagnose Workspace Command**: Added a new diagnostic command (`gherkinPowerTools.diagnoseWorkspace`) that analyzes environment versions, workspace layout, discovered feature/step files, indexed definitions, Python extension status, and `.gherkin-powertoolsrc.json` validity. Generates an Output Channel report with a 1-click `Copy Sanitized Report` action that redacts personal usernames and home directory paths for safe issue reporting.
 - **Dedicated Visual Demo Gallery**: Added a standalone `docs/demos.md` gallery showcasing all feature animations.
 
 ### 🐛 Fixed

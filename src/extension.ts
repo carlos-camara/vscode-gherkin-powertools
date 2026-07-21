@@ -13,6 +13,7 @@ import { GherkinHoverProvider } from './hover';
 import { discoveryService } from './discovery';
 import { runBehave, runBehaveWithPrompt, debugBehave } from './execution';
 import { BehaveCodeLensProvider } from './codelens';
+import { showDiagnosticsReport } from './diagnostics';
 
 import { ConfigurationService } from './configuration';
 
@@ -142,13 +143,15 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinPowerTools.debugFeature', (uri: vscode.Uri) => {
-            debugBehave(uri, undefined, configService);
-        })
-    );
-    context.subscriptions.push(
         vscode.commands.registerCommand('gherkinPowerTools.debugScenario', (uri: vscode.Uri, line: number) => {
             debugBehave(uri, line, configService);
+        })
+    );
+
+    // Register the workspace diagnostic command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.diagnoseWorkspace', () => {
+            return showDiagnosticsReport(context, symbolCache, featureCache, configService);
         })
     );
     

@@ -33,3 +33,9 @@ body:
       label: "VS Code Version"
     validations:
       required: true
+  - type: textarea
+    id: diagnostic-output
+    attributes:
+      label: "Diagnostic Output (Optional)"
+      description: "Run 'Gherkin: Diagnose Workspace' from the Command Palette, click 'Copy Sanitized Report', and paste the output here."
+      render: text

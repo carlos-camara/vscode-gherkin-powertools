@@ -178,6 +178,11 @@
         "command": "gherkinPowerTools.debugScenario",
         "title": "Debug Scenario",
         "category": "Gherkin"
+      },
+      {
+        "command": "gherkinPowerTools.diagnoseWorkspace",
+        "title": "Gherkin: Diagnose Workspace",
+        "category": "Gherkin"
       }
     ],
     "menus": {
