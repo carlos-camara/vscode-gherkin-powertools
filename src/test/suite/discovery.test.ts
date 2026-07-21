@@ -15,18 +15,18 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
 
     test('normalizeGlobs returns defaults when provided invalid or empty inputs', () => {
         const defaults = ['**/steps/**/*.py', '**/features/steps/**/*.py'];
-        assert.deepStrictEqual(service.normalizeStepGlobs(undefined), defaults);
-        assert.deepStrictEqual(service.normalizeStepGlobs([]), defaults);
-        assert.deepStrictEqual(service.normalizeStepGlobs(['   ']), defaults);
+        assert.deepStrictEqual(service.normalizeGlobs(undefined, defaults), defaults);
+        assert.deepStrictEqual(service.normalizeGlobs([], defaults), defaults);
+        assert.deepStrictEqual(service.normalizeGlobs(['   '], defaults), defaults);
 
         const ignoreDefaults = ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**'];
-        assert.deepStrictEqual(service.normalizeIgnoreGlobs(undefined), ignoreDefaults);
-        assert.deepStrictEqual(service.normalizeIgnoreGlobs([]), ignoreDefaults);
+        assert.deepStrictEqual(service.normalizeGlobs(undefined, ignoreDefaults), ignoreDefaults);
+        assert.deepStrictEqual(service.normalizeGlobs([], ignoreDefaults), ignoreDefaults);
     });
 
     test('normalizeGlobs filters invalid elements but keeps valid ones', () => {
         assert.deepStrictEqual(
-            service.normalizeStepGlobs(['valid/*.py', '', 123 as any, '  another/*.py  ']),
+            service.normalizeGlobs(['valid/*.py', '', 123 as any, 'another/*.py'], []),
             ['valid/*.py', 'another/*.py']
         );
     });

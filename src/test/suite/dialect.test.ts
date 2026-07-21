@@ -152,4 +152,23 @@ Característica: Prueba
         assert.strictEqual(match?.[1], 'Dado ');
         assert.strictEqual(match?.[2], 'algo');
     });
+
+    test('Handles string input, unknown language, clearCache, and boundary fallback', async () => {
+        // String input to getDialect
+        const dialect1 = dialectService.getDialect('# language: fr');
+        assert.strictEqual(dialect1.name, 'French');
+
+        // Unknown language falls back to English
+        const dialectUnknown = dialectService.detectDialect('# language: non_existent_lang_123');
+        assert.strictEqual(dialectUnknown.name, 'English');
+
+        // clearCache
+        const uri = vscode.Uri.file('/tmp/dialect_test.feature');
+        dialectService.clearCache(uri);
+
+        // resolveAndBut boundary fallback when hitting Scenario line
+        const docText = `Scenario: Test\n  And step without given`;
+        const document = await vscode.workspace.openTextDocument({ content: docText, language: 'feature' });
+        assert.strictEqual(dialectService.resolveAndBut(document, 1), 'step');
+    });
 });
