@@ -1,7 +1,7 @@
 {
   "name": "vscode-gherkin-powertools",
-  "displayName": "Gherkin PowerTools: BDD Formatter, Linter & Python Behave",
-  "description": "Advanced BDD extension for feature files. Offers AST-based Gherkin formatting, strict linting, and context-aware Python Behave step definition navigation.",
+  "displayName": "Gherkin PowerTools: BDD Formatter, Linter, Test Runner & Debugger",
+  "description": "Comprehensive BDD toolkit for Gherkin feature files and Python Behave: AST-based formatting, strict linting, step navigation, test execution, debugging, and analytics.",
   "version": "1.7.6",
   "engines": {
     "vscode": "^1.93.0"
@@ -16,7 +16,11 @@
     "behave",
     "cucumber",
     "bdd",
-    "feature"
+    "feature",
+    "test-runner",
+    "debugger",
+    "formatter",
+    "linter"
   ],
   "publisher": "carloscamara",
   "author": "Carlos Camara",
