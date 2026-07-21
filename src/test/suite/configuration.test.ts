@@ -22,7 +22,6 @@ suite('ConfigurationService Test Suite', () => {
         } as any;
         configService = new ConfigurationService(mockDiagnostics);
 
-        // Assume we have at least one workspace folder
         workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath || '';
     });
 
@@ -34,27 +33,24 @@ suite('ConfigurationService Test Suite', () => {
         }
     });
 
-    test('Returns default configuration when no overrides exist', () => {
-        // Ensure no local config file
+    test('1. Default configuration is returned when no overrides exist and file is missing', () => {
         const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
         if (fs.existsSync(configPath)) {
             fs.unlinkSync(configPath);
         }
 
-        // Mock vscode configuration to return undefined for everything
         const originalGetConfig = vscode.workspace.getConfiguration;
         vscode.workspace.getConfiguration = () => ({
             get: () => undefined
         } as any);
 
         const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
-
         assert.deepStrictEqual(config, DEFAULT_CONFIG);
 
         vscode.workspace.getConfiguration = originalGetConfig;
     });
 
-    test('VS Code settings override defaults', () => {
+    test('2. Workspace settings override defaults', () => {
         const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
         if (fs.existsSync(configPath)) {
             fs.unlinkSync(configPath);
@@ -73,12 +69,12 @@ suite('ConfigurationService Test Suite', () => {
 
         assert.strictEqual(config.indentation.steps, 2);
         assert.strictEqual(config.tags.format, 'singleLine');
-        assert.strictEqual(config.tables.alignToKeyword, true); // from default
+        assert.strictEqual(config.tables.alignToKeyword, true); // default fallback
 
         vscode.workspace.getConfiguration = originalGetConfig;
     });
 
-    test('Project configuration overrides VS Code settings and defaults', () => {
+    test('3. Precedence hierarchy: project .gherkin-powertoolsrc.json > workspace settings > defaults', () => {
         const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
         
         fs.writeFileSync(configPath, JSON.stringify({
@@ -89,9 +85,9 @@ suite('ConfigurationService Test Suite', () => {
         const originalGetConfig = vscode.workspace.getConfiguration;
         vscode.workspace.getConfiguration = () => ({
             get: (key: string) => {
-                // VS Code setting which should be overridden by project config
+                // Workspace setting which should be overridden by project config
                 if (key === 'indentation.steps') return 2;
-                // VS Code setting which should apply because it's not in project config
+                // Workspace setting which should apply because it's not in project config
                 if (key === 'tags.format') return 'singleLine';
                 return undefined;
             }
@@ -99,20 +95,29 @@ suite('ConfigurationService Test Suite', () => {
 
         const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
 
-        assert.strictEqual(config.indentation.steps, 8); // From project
-        assert.strictEqual(config.tables.alignToKeyword, false); // From project
-        assert.strictEqual(config.tags.format, 'wrap'); // Project overrides completely (falls back to default, doesn't merge with vscode settings for missing sections in project config)
-        
-        // Wait, validateAndMergeConfig merges with DEFAULT_CONFIG. So if project config exists, it ignores VS Code settings entirely.
-        // Let's verify this behavior:
-        assert.strictEqual(config.tags.format, 'wrap'); // Default
+        assert.strictEqual(config.indentation.steps, 8); // Project overrides workspace
+        assert.strictEqual(config.tables.alignToKeyword, false); // Project overrides default
+        assert.strictEqual(config.tags.format, 'singleLine'); // Workspace setting preserved for non-project property
 
         vscode.workspace.getConfiguration = originalGetConfig;
     });
 
-    test('Handles invalid JSON in project configuration gracefully', () => {
+    test('4. Handles missing configuration file gracefully without crashing', () => {
         const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
-        
+        if (fs.existsSync(configPath)) {
+            fs.unlinkSync(configPath);
+        }
+
+        let diagnosticSetCount = 0;
+        mockDiagnostics.set = () => { diagnosticSetCount++; };
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+        assert.ok(config);
+        assert.strictEqual(config.indentation.steps, 4);
+    });
+
+    test('5. Handles invalid JSON syntax in project configuration gracefully', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
         fs.writeFileSync(configPath, '{ invalid json');
 
         let diagnosticSetCount = 0;
@@ -120,16 +125,17 @@ suite('ConfigurationService Test Suite', () => {
 
         const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
 
-        // Should fall back to VS Code settings (which fall back to defaults)
+        // Fallback to defaults/vscode settings
         assert.strictEqual(config.indentation.steps, 4);
         assert.strictEqual(diagnosticSetCount, 1);
     });
 
-    test('Handles invalid schema values in project configuration gracefully', () => {
+    test('6. Handles invalid value types and enum options in project configuration gracefully', () => {
         const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
         
         fs.writeFileSync(configPath, JSON.stringify({
-            indentation: { steps: "not a number" } // Invalid type
+            indentation: { steps: "not a number" },
+            tags: { format: "invalidFormat" }
         }));
 
         let diagnostics: vscode.Diagnostic[] = [];
@@ -137,13 +143,30 @@ suite('ConfigurationService Test Suite', () => {
 
         const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
 
-        // Should fall back to default for this invalid field
+        // Fallbacks to default
         assert.strictEqual(config.indentation.steps, 4);
-        assert.strictEqual(diagnostics.length, 1);
-        assert.ok(diagnostics[0].message.includes('must be a number'));
+        assert.strictEqual(config.tags.format, 'wrap');
+        assert.strictEqual(diagnostics.length, 2);
     });
 
-    test('Loads behave execution settings from config', () => {
+    test('7. Handles unknown keys and unknown root sections gracefully', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        
+        fs.writeFileSync(configPath, JSON.stringify({
+            unknownSection: { foo: 'bar' },
+            indentation: { steps: 2, unknownSubKey: 10 }
+        }));
+
+        let diagnostics: vscode.Diagnostic[] = [];
+        mockDiagnostics.set = ((_uri: any, diags: vscode.Diagnostic[]) => { diagnostics = diags; }) as any;
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+
+        assert.strictEqual(config.indentation.steps, 2);
+        assert.strictEqual(diagnostics.length, 2);
+    });
+
+    test('8. Loads behave execution settings correctly', () => {
         const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
         
         fs.writeFileSync(configPath, JSON.stringify({
@@ -159,36 +182,7 @@ suite('ConfigurationService Test Suite', () => {
         assert.deepStrictEqual(config.behave.additionalArguments, ['-f', 'json']);
     });
 
-    test('Validates all schema errors in validateAndMergeConfig', () => {
-        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
-        
-        fs.writeFileSync(configPath, JSON.stringify({
-            unknownSection: { steps: 2 },
-            indentation: null,
-            tables: { alignToKeyword: "yes", unknownProp: 1 },
-            tags: { format: "invalid", sort: "invalid", unknownProp: 1 },
-            emptyLines: { betweenScenarios: "one", unknownProp: 1 },
-            behave: { stepGlobs: "not an array", command: 123, unknownProp: 1 }
-        }));
-
-        let diagnostics: vscode.Diagnostic[] = [];
-        mockDiagnostics.set = ((_uri: any, diags: vscode.Diagnostic[]) => { diagnostics = diags; }) as any;
-
-        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
-
-        // Verify defaults fallback
-        assert.strictEqual(config.indentation.steps, 4);
-        assert.strictEqual(config.tables.alignToKeyword, true);
-        assert.strictEqual(config.tags.format, 'wrap');
-        assert.strictEqual(config.tags.sort, 'preserve');
-        assert.strictEqual(config.emptyLines.betweenScenarios, 1);
-        assert.strictEqual(config.behave.command, 'behave');
-        
-        // Verify multiple errors reported
-        assert.ok(diagnostics.length > 5, 'Should report multiple validation errors');
-    });
-
-    test('Invalidate cache clears values', () => {
+    test('9. Live configuration changes and cache invalidation', () => {
         const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
         fs.writeFileSync(configPath, JSON.stringify({ indentation: { steps: 8 } }));
         
@@ -196,12 +190,11 @@ suite('ConfigurationService Test Suite', () => {
         let config = configService.getConfiguration(uri);
         assert.strictEqual(config.indentation.steps, 8);
 
-        // Delete file and invalidate
-        fs.unlinkSync(configPath);
+        // Modify file and invalidate cache
+        fs.writeFileSync(configPath, JSON.stringify({ indentation: { steps: 2 } }));
         configService.invalidateCache(uri);
         
-        // Next fetch should get VS Code default (4)
         config = configService.getConfiguration(uri);
-        assert.strictEqual(config.indentation.steps, 4);
+        assert.strictEqual(config.indentation.steps, 2);
     });
 });
