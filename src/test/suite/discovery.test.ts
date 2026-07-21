@@ -1,20 +1,12 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { BehaveFileDiscoveryService } from '../../discovery';
+import { discoveryService } from '../../discovery';
 
 suite('BehaveFileDiscoveryService Test Suite', () => {
-    let service: BehaveFileDiscoveryService;
+    let service: typeof discoveryService;
 
     setup(() => {
-        service = new BehaveFileDiscoveryService();
-        service.configService = {
-            getConfiguration: () => ({
-                behave: {
-                    stepGlobs: ['**/steps/**/*.py', '**/features/steps/**/*.py'],
-                    ignoreGlobs: ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**']
-                }
-            })
-        } as any;
+        service = discoveryService;
     });
 
     teardown(() => {
@@ -22,61 +14,55 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
     });
 
     test('normalizeGlobs returns defaults when provided invalid or empty inputs', () => {
-        const defaults = ['**/steps/**/*.py'];
+        const defaults = ['**/steps/**/*.py', '**/features/steps/**/*.py'];
+        assert.deepStrictEqual(service.normalizeStepGlobs(undefined), defaults);
+        assert.deepStrictEqual(service.normalizeStepGlobs([]), defaults);
+        assert.deepStrictEqual(service.normalizeStepGlobs(['   ']), defaults);
 
-        assert.deepStrictEqual(service.normalizeGlobs(null, defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs(undefined, defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs([], defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs([123, null], defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs([''], defaults), defaults);
-        assert.deepStrictEqual(service.normalizeGlobs(['   '], defaults), defaults);
+        const ignoreDefaults = ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**'];
+        assert.deepStrictEqual(service.normalizeIgnoreGlobs(undefined), ignoreDefaults);
+        assert.deepStrictEqual(service.normalizeIgnoreGlobs([]), ignoreDefaults);
     });
 
     test('normalizeGlobs filters invalid elements but keeps valid ones', () => {
-        const defaults = ['**/steps/**/*.py'];
-        const input = ['valid/**/*.py', 123, '', '   ', null, 'another/**/*.py'];
-        const expected = ['valid/**/*.py', 'another/**/*.py'];
-
-        assert.deepStrictEqual(service.normalizeGlobs(input, defaults), expected);
+        assert.deepStrictEqual(
+            service.normalizeStepGlobs(['valid/*.py', '', 123 as any, '  another/*.py  ']),
+            ['valid/*.py', 'another/*.py']
+        );
     });
 
     test('isIgnored correctly identifies virtual environments and node_modules', () => {
-        const ignoreGlobs = ['**/node_modules/**', '**/.venv/**', '**/venv/**', '**/env/**'];
+        const uriVenv = vscode.Uri.file('/my/project/.venv/lib/python3.10/site-packages/steps.py');
+        const uriNode = vscode.Uri.file('/my/project/node_modules/package/steps.py');
+        const uriValid = vscode.Uri.file('/my/project/features/steps/login_steps.py');
 
-        const venvFile = vscode.Uri.file('/workspace/.venv/lib/python3.9/site-packages/steps.py');
-        const nodeModulesFile = vscode.Uri.file('/workspace/node_modules/pkg/steps.py');
-        const envFile = vscode.Uri.file('/workspace/env/lib/steps.py');
-        const validStepFile = vscode.Uri.file('/workspace/features/steps/login_steps.py');
-
-        assert.strictEqual(service.isIgnored(venvFile, ignoreGlobs), true);
-        assert.strictEqual(service.isIgnored(nodeModulesFile, ignoreGlobs), true);
-        assert.strictEqual(service.isIgnored(envFile, ignoreGlobs), true);
-        assert.strictEqual(service.isIgnored(validStepFile, ignoreGlobs), false);
+        assert.strictEqual(service.isIgnored(uriVenv), true);
+        assert.strictEqual(service.isIgnored(uriNode), true);
+        assert.strictEqual(service.isIgnored(uriValid), false);
     });
 
     test('isIgnored supports custom ignore glob patterns', () => {
-        const ignoreGlobs = ['**/custom_ignore/*.py'];
+        const customIgnore = ['**/custom_ignore/**'];
+        const uriCustom = vscode.Uri.file('/my/project/custom_ignore/steps.py');
+        const uriValid = vscode.Uri.file('/my/project/features/steps/login_steps.py');
 
-        const ignoredFile = vscode.Uri.file('/workspace/custom_ignore/test_steps.py');
-        const validFile = vscode.Uri.file('/workspace/features/steps/test_steps.py');
-
-        assert.strictEqual(service.isIgnored(ignoredFile, ignoreGlobs), true);
-        assert.strictEqual(service.isIgnored(validFile, ignoreGlobs), false);
+        assert.strictEqual(service.isIgnored(uriCustom, customIgnore), true);
+        assert.strictEqual(service.isIgnored(uriValid, customIgnore), false);
     });
 
     test('getStepFiles filters out ignored files automatically', async () => {
         const originalFindFiles = vscode.workspace.findFiles;
 
-        (vscode.workspace as any).findFiles = async (_include: string, _exclude: string) => {
+        (vscode.workspace as any).findFiles = async () => {
             return [
-                vscode.Uri.file('/workspace/features/steps/login_steps.py'),
-                vscode.Uri.file('/workspace/.venv/lib/python3.9/site-packages/ignored_steps.py')
+                vscode.Uri.file('/my/project/features/steps/login.py'),
+                vscode.Uri.file('/my/project/.venv/lib/steps.py')
             ];
         };
 
-        const files = await service.getStepFiles();
-        assert.strictEqual(files.length, 1);
-        assert.ok(files[0].fsPath.includes('login_steps.py'));
+        const result = await service.getStepFiles();
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].fsPath.includes('.venv'), false);
 
         (vscode.workspace as any).findFiles = originalFindFiles;
     });
@@ -156,6 +142,54 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
         (vscode.workspace as any).createFileSystemWatcher = originalCreateFileSystemWatcher;
     });
 
+    test('setupWatchers triggers onDidChange and onDidDelete on valid files', (done) => {
+        const originalCreateFileSystemWatcher = vscode.workspace.createFileSystemWatcher;
+
+        let onChangedListener: ((uri: vscode.Uri) => void) | undefined;
+        let onDeletedListener: ((uri: vscode.Uri) => void) | undefined;
+        let changedFired = false;
+        let deletedFired = false;
+
+        service.configService = {
+            getConfiguration: () => ({
+                behave: {
+                    stepGlobs: ['**/steps/**/*.py'],
+                    ignoreGlobs: ['**/venv/**']
+                }
+            })
+        } as any;
+
+        (vscode.workspace as any).createFileSystemWatcher = () => {
+            return {
+                onDidCreate: () => {},
+                onDidChange: (cb: any) => { onChangedListener = cb; },
+                onDidDelete: (cb: any) => { onDeletedListener = cb; },
+                dispose: () => {}
+            };
+        };
+
+        service.setupWatchers(
+            () => {},
+            () => { changedFired = true; },
+            () => { deletedFired = true; }
+        );
+
+        if (onChangedListener) {
+            onChangedListener(vscode.Uri.file('/workspace/features/steps/login.py'));
+        }
+        if (onDeletedListener) {
+            onDeletedListener(vscode.Uri.file('/workspace/features/steps/login.py'));
+        }
+
+        setTimeout(() => {
+            assert.strictEqual(changedFired, true, 'onDidChange event should trigger callback');
+            assert.strictEqual(deletedFired, true, 'onDidDelete event should trigger callback');
+            service.disposeWatchers();
+            (vscode.workspace as any).createFileSystemWatcher = originalCreateFileSystemWatcher;
+            done();
+        }, 150);
+    });
+
     test('setupWatchers filters events on ignored files', (done) => {
         const originalCreateFileSystemWatcher = vscode.workspace.createFileSystemWatcher;
 
@@ -186,7 +220,6 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
             () => {}
         );
 
-        // Fire event on ignored file
         if (onCreatedListener) {
             onCreatedListener(vscode.Uri.file('/workspace/venv/lib/steps.py'));
         }
@@ -212,7 +245,6 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
         assert.strictEqual(service.getGlobPattern(), '{glob1,glob2}');
         assert.strictEqual(service.getExcludePattern(), '{ignore1,ignore2}');
 
-        // Single glob
         service.configService = {
             getConfiguration: () => ({
                 behave: {
@@ -228,12 +260,12 @@ suite('BehaveFileDiscoveryService Test Suite', () => {
 
     test('getBestWorkspaceFolder returns undefined if no workspace folders exist', () => {
         const originalWorkspaceFolders = vscode.workspace.workspaceFolders;
-        
+
         Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => undefined });
-        
+
         const result = service.getBestWorkspaceFolder(vscode.Uri.file('/tmp/file.py'));
         assert.strictEqual(result, undefined);
-        
+
         Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => [] });
         const result2 = service.getBestWorkspaceFolder(vscode.Uri.file('/tmp/file.py'));
         assert.strictEqual(result2, undefined);
