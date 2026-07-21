@@ -73,6 +73,7 @@ nav:
       - Syntax Highlighting: features/highlighting.md
       - Autocomplete & Snippets: features/snippets.md
       - Hover Preview: features/hover.md
+      - Workspace Diagnostics: features/diagnostics.md
   - Architecture:
       - Core Architecture: ARCHITECTURE.md
       - CI/CD Pipelines: pipelines.md

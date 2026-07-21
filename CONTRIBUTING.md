@@ -25,6 +25,7 @@ Here is a breakdown of the core modules located in the `src/` directory:
 - **`parser.ts`**: Handles AST parsing and caching of Gherkin documents.
 - **`dialect.ts`**: Provides i18n support by matching localized Gherkin keywords.
 - **`discovery.ts`**: Centralized service for Behave step-file discovery, configuration normalization, and reactive file watchers.
+- **`diagnostics.ts`**: Diagnostic engine (`Gherkin: Diagnose Workspace`) collecting system metrics, discovery stats, and redacting paths for safe troubleshooting.
 
 ---
 
@@ -53,6 +54,12 @@ Here is a breakdown of the core modules located in the `src/` directory:
 ## 🧪 Testing
 
 The official `@vscode/test-electron` framework coupled with Mocha is used to run tests. Tests are split into two categories to maximize efficiency and reliability:
+
+### Configuration Drift Check
+To verify that all configuration settings in `package.json`, `gherkin-powertools.schema.json`, `src/configuration.ts`, `README.md`, and documentation are 100% synchronized:
+```bash
+npm run check:config
+```
 
 ### Unit Tests
 To run ultra-fast unit tests that validate the AST processor and algorithms:
