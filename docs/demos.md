@@ -50,7 +50,7 @@ Hover over any tag to see how many scenarios across the workspace are affected.
 ### Run & Debug via CodeLens
 Execute or debug features/scenarios with 1 click using the editor CodeLens header.
 
-![Execute Scenarios via CodeLens](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif)
+<img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif" alt="Execute Scenarios via CodeLens" width="600" />
 
 ### Generate Missing Step Stub
 One-click Quick Fix to append a new Python step definition stub to your step files.

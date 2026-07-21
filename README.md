@@ -89,7 +89,7 @@ Gherkin PowerTools is built for QA engineers, developers, and BDD teams working 
 
 <div align="center">
 
-![Execute Scenarios via CodeLens — One-click isolated execution and custom arguments](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif)
+<img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif" alt="Execute Scenarios via CodeLens — One-click isolated execution and custom arguments" width="600" />
 
 </div>
 
