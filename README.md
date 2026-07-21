@@ -166,7 +166,8 @@ Both extensions can coexist peacefully and serve complementary purposes:
 2. Open any `.feature` file.
 3. Press <kbd>Shift+Alt+F</kbd> (<kbd>⇧⌥F</kbd> on macOS) to format your file instantly.
 
-For Python/Behave navigation and execution, ensure your step files match the default glob patterns (`**/steps/**/*.py`, `**/features/steps/**/*.py`) or update `gherkinPowerTools.behave.stepGlobs`.
+* **Automated Project Onboarding:** Upon opening a Python Behave workspace, Gherkin PowerTools automatically detects step files, `@given`/`@when`/`@then` decorators, and dependency manifests. If step files exist outside standard globs, a non-blocking prompt offers 1-click updates to workspace settings or `.gherkin-powertoolsrc.json`.
+* **Zero-Config Non-Behave Support:** Pure Gherkin, Cucumber.js, or SpecFlow projects work 100% zero-configuration for formatting and linting without ever displaying notifications.
 
 ### Key Shortcuts
 

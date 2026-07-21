@@ -14,6 +14,7 @@ import { discoveryService } from './discovery';
 import { runBehave, runBehaveWithPrompt, debugBehave } from './execution';
 import { BehaveCodeLensProvider } from './codelens';
 import { showDiagnosticsReport } from './diagnostics';
+import { showOnboardingNotificationIfNeeded } from './onboarding';
 
 import { ConfigurationService } from './configuration';
 
@@ -101,6 +102,11 @@ export async function activate(context: vscode.ExtensionContext) {
     featureWatcher.onDidChange(async uri => { await featureCache.updateFile(uri); });
     featureWatcher.onDidDelete(uri => { featureCache.removeFile(uri); });
     context.subscriptions.push(featureWatcher);
+    
+    // Asynchronously trigger onboarding recommendation check
+    showOnboardingNotificationIfNeeded(context, configService).catch(err => {
+        logger.error(`Error checking onboarding notification: ${err}`);
+    });
     
     // Register the context menu command to format the document
     context.subscriptions.push(
