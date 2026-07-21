@@ -13,9 +13,9 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 <br/>
 
 [![Install from Marketplace](https://img.shields.io/badge/VS%20Code%20Marketplace-Install-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools)
-[![Version](https://img.shields.io/vscode-marketplace/v/carloscamara.vscode-gherkin-powertools?style=flat-square&color=007ACC&label=version)](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools)
-[![Installs](https://img.shields.io/vscode-marketplace/i/carloscamara.vscode-gherkin-powertools?style=flat-square&color=28A745&label=installs)](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools)
-[![Downloads](https://img.shields.io/vscode-marketplace/d/carloscamara.vscode-gherkin-powertools?style=flat-square&color=8A2BE2&label=downloads)](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools)
+[![Version](https://vsmarketplacebadges.dev/version-short/carloscamara.vscode-gherkin-powertools.svg?style=flat-square&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools)
+[![Installs](https://vsmarketplacebadges.dev/installs-short/carloscamara.vscode-gherkin-powertools.svg?style=flat-square&color=28A745)](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools)
+[![Downloads](https://vsmarketplacebadges.dev/downloads-short/carloscamara.vscode-gherkin-powertools.svg?style=flat-square&color=8A2BE2)](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.93-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://github.com/carlos-camara/vscode-gherkin-powertools/blob/main/LICENSE)
 
