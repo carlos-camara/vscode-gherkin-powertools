@@ -1,3 +1,4 @@
+---
 name: "🔌 Framework Compatibility"
 description: "Report an issue with a specific BDD framework (e.g., Python Behave, Cucumber)."
 labels: ["framework-compatibility", "triage"]

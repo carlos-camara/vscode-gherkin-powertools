@@ -1,3 +1,4 @@
+---
 name: "⚡ Performance Problem"
 description: "Report a memory leak, high CPU usage, or slow caching/formatting."
 labels: ["performance", "triage"]
