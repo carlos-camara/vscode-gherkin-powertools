@@ -15,12 +15,16 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
 <div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
   <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
     <span style="font-size: 16px;">⚠️</span>
-    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Workspace Requirements</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Workspace & Discovery Requirements</span>
   </div>
   <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
-      <span style="color: #374151; font-size: 13px;">Python step implementation files must be located inside a directory named <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">steps/</code> (at any nesting depth).</span>
+      <span style="color: #374151; font-size: 13px;">Python step implementation files are discovered using <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.stepGlobs</code> (defaults to <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">**/steps/**/*.py</code> and <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">**/features/steps/**/*.py</code>). Custom directories can be added in settings.</span>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;">Virtual environments and external dependencies are automatically excluded via <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.ignoreGlobs</code> (defaults to <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">node_modules</code>, <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">.venv</code>, <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">venv</code>, <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">env</code>).</span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
@@ -35,9 +39,11 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
 </div>
 
 
-## 🧠 How It Works (The Symbol Cache)
+## 🧠 How It Works (The Symbol Cache & Live Watchers)
 
-When you open a workspace containing Gherkin files, the extension asynchronously builds a non-blocking **In-Memory Symbol Cache** by scanning your `.py` files in the background using `vscode.workspace.findFiles`.
+When you open a workspace containing Gherkin files, the extension asynchronously builds a non-blocking **In-Memory Symbol Cache** by scanning your `.py` files using your configured step globs.
+
+Dynamic file watchers monitor file creation, modification, deletion, and rename events across multi-root workspaces. File events are debounced (100ms) and filtered against `ignoreGlobs` to keep your symbol index instantaneously in sync without CPU overhead.
 
 When you request a definition (e.g., clicking on `Given I login as "admin"`):
 
@@ -50,10 +56,10 @@ When you request a definition (e.g., clicking on `Given I login as "admin"`):
 <div style="border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid #d1d5db;">
   <div style="background: #1f2937; padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
     <span style="font-size: 16px;">💡</span>
-    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Dynamic Updates</span>
+    <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Reactive Watchers & Runtime Configuration Reloading</span>
   </div>
   <div style="background-color: #ffffff; padding: 14px 16px;">
-    <span style="color: #374151; font-size: 13px;">The cache is fully reactive. It automatically updates asynchronously in the background whenever you create, modify, or delete Python files, ensuring your definitions are always perfectly in sync.</span>
+    <span style="color: #374151; font-size: 13px;">File system watchers automatically rebuild when you update <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.stepGlobs</code> or <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">.gherkin-powertoolsrc.json</code>, instantly re-indexing your custom step directories without requiring a VS Code restart.</span>
   </div>
 </div>
 
