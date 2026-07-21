@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dedicated Visual Demo Gallery**: Added a standalone `docs/demos.md` gallery showcasing all feature animations.
 
 ### 🐛 Fixed
+- **Behave Step File Watching & Discovery Alignment (Issue #137)**: Redesigned file system watching logic so watchers are built dynamically per workspace folder using resolved `behave.stepGlobs` configuration. Standardized ignore glob filtering (`behave.ignoreGlobs`) across initial discovery and live events (creation, modification, deletion, rename), added 100ms per-URI event debouncing, and ensured clean watcher disposal and rebuilds on configuration changes.
 - **MkDocs Snippet Path Resolution**: Fixed MkDocs site building errors for root inclusions (such as `README.md`) by configuring snippet base path resolution across `docs/` and root directories.
 - **Dependency Security Vulnerabilities**: Pinned `brace-expansion` (^2.1.2) and `js-yaml` (^4.3.0) via `package.json` overrides to resolve security vulnerabilities.
 - **Documentation Image Dimensions**: Standardized `run-debug.gif` display width to 600px across all documentation pages to match standard GIF ratios.
