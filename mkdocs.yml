@@ -62,6 +62,7 @@ nav:
   - Getting Started:
       - Installation: installation.md
       - Configuration: configuration.md
+      - Demo Gallery: demos.md
   - Features:
       - Formatter: features/formatter.md
       - Linter: features/linter.md
