@@ -20,11 +20,20 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
   <div style="background-color: #ffffff; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
-      <span style="color: #374151; font-size: 13px;">Python step implementation files are discovered using <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.stepGlobs</code> (defaults to <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">**/steps/**/*.py</code> and <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">**/features/steps/**/*.py</code>). Custom directories can be added in settings.</span>
+      <span style="color: #374151; font-size: 13px;">Python step implementation files are discovered using
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.stepGlobs</code>
+        (defaults to <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">**/steps/**/*.py</code> and
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">**/features/steps/**/*.py</code>).
+        Custom directories can be added in settings.</span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
-      <span style="color: #374151; font-size: 13px;">Virtual environments and external dependencies are automatically excluded via <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.ignoreGlobs</code> (defaults to <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">node_modules</code>, <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">.venv</code>, <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">venv</code>, <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">env</code>).</span>
+      <span style="color: #374151; font-size: 13px;">Virtual environments and external dependencies are automatically excluded via
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.ignoreGlobs</code>
+        (defaults to <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">node_modules</code>,
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">.venv</code>,
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">venv</code>,
+        <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">env</code>).</span>
     </div>
     <div style="display: flex; align-items: flex-start; gap: 12px;">
       <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
@@ -59,7 +68,10 @@ When you request a definition (e.g., clicking on `Given I login as "admin"`):
     <span style="color: #f9fafb; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Reactive Watchers & Runtime Configuration Reloading</span>
   </div>
   <div style="background-color: #ffffff; padding: 14px 16px;">
-    <span style="color: #374151; font-size: 13px;">File system watchers automatically rebuild when you update <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.stepGlobs</code> or <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">.gherkin-powertoolsrc.json</code>, instantly re-indexing your custom step directories without requiring a VS Code restart.</span>
+    <span style="color: #374151; font-size: 13px;">File system watchers automatically rebuild when you update
+      <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">gherkinPowerTools.behave.stepGlobs</code>
+      or <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">.gherkin-powertoolsrc.json</code>,
+      instantly re-indexing your custom step directories without requiring a VS Code restart.</span>
   </div>
 </div>
 

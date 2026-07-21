@@ -44,11 +44,11 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 Gherkin PowerTools is built for QA engineers, developers, and BDD teams working with Gherkin feature files.
 
 ### ❓ Do I need Behave / Python?
-**No!** 
+**No!**
 
-* **Any `.feature` file (Cucumber.js, Playwright BDD, SpecFlow, Karate, etc.):** 
+* **Any `.feature` file (Cucumber.js, Playwright BDD, SpecFlow, Karate, etc.):**
   Zero-configuration AST-based formatting, real-time syntax linting, 70+ language i18n support, AST range selection formatting, tag telemetry, and workspace statistics work out-of-the-box for **every** Gherkin project.
-* **Python / Behave Workspaces:** 
+* **Python / Behave Workspaces:**
   Unlocks deep step definition indexing (Go to Definition, Hover, IntelliSense), missing step stub generator, and 1-click test **Execution & Debugging** via CodeLens directly inside VS Code.
 
 ---
