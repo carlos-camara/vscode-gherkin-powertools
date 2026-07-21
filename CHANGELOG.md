@@ -11,9 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🚀 Added
-- **Behave Execution & Debugging CodeLens**: Execute and debug features and scenarios directly from the editor using new `▶ Run Feature`, `▶ Run Scenario`, and `🐞 Debug` CodeLens buttons.
-  The extension automatically detects your Python interpreter via the official Python extension.
-  The debug feature constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
+- **Behave Debugging CodeLens**: Debug features and scenarios directly from the editor using new `🐞 Debug` CodeLens buttons.
+  The extension automatically detects your Python interpreter via the official Python extension and constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
+- **Single Typed Configuration Contract & Precedence Pipeline**:
+  Configuration resolution now strictly enforces property-level precedence: Project (`.gherkin-powertoolsrc.json`) > Workspace Settings > User Settings > Defaults. Partial project config files now seamlessly inherit unmentioned fields from workspace/user settings.
+- **Automated CI Configuration Drift Guard**: Added `check:config` task and CI verification step (`scripts/check-config-sync.js`) that enforces 100% synchronization between implemented settings, JSON schema, `package.json`, and documentation.
+- **Dedicated Visual Demo Gallery**: Added a standalone `docs/demos.md` gallery showcasing all feature animations.
+
+### 🐛 Fixed
+- **Behave Step File Watching & Discovery Alignment (Issue #137)**: Redesigned file system watching logic
+  so watchers are built dynamically per workspace folder using resolved `behave.stepGlobs` configuration.
+  Standardized ignore glob filtering (`behave.ignoreGlobs`) across initial discovery and live events
+  (creation, modification, deletion, rename), added 100ms per-URI event debouncing, and ensured clean watcher
+  disposal and rebuilds on configuration changes.
+- **MkDocs Snippet Path Resolution**: Fixed MkDocs site building errors for root inclusions (such as `README.md`) by configuring snippet base path resolution across `docs/` and root directories.
+- **Dependency Security Vulnerabilities**: Pinned `brace-expansion` (^2.1.2) and `js-yaml` (^4.3.0) via `package.json` overrides to resolve security vulnerabilities.
+- **Documentation Image Dimensions**: Standardized `run-debug.gif` display width to 600px across all documentation pages to match standard GIF ratios.
+
+### 🎨 Changed
+- **Marketplace Discovery & Positioning**: Re-aligned `displayName`, `description`, and expanded search keywords in `package.json` to highlight test execution, debugging, step navigation, and linting.
+- **High-Conversion README**: Restructured the root `README.md` to clearly highlight core capabilities, target audiences (zero-config vs. Python/Behave), and quick-start steps.
 
 ## [1.7.6] - 2026-07-20
 
@@ -24,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Live Tag Telemetry**: The tag counter now tracks active unsaved edits instantly, without needing to save the document first.
 - **AST-Scoped Range Formatting**: Range formatting (Format Selection) now natively parses the Abstract Syntax Tree to identify the smallest logical node encompassing your selection. Selecting a partial `DataTable`, a multi-line `DocString`, or a block of steps now correctly re-formats the entire structural element atomically, guaranteeing perfect vertical alignment.
 - **Configurable Tag Sorting**: Tag wrapping is now fully decoupled from sorting. By default, the formatter will preserve your original tag order (including duplicates). Added `gherkinPowerTools.tags.sort` setting to optionally sort tags alphabetically.
-- **CodeLens Execution**: Run and Edit features/scenarios directly from the editor using a dedicated terminal and persistent arguments.
+- **Behave Execution CodeLens**: Run and edit features and scenarios directly from the editor using `▶ Run Feature`, `▶ Run Scenario`, `✏️ Edit Feature...`, and `✏️ Edit Scenario...` CodeLens buttons with dedicated terminal execution and custom arguments support.
 - **Code Actions (Quick Fixes)**: Intelligent quick fixes for Gherkin syntax errors, including generating undefined Python step stubs, inserting missing colons, and converting Scenarios to Scenario Outlines.
 - **Remote Workspace Compatibility**: Feature files are now parsed correctly over virtual filesystems (e.g., GitHub Codespaces, SSH, and remote tunnels) using VS Code's native `workspace.fs` API.
 - **Semantic Context-Aware Navigation**: Go To Definition and Hover providers now fully respect strict `Given/When/Then` matching and dynamically resolve `And`/`But` continuations backwards through the scenario.

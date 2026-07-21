@@ -30,6 +30,9 @@ jobs:
       - name: ⚙️ Setup and Build
         uses: ./.github/actions/setup-build
 
+      - name: 📋 Check Configuration Sync
+        run: npm run check:config
+
       - name: 🧹 Lint Codebase (Markdown, YAML, Actions)
         uses: carlos-camara/qa-hub-actions/lint-codebase@main
         with:

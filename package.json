@@ -1,7 +1,7 @@
 {
   "name": "vscode-gherkin-powertools",
-  "displayName": "Gherkin PowerTools: BDD Formatter, Linter & Python Behave",
-  "description": "Advanced BDD extension for feature files. Offers AST-based Gherkin formatting, strict linting, and context-aware Python Behave step definition navigation.",
+  "displayName": "Gherkin PowerTools: BDD Formatter, Linter, Test Runner & Debugger",
+  "description": "Comprehensive BDD toolkit for Gherkin feature files and Python Behave: AST-based formatting, strict linting, step navigation, test execution, debugging, and analytics.",
   "version": "1.7.6",
   "engines": {
     "vscode": "^1.93.0"
@@ -13,10 +13,24 @@
   ],
   "keywords": [
     "gherkin",
+    "gherkin formatter",
+    "gherkin linter",
     "behave",
+    "behave debugger",
     "cucumber",
+    "cucumber formatter",
     "bdd",
-    "feature"
+    "bdd tools",
+    "feature",
+    "feature files",
+    "step definitions",
+    "python testing",
+    "test automation",
+    "test-runner",
+    "debugger",
+    "formatter",
+    "linter",
+    "quick fixes"
   ],
   "publisher": "carloscamara",
   "author": "Carlos Camara",
@@ -307,6 +321,7 @@
     "pretest": "npm run compile && npm run esbuild",
     "test": "vscode-test --label unitTests",
     "test:e2e": "vscode-test --label e2eTests",
+    "check:config": "node scripts/check-config-sync.js",
     "coverage": "vscode-test --label unitTests --coverage --coverage-reporter=lcov --coverage-reporter=text --coverage-reporter=html --coverage-reporter=json-summary"
   },
   "devDependencies": {
