@@ -1,3 +1,4 @@
+---
 name: "🔌 Framework Compatibility"
 description: "Report an issue with a specific BDD framework (e.g., Python Behave, Cucumber)."
 labels: ["framework-compatibility", "triage"]
@@ -27,3 +28,9 @@ body:
       label: "Extension Version"
     validations:
       required: true
+  - type: textarea
+    id: diagnostic-output
+    attributes:
+      label: "Diagnostic Output (Optional)"
+      description: "Run 'Gherkin: Diagnose Workspace' from the Command Palette, click 'Copy Sanitized Report', and paste the output here."
+      render: text

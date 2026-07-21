@@ -217,16 +217,50 @@ suite('Execution Test Suite', () => {
         assert.strictEqual(config.console, 'integratedTerminal');
     });
 
-    test('debugBehave prompts for missing Python extension', async () => {
+    test('debugBehave prompts for missing Python extension and handles install action', async () => {
         getExtensionMock = () => undefined; // Simulate no Python extension
         
         let errorMessageShown = false;
-        (vscode.window as any).showErrorMessage = async () => { errorMessageShown = true; return undefined; };
+        let commandExecuted = '';
+        (vscode.window as any).showErrorMessage = async (_msg: string, _action: string) => {
+            errorMessageShown = true;
+            return 'Install Python Extension';
+        };
+        (vscode.commands as any).executeCommand = async (cmd: string, arg: string) => {
+            commandExecuted = `${cmd}:${arg}`;
+        };
         
         const uri = vscode.Uri.file('/workspace/features/test.feature');
         await debugBehave(uri, undefined, mockConfigService);
         
         assert.strictEqual(startDebuggingCalledWith, undefined, 'startDebugging should NOT have been called');
         assert.strictEqual(errorMessageShown, true, 'Error message should be shown prompting installation');
+        assert.strictEqual(commandExecuted, 'extension.open:ms-python.python');
+    });
+
+    test('debugBehave shows error if no workspace folder is open', async () => {
+        getExtensionMock = () => ({ id: 'ms-python.python' });
+        (vscode.workspace as any).getWorkspaceFolder = () => undefined;
+
+        let errorMessage = '';
+        (vscode.window as any).showErrorMessage = async (msg: string) => { errorMessage = msg; };
+
+        const uri = vscode.Uri.file('/tmp/test.feature');
+        await debugBehave(uri, undefined, mockConfigService);
+
+        assert.strictEqual(errorMessage, 'A workspace folder must be open to start debugging.');
+    });
+
+    test('runBehaveWithPrompt handles unquoted relative path replacement', async () => {
+        const uri = vscode.Uri.file('/workspace/features/test.feature');
+        (vscode.workspace as any).getWorkspaceFolder = () => ({ uri: vscode.Uri.file('/workspace'), name: 'workspace', index: 0 });
+        (vscode.workspace as any).asRelativePath = () => 'features/test.feature';
+
+        (vscode.window as any).showInputBox = async () => 'behave --tags=@wip ./features/test.feature';
+        (vscode.window as any).showInformationMessage = async () => {};
+
+        await runBehaveWithPrompt(uri, undefined, mockConfigService);
+        const cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
+        assert.ok(cmd.includes('--tags=@wip'));
     });
 });

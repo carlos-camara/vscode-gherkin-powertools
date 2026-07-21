@@ -7,7 +7,9 @@ Interactive visual demonstrations of Gherkin PowerTools features.
 ### Table and Tag Alignment
 Format full documents or selections with <kbd>Shift+Alt+F</kbd> (<kbd>⇧⌥F</kbd> on macOS).
 
-![Formatter — full document alignment](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/formatter.gif" alt="Formatter — full document alignment" width="600" />
+</div>
 
 ---
 
@@ -16,12 +18,16 @@ Format full documents or selections with <kbd>Shift+Alt+F</kbd> (<kbd>⇧⌥F</k
 ### Real-Time AST Diagnostics
 Catch structural errors and syntax typos instantly as you type.
 
-![Linter — flags structural errors as you type](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/linter.gif" alt="Linter — flags structural errors as you type" width="600" />
+</div>
 
 ### Keyword & Punctuation Quick Fixes
 Press <kbd>Ctrl+.</kbd> (<kbd>⌘.</kbd> on macOS) to auto-correct missing colons or keyword typos.
 
-![Quick Fix — correct keyword typos with one keypress](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/auto-corrections.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/auto-corrections.gif" alt="Quick Fix — correct keyword typos with one keypress" width="600" />
+</div>
 
 ---
 
@@ -30,37 +36,51 @@ Press <kbd>Ctrl+.</kbd> (<kbd>⌘.</kbd> on macOS) to auto-correct missing colon
 ### Go to Definition
 Jump directly from a Gherkin step to its Python `@given`, `@when`, `@then` decorator.
 
-![Go to Definition — jump from Gherkin step to Python decorator](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/goto-definition.gif" alt="Go to Definition — jump from Gherkin step to Python decorator" width="600" />
+</div>
 
 ### Step IntelliSense
 Context-aware autocompletion for steps based on Given/When/Then keyword state.
 
-![IntelliSense — type-ahead suggestions from your Python step library](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/completion.gif" alt="IntelliSense — type-ahead suggestions from your Python step library" width="600" />
+</div>
 
 ### Hover: Step Signature & Docstring
 Hover over any step to preview the Python function implementation and docstring.
 
-![Hover on a step — shows the Python function signature and docstring](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-step.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-step.gif" alt="Hover on a step — shows the Python function signature and docstring" width="600" />
+</div>
 
 ### Hover: Tag Blast Radius
 Hover over any tag to see how many scenarios across the workspace are affected.
 
-![Hover on a tag — shows the number of scenarios it affects across the workspace](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/hover-tags.gif" alt="Hover on a tag — shows the number of scenarios it affects across the workspace" width="600" />
+</div>
 
 ### Run & Debug via CodeLens
 Execute or debug features/scenarios with 1 click using the editor CodeLens header.
 
-<img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif" alt="Execute Scenarios via CodeLens" width="600" />
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif" alt="Execute Scenarios via CodeLens" width="600" />
+</div>
 
 ### Generate Missing Step Stub
 One-click Quick Fix to append a new Python step definition stub to your step files.
 
-![Quick Fix — generate a Python stub for an undefined step](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/create-step.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/create-step.gif" alt="Quick Fix — generate a Python stub for an undefined step" width="600" />
+</div>
 
 ### Scenario Outline Parameter Completion
 Type `<` inside steps to autocomplete column headers from the Examples table.
 
-![IntelliSense — type < to get column headers from the Examples table](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline-completion.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline-completion.gif" alt="IntelliSense — type < to get column headers from the Examples table" width="600" />
+</div>
 
 ---
 
@@ -69,17 +89,23 @@ Type `<` inside steps to autocomplete column headers from the Examples table.
 ### Outline Panel
 Navigate your Feature, Rule, and Scenario structure in the VS Code sidebar.
 
-![Outline — Feature, Rule, Scenario tree in the VS Code sidebar](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/outline.gif" alt="Outline — Feature, Rule, Scenario tree in the VS Code sidebar" width="600" />
+</div>
 
 ### Project Statistics Dashboard
 Generate workspace-wide BDD health metrics and tag telemetry.
 
-![Statistics dashboard — workspace metrics generated from the Cucumber AST](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/dashboard.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/dashboard.gif" alt="Statistics dashboard — workspace metrics generated from the Cucumber AST" width="600" />
+</div>
 
 ### Syntax Highlighting
 Semantic syntax coloring for Gherkin keywords.
 
-![Syntax highlighting — semantic coloring for Gherkin keywords](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/highlighting.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/highlighting.gif" alt="Syntax highlighting — semantic coloring for Gherkin keywords" width="600" />
+</div>
 
 ---
 
@@ -87,8 +113,12 @@ Semantic syntax coloring for Gherkin keywords.
 
 ### Install from Marketplace
 
-![Install from the VS Code Marketplace extension panel](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/install.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/install.gif" alt="Install from the VS Code Marketplace extension panel" width="600" />
+</div>
 
 ### Install from VSIX File
 
-![Install from a downloaded VSIX file](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/install-vsix.gif)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/install-vsix.gif" alt="Install from a downloaded VSIX file" width="600" />
+</div>

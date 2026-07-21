@@ -177,6 +177,7 @@ For Python/Behave navigation and execution, ensure your step files match the def
 | Quick Fix | <kbd>⌘.</kbd> | <kbd>Ctrl+.</kbd> |
 | Go to Definition | <kbd>⌘Click</kbd> | <kbd>Ctrl+Click</kbd> / <kbd>F12</kbd> |
 | Trigger Completion | <kbd>⌃Space</kbd> | <kbd>Ctrl+Space</kbd> |
+| Diagnose Workspace | `Gherkin: Diagnose Workspace` | `Gherkin: Diagnose Workspace` |
 
 ---
 

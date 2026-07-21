@@ -197,4 +197,39 @@ suite('ConfigurationService Test Suite', () => {
         config = configService.getConfiguration(uri);
         assert.strictEqual(config.indentation.steps, 2);
     });
+
+    test('10. Validates all invalid property values and unknown subkeys in config schema', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        
+        fs.writeFileSync(configPath, JSON.stringify({
+            tables: { alignToKeyword: "not_a_bool", unknownTableKey: true },
+            tags: { sort: "alphabetical", unknownTagKey: 1 },
+            emptyLines: { betweenScenarios: "not_a_number", unknownEmptyKey: 2 },
+            behave: { command: 123, stepGlobs: "not_an_array", unknownBehaveKey: "foo" }
+        }));
+
+        let diagnostics: vscode.Diagnostic[] = [];
+        mockDiagnostics.set = ((_uri: any, diags: vscode.Diagnostic[]) => { diagnostics = diags; }) as any;
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+
+        assert.strictEqual(config.tags.sort, 'alphabetical');
+        assert.strictEqual(config.tables.alignToKeyword, true); // fallback
+        assert.strictEqual(config.emptyLines.betweenScenarios, 1); // fallback
+        assert.strictEqual(config.behave.command, 'behave'); // fallback
+        assert.ok(diagnostics.length >= 6);
+    });
+
+    test('11. Handles non-object JSON values gracefully', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        fs.writeFileSync(configPath, JSON.stringify([1, 2, 3]));
+
+        let diagnostics: vscode.Diagnostic[] = [];
+        mockDiagnostics.set = ((_uri: any, diags: vscode.Diagnostic[]) => { diagnostics = diags; }) as any;
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+
+        assert.strictEqual(config.indentation.steps, 4);
+        assert.ok(diagnostics.length > 0);
+    });
 });

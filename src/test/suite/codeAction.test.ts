@@ -100,6 +100,57 @@ suite('Code Action Provider Test Suite', () => {
         // It should resolve 'And' to 'given' because line 0 starts with 'Given'
         assert.deepStrictEqual(actions[0].command?.arguments, ['undefined step', 'given', doc.uri]);
     });
+
+    test('Provides Code Actions for MISSING_COLON', () => {
+        const doc = createMockDocument('Feature Feature name', 'file:///code-actions.feature');
+        const diagnostic = new vscode.Diagnostic(
+            new vscode.Range(0, 0, 0, 7),
+            "Missing colon",
+            vscode.DiagnosticSeverity.Error
+        );
+        diagnostic.code = 'MISSING_COLON';
+        diagnostic.relatedInformation = [
+            new vscode.DiagnosticRelatedInformation(new vscode.Location(doc.uri, new vscode.Range(0, 0, 0, 8)), 'Feature:')
+        ];
+
+        const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 0), { diagnostics: [diagnostic] } as any, {} as any);
+        assert.ok(actions);
+        assert.strictEqual(actions.length, 1);
+        assert.strictEqual(actions[0].title, "Insert missing ':'");
+    });
+
+    test('Provides Code Actions for SCENARIO_WITH_EXAMPLES', () => {
+        const doc = createMockDocument('Scenario: Test', 'file:///code-actions.feature');
+        const diagnostic = new vscode.Diagnostic(
+            new vscode.Range(0, 0, 0, 8),
+            "Scenario with Examples should be Scenario Outline",
+            vscode.DiagnosticSeverity.Warning
+        );
+        diagnostic.code = 'SCENARIO_WITH_EXAMPLES';
+
+        const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 0), { diagnostics: [diagnostic] } as any, {} as any);
+        assert.ok(actions);
+        assert.strictEqual(actions.length, 1);
+        assert.strictEqual(actions[0].title, "Convert to 'Scenario Outline'");
+    });
+
+    test('Provides Code Actions for INCONSISTENT_CELL_COUNT', () => {
+        const doc = createMockDocument('| col1 | col2', 'file:///code-actions.feature');
+        const diagnostic = new vscode.Diagnostic(
+            new vscode.Range(0, 0, 0, 11),
+            "Inconsistent cell count",
+            vscode.DiagnosticSeverity.Warning
+        );
+        diagnostic.code = 'INCONSISTENT_CELL_COUNT';
+        diagnostic.relatedInformation = [
+            new vscode.DiagnosticRelatedInformation(new vscode.Location(doc.uri, new vscode.Range(0, 0, 0, 12)), '| col1 | col2 |')
+        ];
+
+        const actions = provider.provideCodeActions(doc, new vscode.Range(0, 0, 0, 0), { diagnostics: [diagnostic] } as any, {} as any);
+        assert.ok(actions);
+        assert.strictEqual(actions.length, 1);
+        assert.strictEqual(actions[0].title, "Close table row (append '|')");
+    });
 });
 
 suite('createStepDefinition Test Suite', () => {

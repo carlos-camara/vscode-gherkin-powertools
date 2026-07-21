@@ -249,6 +249,62 @@ Feature: Blast Radius
         assert.strictEqual(featureCache.getTagBlastRadius('@smoke'), 1, '@smoke should only affect 1 scenario');
     });
 
+    test('FeatureCache: Handles Rule tags, empty Example tables, and incremental updates', async () => {
+        const featureCache = new FeatureCache();
+        const featurePath = path.join(tempDir, 'rules.feature');
+        const content = `
+@feature_tag
+Feature: Rule Feature
+  @rule_tag
+  Rule: Rule 1
+    @scenario_tag
+    Scenario: Rule Scenario
+      Given step
+
+    Scenario Outline: Empty Outline
+      Given step <param>
+      Examples:
+        | param |
+        `;
+        fs.writeFileSync(featurePath, content);
+        const uri = vscode.Uri.file(featurePath);
+
+        await featureCache.updateFile(uri);
+
+        assert.strictEqual(featureCache.getTagBlastRadius('@feature_tag'), 2);
+        assert.strictEqual(featureCache.getTagBlastRadius('@rule_tag'), 2);
+        assert.strictEqual(featureCache.getTagBlastRadius('@scenario_tag'), 1);
+
+        // Incremental update: modify content and remove @scenario_tag
+        const content2 = `
+@feature_tag
+Feature: Rule Feature
+  Scenario: Updated Scenario
+    Given step
+        `;
+        fs.writeFileSync(featurePath, content2);
+        await featureCache.updateFile(uri);
+
+        assert.strictEqual(featureCache.getTagBlastRadius('@feature_tag'), 1);
+        assert.strictEqual(featureCache.getTagBlastRadius('@scenario_tag'), 0);
+    });
+
+    test('FeatureCache: Handles AST parse throw and preserves partial state', async () => {
+        const featureCache = new FeatureCache();
+        const uri = vscode.Uri.file(path.join(tempDir, 'parse_throw.feature'));
+        fs.writeFileSync(uri.fsPath, '@valid_tag\nFeature: Valid\n  Scenario: S1\n    Given step');
+
+        await featureCache.updateFile(uri);
+        assert.strictEqual(featureCache.getTagBlastRadius('@valid_tag'), 1);
+
+        // Update with non-feature content
+        fs.writeFileSync(uri.fsPath, 'This is not gherkin');
+        await featureCache.updateFile(uri);
+
+        const state = featureCache.getFileState(uri);
+        assert.strictEqual(state?.status, 'partial');
+    });
+
     test('AST Fallback: Retains data even with severe syntax errors and marks partial', async () => {
         const featureCache = new FeatureCache();
         const featurePath = path.join(tempDir, 'syntax_error.feature');

@@ -785,4 +785,16 @@ def step_impl(context):
         const content = hoverResult[0].contents[0] as vscode.MarkdownString;
         assert.ok(content.value.includes('cross_file'), 'Hover did not contain the function name');
     });
+
+    test('Simulate Diagnose Workspace Command', async () => {
+        let errorThrown = false;
+        try {
+            const report = await vscode.commands.executeCommand<string>('gherkinPowerTools.diagnoseWorkspace');
+            assert.ok(report && typeof report === 'string', 'Diagnose Workspace should return string report');
+            assert.ok(report.includes('GHERKIN POWERTOOLS DIAGNOSTIC REPORT'), 'Report header missing');
+        } catch (e) {
+            errorThrown = true;
+        }
+        assert.strictEqual(errorThrown, false, 'Diagnose Workspace command threw an error');
+    });
 });
