@@ -22,16 +22,16 @@ Clicking the **Run** button will:
 
 > **Note:** When running a scenario, the extension passes the exact line number of the scenario to Behave (e.g. `behave "features/login.feature:12"`), ensuring that only that scenario runs.
 
-### `✎ Edit` (Persistent Arguments)
+### `✎ Edit` (Interactive Arguments)
 
-Sometimes you want to pass extra flags to Behave during a quick testing session, such as `--tags=@wip` or `--no-capture`.
+Sometimes you want to pass extra flags to Behave, such as `--tags=@wip` or `--no-capture`.
 
 Clicking the **Edit** button will:
-1. Open a command palette input box pre-filled with the exact command the extension is about to run.
-2. Allow you to manually add parameters anywhere in the string (e.g., adding `-D env=test` or `--no-capture`).
-3. Save your customized arguments globally for the session so that you can execute them by clicking **Run** or **Debug** on any scenario.
-
-**✨ Smart Persistence:** During your VS Code session, Gherkin PowerTools will remember any extra arguments you added! The next time you click **Run**, **Debug**, or **Edit**, your previous arguments will automatically be included in the command. If you want to clear them, simply click **Edit** again and remove them.
+1. Open an input box pre-filled with the exact command the extension is about to run.
+2. Allow you to manually add parameters anywhere in the string.
+3. Prompt you with a choice on how to save these arguments:
+   - **Save to Workspace**: Parses your custom arguments and saves them permanently in your `.vscode/settings.json` under `gherkinPowerTools.behave.additionalArguments`. They won't be lost when you restart VS Code.
+   - **Just for this session**: Saves your customized arguments in volatile memory. They will be applied to subsequent executions but will be wiped when you restart the editor.
 
 ### `🐞 Debug`
 

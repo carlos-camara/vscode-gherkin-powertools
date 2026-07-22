@@ -8,9 +8,10 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.7.7] - 2026-07-22
 
 ### 🚀 Added
+- **Interactive Execution Arguments Persistence**: `Edit Scenario/Feature` CodeLens commands now provide an interactive dialog letting you choose whether to save custom parameters (e.g., `--tags=@wip`) permanently to the Workspace Settings or keep them volatile for the current session.
 - **Behave Debugging CodeLens**: Debug features and scenarios directly from the editor using new `🐞 Debug` CodeLens buttons.
   The extension automatically detects your Python interpreter via the official Python extension and constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
 - **Single Typed Configuration Contract & Precedence Pipeline**:

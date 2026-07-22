@@ -153,6 +153,39 @@ suite('Execution Test Suite', () => {
         const cmd = await buildBehaveCommand(uri, undefined, mockConfigService);
         assert.strictEqual(cmd, `behave --no-capture --tags=@wip "${uri.fsPath}"`);
     });
+
+    test('runBehaveWithPrompt saves modified args to workspace when requested', async () => {
+        const uri = vscode.Uri.file('/path/to/test.feature');
+        
+        let updateCalledWith: { section: string, value: any, target: vscode.ConfigurationTarget } | undefined;
+        let originalGetConfiguration = vscode.workspace.getConfiguration;
+        (vscode.workspace as any).getConfiguration = (section?: string) => {
+            if (section === 'gherkinPowerTools.behave') {
+                return {
+                    update: async (key: string, value: any, target: vscode.ConfigurationTarget) => {
+                        updateCalledWith = { section: key, value, target };
+                    }
+                };
+            }
+            return originalGetConfiguration(section);
+        };
+        
+        (vscode.window as any).showInformationMessage = async () => 'Save to Workspace';
+        
+        (vscode.window as any).showInputBox = async (options: any) => {
+            return options.value.replace('--no-capture', '--no-capture --tags=@wip');
+        };
+        
+        await runBehaveWithPrompt(uri, undefined, mockConfigService);
+        
+        assert.ok(updateCalledWith, 'workspace configuration update should have been called');
+        assert.strictEqual(updateCalledWith.section, 'additionalArguments');
+        assert.deepStrictEqual(updateCalledWith.value, ['--no-capture', '--tags=@wip']);
+        assert.strictEqual(updateCalledWith.target, vscode.ConfigurationTarget.Workspace);
+
+        // Restore original
+        (vscode.workspace as any).getConfiguration = originalGetConfiguration;
+    });
     
     test('runBehaveWithPrompt does not save memory args if command format is completely changed', async () => {
         const uri = vscode.Uri.file('/path/to/test.feature');
