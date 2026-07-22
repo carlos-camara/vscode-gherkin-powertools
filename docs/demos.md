@@ -2,6 +2,17 @@
 
 Interactive visual demonstrations of Gherkin PowerTools features.
 
+## Setup & Onboarding Demos
+
+### Zero-Configuration Onboarding & Diagnostics
+Automatic background detection, coverage gap analysis, and 1-click workspace configuration.
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/diagnostics.gif" alt="Workspace Diagnostics" width="600" />
+</div>
+
+---
+
 ## Formatting Demos
 
 ### Table and Tag Alignment

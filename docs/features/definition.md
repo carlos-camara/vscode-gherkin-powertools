@@ -44,6 +44,10 @@ Stop searching for step implementations manually. Gherkin PowerTools allows you 
         <code style="background:#f3f4f6; padding: 1px 5px; border-radius: 3px; color: #1f2937;">@step</code>.
       </span>
     </div>
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #6b7280; font-size: 16px; flex-shrink: 0; line-height: 1;">◆</span>
+      <span style="color: #374151; font-size: 13px;">Automated Project Onboarding detects step files in non-standard folders and offers 1-click configuration updates.</span>
+    </div>
   </div>
 </div>
 

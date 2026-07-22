@@ -1,5 +1,9 @@
 # 🩺 Workspace Diagnostics
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/diagnostics.gif" alt="Workspace Diagnostics Demo" width="600" />
+</div>
+
 Troubleshoot setup, discovery, step navigation, test execution, and debugging issues instantly using the **`Gherkin: Diagnose Workspace`** command.
 
 ---

@@ -278,14 +278,12 @@ export async function showOnboardingNotificationIfNeeded(
             const stepCount = analysis.uncoveredStepFiles.length;
 
             vscode.window.showInformationMessage(
-                `Gherkin PowerTools: Discovered ${stepCount} Python Behave step file(s) outside your configured stepGlobs. Update configuration for 1-click execution & navigation?`,
-                '⚙️ Apply Workspace Settings',
-                '📄 Create .gherkin-powertoolsrc.json',
-                '📖 View Documentation',
-                '🩺 Run Diagnostics',
-                'Don\'t Show Again'
+                `Discovered ${stepCount} Python step file(s) outside stepGlobs. Update configuration?`,
+                '⚙️ Settings',
+                '📄 Config',
+                '🩺 Diagnostics'
             ).then(async selection => {
-                if (selection === '⚙️ Apply Workspace Settings') {
+                if (selection === '⚙️ Settings') {
                     const vscodeDir = path.join(folder.uri.fsPath, '.vscode');
                     const settingsPath = path.join(vscodeDir, 'settings.json');
                     let existing = '';
@@ -297,7 +295,7 @@ export async function showOnboardingNotificationIfNeeded(
                     const merged = mergeSettingsJson(existing, analysis.suggestedStepGlobs);
                     fs.writeFileSync(settingsPath, merged, 'utf8');
                     vscode.window.showInformationMessage('Workspace settings updated with suggested stepGlobs.');
-                } else if (selection === '📄 Create .gherkin-powertoolsrc.json') {
+                } else if (selection === '📄 Config') {
                     const configPath = path.join(folder.uri.fsPath, '.gherkin-powertoolsrc.json');
                     let existing = '';
                     if (fs.existsSync(configPath)) {
@@ -306,12 +304,8 @@ export async function showOnboardingNotificationIfNeeded(
                     const merged = mergeProjectConfigFile(existing, analysis.suggestedStepGlobs);
                     fs.writeFileSync(configPath, merged, 'utf8');
                     vscode.window.showInformationMessage('.gherkin-powertoolsrc.json updated with suggested stepGlobs.');
-                } else if (selection === '📖 View Documentation') {
-                    vscode.env.openExternal(vscode.Uri.parse('https://carlos-camara.github.io/vscode-gherkin-powertools/configuration/'));
-                } else if (selection === '🩺 Run Diagnostics') {
+                } else if (selection === '🩺 Diagnostics') {
                     vscode.commands.executeCommand('gherkinPowerTools.diagnoseWorkspace');
-                } else if (selection === 'Don\'t Show Again') {
-                    await context.globalState.update(dismissalKey, true);
                 }
             });
             break;

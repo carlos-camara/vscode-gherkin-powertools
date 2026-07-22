@@ -120,4 +120,40 @@ suite('Onboarding Engine Test Suite', () => {
         assert.strictEqual(parsed.linter.enabled, true);
         assert.deepStrictEqual(parsed.behave.stepGlobs, newGlobs);
     });
+
+    test('mergeSettingsJson handles empty or malformed JSON gracefully', () => {
+        const newGlobs = ['**/steps/**/*.py'];
+
+        const fromEmpty = mergeSettingsJson('', newGlobs);
+        const parsedEmpty = JSON.parse(fromEmpty);
+        assert.deepStrictEqual(parsedEmpty['gherkinPowerTools.behave.stepGlobs'], newGlobs);
+
+        const fromMalformed = mergeSettingsJson('{ invalid json', newGlobs);
+        const parsedMalformed = JSON.parse(fromMalformed);
+        assert.deepStrictEqual(parsedMalformed['gherkinPowerTools.behave.stepGlobs'], newGlobs);
+    });
+
+    test('mergeProjectConfigFile handles empty or malformed JSON gracefully', () => {
+        const newGlobs = ['**/steps/**/*.py'];
+
+        const fromEmpty = mergeProjectConfigFile('', newGlobs);
+        const parsedEmpty = JSON.parse(fromEmpty);
+        assert.deepStrictEqual(parsedEmpty.behave.stepGlobs, newGlobs);
+
+        const fromMalformed = mergeProjectConfigFile('{ invalid json', newGlobs);
+        const parsedMalformed = JSON.parse(fromMalformed);
+        assert.deepStrictEqual(parsedMalformed.behave.stepGlobs, newGlobs);
+    });
+
+    test('OnboardingEngine ignores step files matching ignoreGlobs', async () => {
+        const folderUri = vscode.Uri.file(tempDir);
+        const venvDir = path.join(tempDir, '.venv', 'lib', 'python3.10', 'site-packages', 'pkg', 'steps');
+        fs.mkdirSync(venvDir, { recursive: true });
+        fs.writeFileSync(path.join(venvDir, 'vendor_steps.py'), '@given("vendor step")\ndef step_impl(context):\n    pass\n');
+
+        const engine = new OnboardingEngine();
+        const analysis = await engine.analyzeWorkspaceFolder(folderUri, ['**/features/steps/**/*.py'], ['**/.venv/**']);
+
+        assert.strictEqual(analysis.uncoveredStepFiles.length, 0);
+    });
 });

@@ -26,13 +26,9 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 
 When you open a workspace containing Python Behave files, Gherkin PowerTools automatically inspects your workspace layout. If step definitions (Python files with `@given`, `@when`, `@then`, `@step` decorators or `environment.py`) exist in non-standard folders not currently matched by `behave.stepGlobs`, a non-blocking notification offers 1-click actions:
 
-* **⚙️ Apply Workspace Settings:** Safely appends the recommended glob patterns to `.vscode/settings.json`.
-* **📄 Create .gherkin-powertoolsrc.json:** Creates or merges the recommended patterns into `.gherkin-powertoolsrc.json`.
-* **📖 View Documentation:** Opens configuration documentation.
-* **🩺 Run Diagnostics:** Triggers `Gherkin: Diagnose Workspace` report.
-* **Don't Show Again:** Remembers your decision per workspace.
-
----
+* **⚙️ Settings:** Safely appends the recommended glob patterns to `.vscode/settings.json`.
+* **📄 Config:** Creates or merges the recommended patterns into `.gherkin-powertoolsrc.json`.
+* **🩺 Diagnostics:** Triggers `Gherkin: Diagnose Workspace` report.
 
 ## Example Configuration
 

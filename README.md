@@ -125,6 +125,20 @@ Gherkin PowerTools is built for QA engineers, developers, and BDD teams working 
 
 ---
 
+### 6. 🤖 Zero-Configuration Onboarding & Diagnostics
+**Problem:** Setting up paths and configuring the extension for complex Python workspaces requires reading documentation and tweaking JSON.  
+**Solution:** A silent background scanner automatically detects Behave projects, analyzes coverage gaps, and proactively offers to configure your workspace with 1 click. Run deep workspace diagnostics to troubleshoot setup issues instantly.
+
+<div align="center">
+
+![Zero-Configuration Onboarding & Diagnostics](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/onboarding.gif)
+
+</div>
+
+<sub>📖 [Automated Onboarding documentation](https://carlos-camara.github.io/vscode-gherkin-powertools/features/onboarding.html) • [Diagnostics documentation](https://carlos-camara.github.io/vscode-gherkin-powertools/features/diagnostics.html)</sub>
+
+---
+
 ## Compatibility Matrix
 
 | Feature | Any `.feature` file | Python / Behave | Notes |
