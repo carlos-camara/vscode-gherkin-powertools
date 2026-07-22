@@ -797,4 +797,21 @@ def step_impl(context):
         }
         assert.strictEqual(errorThrown, false, 'Diagnose Workspace command threw an error');
     });
+
+    test('Simulate First-Run Onboarding Engine Detection', async () => {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        assert.ok(workspaceFolder, 'A workspace folder must be active for E2E onboarding test');
+
+        const { OnboardingEngine } = await import('../../onboarding');
+        const engine = new OnboardingEngine();
+        const analysis = await engine.analyzeWorkspaceFolder(
+            workspaceFolder.uri,
+            ['**/features/steps/**/*.py'],
+            ['**/node_modules/**']
+        );
+
+        assert.strictEqual(typeof analysis.isBehaveProject, 'boolean');
+        assert.ok(Array.isArray(analysis.uncoveredStepFiles));
+        assert.ok(Array.isArray(analysis.suggestedStepGlobs));
+    });
 });

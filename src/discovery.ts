@@ -48,6 +48,15 @@ export class BehaveFileDiscoveryService {
         
         let regexStr = '';
         for (let i = 0; i < pattern.length; i++) {
+            if (pattern.substring(i, i + 3) === '/**' && (i + 3 === pattern.length || pattern[i + 3] === '/')) {
+                regexStr += '(?:/.*)?';
+                i += 2;
+                if (i + 1 < pattern.length && pattern[i + 1] === '/') {
+                    i++;
+                }
+                continue;
+            }
+
             const c = pattern[i];
             if (c === '*') {
                 if (pattern[i + 1] === '*') {

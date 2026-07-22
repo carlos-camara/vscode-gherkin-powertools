@@ -64,6 +64,8 @@ nav:
       - Configuration: configuration.md
       - Demo Gallery: demos.md
   - Features:
+      - Automated Onboarding: features/onboarding.md
+      - Workspace Diagnostics: features/diagnostics.md
       - Formatter: features/formatter.md
       - Linter: features/linter.md
       - Go To Definition: features/definition.md
@@ -73,7 +75,6 @@ nav:
       - Syntax Highlighting: features/highlighting.md
       - Autocomplete & Snippets: features/snippets.md
       - Hover Preview: features/hover.md
-      - Workspace Diagnostics: features/diagnostics.md
   - Architecture:
       - Core Architecture: ARCHITECTURE.md
       - CI/CD Pipelines: pipelines.md

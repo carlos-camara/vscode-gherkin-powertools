@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Gherkin: Diagnose Workspace Command**: Added a new diagnostic command (`gherkinPowerTools.diagnoseWorkspace`)
   that analyzes environment versions, workspace layout, discovered feature/step files, indexed definitions, Python extension status, and `.gherkin-powertoolsrc.json` validity.
   Generates an Output Channel report with a 1-click `Copy Sanitized Report` action that redacts personal usernames and home directory paths for safe issue reporting.
+- **Automated First-Run Onboarding Experience (Issue #169)**: Added a testable onboarding engine (`src/onboarding.ts`)
+  that detects Python Behave projects (via step files, decorators, `environment.py`, and dependency manifests), checks `stepGlobs` coverage, and offers non-blocking 1-click recommendations to apply settings or create `.gherkin-powertoolsrc.json` without modifying files unconfirmed or interrupting non-Behave Gherkin projects.
 - **Dedicated Visual Demo Gallery**: Added a standalone `docs/demos.md` gallery showcasing all feature animations.
 
 ### 🐛 Fixed
