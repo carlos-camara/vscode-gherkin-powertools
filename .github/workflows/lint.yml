@@ -34,7 +34,7 @@ jobs:
         run: npm run check:config
 
       - name: 📦 Validate Marketplace Metadata
-        run: npx vsce package --dry-run
+        run: npx vsce ls
 
       - name: 🧹 Lint Codebase (Markdown, YAML, Actions)
         uses: carlos-camara/qa-hub-actions/lint-codebase@main
