@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🚀 Added
 - **Interactive Execution Arguments Persistence**: `Edit Scenario/Feature` CodeLens commands now provide an interactive dialog letting you choose whether to save custom parameters (e.g., `--tags=@wip`) permanently to the Workspace Settings or keep them volatile for the current session.
+- **Security & Reliability Hardening for Execution**: Execution and debugging CodeLens actions now use VS Code Tasks and array-based `ProcessExecution` APIs, entirely eliminating shell injection vulnerabilities for malicious or complex file paths. Additionally, interpreter detection now dynamically and aggressively prioritizes your active `ms-python.python` environment to guarantee reliability.
 - **Behave Debugging CodeLens**: Debug features and scenarios directly from the editor using new `🐞 Debug` CodeLens buttons.
   The extension automatically detects your Python interpreter via the official Python extension and constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
 - **Single Typed Configuration Contract & Precedence Pipeline**:

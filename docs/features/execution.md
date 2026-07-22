@@ -16,11 +16,11 @@ Above every `Feature`, `Scenario`, and `Scenario Outline` in your `.feature` fil
 ### `▶ Run`
 
 Clicking the **Run** button will:
-1. Open a dedicated terminal panel named **Behave**.
-2. Construct the Behave execution command using your configured `command` (defaults to `behave`).
-3. Execute the specific feature or scenario exactly where you clicked.
+1. Verify if the active Python interpreter is configured in your workspace (via the `ms-python.python` extension). If available, it executes Behave securely as a python module (`-m behave`). If not, it falls back to the configured `command`.
+2. Construct the execution task securely avoiding the shell entirely, ensuring that scenarios with spaces or special characters in their names run correctly and securely without shell injection risks.
+3. Execute the specific feature or scenario exactly where you clicked within a VS Code Background Task.
 
-> **Note:** When running a scenario, the extension passes the exact line number of the scenario to Behave (e.g. `behave "features/login.feature:12"`), ensuring that only that scenario runs.
+> **Note:** When running a scenario, the extension passes the exact line number of the scenario to Behave as an argument vector (e.g. `["features/login.feature:12"]`), ensuring that only that scenario runs.
 
 ### `✎ Edit` (Interactive Arguments)
 
@@ -57,6 +57,8 @@ You can customize the execution behavior using the following settings:
 
 ### `gherkinPowerTools.behave.command`
 The base command used to run Behave. If you use a virtual environment, `pipenv`, or `poetry`, you can change this to suit your project (e.g., `poetry run behave` or `pipenv run behave`).
+
+*Note: This setting is only used if the Python extension (`ms-python.python`) is not active or if a custom interpreter is not detected.*
 * **Type:** `string`
 * **Default:** `"behave"`
 
