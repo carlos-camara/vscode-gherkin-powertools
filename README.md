@@ -39,17 +39,41 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ---
 
-## Who is this for?
+## Compatibility Matrix
 
-Gherkin PowerTools is built for QA engineers, developers, and BDD teams working with Gherkin feature files.
+| Feature | Any `.feature` file | Python / Behave | Notes |
+|---------|:-------------------:|:---------------:|-------|
+| Table & Tag Formatting | ✅ | ✅ | Cucumber, Playwright BDD, SpecFlow, Karate |
+| Real-Time Syntax Diagnostics | ✅ | ✅ | 70+ languages supported via i18n headers |
+| Keyword Quick Fixes | ✅ | ✅ | Auto-inserts missing colons & fixes typos |
+| AST Range Selection Formatting | ✅ | ✅ | Format specific step blocks or tables |
+| Project Statistics & Tag Telemetry | ✅ | ✅ | Interactive HTML Dashboard |
+| Go to Definition | — | ✅ | Jump from step to `@step` decorator |
+| Step IntelliSense Autocomplete | — | ✅ | Context-aware by step keyword |
+| Run & Debug via CodeLens | — | ✅ | 1-click execution & breakpoint debugging |
+| Undefined Step Stub Generator | — | ✅ | Generates Python function stub |
 
-### ❓ Do I need Behave / Python?
-**No!**
+---
 
-* **Any `.feature` file (Cucumber.js, Playwright BDD, SpecFlow, Karate, etc.):**
-  Zero-configuration AST-based formatting, real-time syntax linting, 70+ language i18n support, AST range selection formatting, tag telemetry, and workspace statistics work out-of-the-box for **every** Gherkin project.
-* **Python / Behave Workspaces:**
-  Unlocks deep step definition indexing (Go to Definition, Hover, IntelliSense), missing step stub generator, and 1-click test **Execution & Debugging** via CodeLens directly inside VS Code.
+## Quick Start
+
+1. Install **Gherkin PowerTools** from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools).
+2. Open any `.feature` file.
+3. Press <kbd>Shift+Alt+F</kbd> (<kbd>⇧⌥F</kbd> on macOS) to format your file instantly.
+
+* **Automated Project Onboarding:** Upon opening a Python Behave workspace, Gherkin PowerTools automatically detects step files, `@given`/`@when`/`@then` decorators, and dependency manifests. If step files exist outside standard globs, a non-blocking prompt offers 1-click updates to workspace settings or `.gherkin-powertoolsrc.json`.
+* **Zero-Config Non-Behave Support:** Pure Gherkin, Cucumber.js, or SpecFlow projects work 100% zero-configuration for formatting and linting without ever displaying notifications.
+
+### Key Shortcuts
+
+| Action | macOS | Windows / Linux |
+|--------|-------|-----------------|
+| Format Document | <kbd>⇧⌥F</kbd> | <kbd>Shift+Alt+F</kbd> |
+| Format Selection | <kbd>⌘K ⌘F</kbd> | <kbd>Ctrl+K Ctrl+F</kbd> |
+| Quick Fix | <kbd>⌘.</kbd> | <kbd>Ctrl+.</kbd> |
+| Go to Definition | <kbd>⌘Click</kbd> | <kbd>Ctrl+Click</kbd> / <kbd>F12</kbd> |
+| Trigger Completion | <kbd>⌃Space</kbd> | <kbd>Ctrl+Space</kbd> |
+| Diagnose Workspace | `Gherkin: Diagnose Workspace` | `Gherkin: Diagnose Workspace` |
 
 ---
 
@@ -131,7 +155,7 @@ Gherkin PowerTools is built for QA engineers, developers, and BDD teams working 
 
 <div align="center">
 
-![Zero-Configuration Onboarding & Diagnostics](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/onboarding.gif)
+<img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/onboarding.gif" alt="Zero-Configuration Onboarding & Diagnostics" width="600" />
 
 </div>
 
@@ -139,19 +163,17 @@ Gherkin PowerTools is built for QA engineers, developers, and BDD teams working 
 
 ---
 
-## Compatibility Matrix
+## Who is this for?
 
-| Feature | Any `.feature` file | Python / Behave | Notes |
-|---------|:-------------------:|:---------------:|-------|
-| Table & Tag Formatting | ✅ | ✅ | Cucumber, Playwright BDD, SpecFlow, Karate |
-| Real-Time Syntax Diagnostics | ✅ | ✅ | 70+ languages supported via i18n headers |
-| Keyword Quick Fixes | ✅ | ✅ | Auto-inserts missing colons & fixes typos |
-| AST Range Selection Formatting | ✅ | ✅ | Format specific step blocks or tables |
-| Project Statistics & Tag Telemetry | ✅ | ✅ | Interactive HTML Dashboard |
-| Go to Definition | — | ✅ | Jump from step to `@step` decorator |
-| Step IntelliSense Autocomplete | — | ✅ | Context-aware by step keyword |
-| Run & Debug via CodeLens | — | ✅ | 1-click execution & breakpoint debugging |
-| Undefined Step Stub Generator | — | ✅ | Generates Python function stub |
+Gherkin PowerTools is built for QA engineers, developers, and BDD teams working with Gherkin feature files.
+
+### ❓ Do I need Behave / Python?
+**No!**
+
+* **Any `.feature` file (Cucumber.js, Playwright BDD, SpecFlow, Karate, etc.):**
+  Zero-configuration AST-based formatting, real-time syntax linting, 70+ language i18n support, AST range selection formatting, tag telemetry, and workspace statistics work out-of-the-box for **every** Gherkin project.
+* **Python / Behave Workspaces:**
+  Unlocks deep step definition indexing (Go to Definition, Hover, IntelliSense), missing step stub generator, and 1-click test **Execution & Debugging** via CodeLens directly inside VS Code.
 
 ---
 
@@ -171,28 +193,6 @@ Both extensions can coexist peacefully and serve complementary purposes:
 | Language Server Protocol (LSP) | — | ✅ (all frameworks) |
 
 *💡 **PRO-TIP:** Install both! Gherkin PowerTools handles formatting, linting, Python/Behave navigation, execution, and analytics. The Official Cucumber extension provides generic LSP support for JavaScript/Java frameworks.*
-
----
-
-## Quick Start
-
-1. Install **Gherkin PowerTools** from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=carloscamara.vscode-gherkin-powertools).
-2. Open any `.feature` file.
-3. Press <kbd>Shift+Alt+F</kbd> (<kbd>⇧⌥F</kbd> on macOS) to format your file instantly.
-
-* **Automated Project Onboarding:** Upon opening a Python Behave workspace, Gherkin PowerTools automatically detects step files, `@given`/`@when`/`@then` decorators, and dependency manifests. If step files exist outside standard globs, a non-blocking prompt offers 1-click updates to workspace settings or `.gherkin-powertoolsrc.json`.
-* **Zero-Config Non-Behave Support:** Pure Gherkin, Cucumber.js, or SpecFlow projects work 100% zero-configuration for formatting and linting without ever displaying notifications.
-
-### Key Shortcuts
-
-| Action | macOS | Windows / Linux |
-|--------|-------|-----------------|
-| Format Document | <kbd>⇧⌥F</kbd> | <kbd>Shift+Alt+F</kbd> |
-| Format Selection | <kbd>⌘K ⌘F</kbd> | <kbd>Ctrl+K Ctrl+F</kbd> |
-| Quick Fix | <kbd>⌘.</kbd> | <kbd>Ctrl+.</kbd> |
-| Go to Definition | <kbd>⌘Click</kbd> | <kbd>Ctrl+Click</kbd> / <kbd>F12</kbd> |
-| Trigger Completion | <kbd>⌃Space</kbd> | <kbd>Ctrl+Space</kbd> |
-| Diagnose Workspace | `Gherkin: Diagnose Workspace` | `Gherkin: Diagnose Workspace` |
 
 ---
 

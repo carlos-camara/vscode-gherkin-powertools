@@ -33,6 +33,9 @@ jobs:
       - name: 📋 Check Configuration Sync
         run: npm run check:config
 
+      - name: 📦 Validate Marketplace Metadata
+        run: npx vsce ls
+
       - name: 🧹 Lint Codebase (Markdown, YAML, Actions)
         uses: carlos-camara/qa-hub-actions/lint-codebase@main
         with:

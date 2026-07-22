@@ -85,8 +85,21 @@ export async function runBehaveWithPrompt(uri: vscode.Uri, line: number | undefi
                 newArgsStr = newArgsStr.replace(pathArg, '').replace(/\s+/g, ' ').trim();
             }
             
-            memoryAdditionalArgs = newArgsStr;
-            vscode.window.showInformationMessage('Execution arguments updated successfully. Click "Run" to execute.');
+            const action = await vscode.window.showInformationMessage(
+                'Execution arguments updated. Do you want to save them permanently to your Workspace Settings?',
+                'Save to Workspace',
+                'Just for this session'
+            );
+
+            if (action === 'Save to Workspace') {
+                const argsArray = parseArgsStringToVector(newArgsStr);
+                await vscode.workspace.getConfiguration('gherkinPowerTools.behave').update('additionalArguments', argsArray, vscode.ConfigurationTarget.Workspace);
+                memoryAdditionalArgs = undefined;
+                vscode.window.showInformationMessage('Execution arguments saved to Workspace Settings. Click "Run" to execute.');
+            } else {
+                memoryAdditionalArgs = newArgsStr;
+                vscode.window.showInformationMessage('Execution arguments updated for this session. Click "Run" to execute.');
+            }
         } else {
             vscode.window.showErrorMessage('Command must start with the configured Behave base command.');
         }

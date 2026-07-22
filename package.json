@@ -1,8 +1,8 @@
 {
   "name": "vscode-gherkin-powertools",
-  "displayName": "Gherkin PowerTools",
-  "description": "Comprehensive BDD toolkit for Gherkin feature files and Python Behave: AST-based formatting, strict linting, step navigation, test execution, debugging, and analytics.",
-  "version": "1.7.6",
+  "displayName": "Gherkin PowerTools - BDD & Python Behave Toolkit",
+  "description": "Gherkin formatting, linting, project analysis, Python/Behave navigation, and execution/debugging for BDD.",
+  "version": "1.7.7",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -24,7 +24,9 @@
     "feature",
     "feature files",
     "step definitions",
+    "python",
     "python testing",
+    "testing",
     "test automation",
     "test-runner",
     "debugger",
