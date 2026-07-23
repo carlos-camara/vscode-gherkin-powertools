@@ -128,6 +128,11 @@
     },
     "commands": [
       {
+        "command": "gherkinPowerTools.commandCenter",
+        "title": "Gherkin PowerTools: Command Center",
+        "category": "Gherkin"
+      },
+      {
         "command": "gherkinPowerTools.format",
         "title": "Format Gherkin Document"
       },
@@ -280,6 +285,17 @@
             },
             "completionEvents": [
               "onCommand:editor.action.quickFix"
+            ]
+          },
+          {
+            "id": "commandCenter",
+            "title": "Gherkin Command Center",
+            "description": "Discover all extension capabilities from a single interactive menu. [Open Command Center](command:gherkinPowerTools.commandCenter)",
+            "media": {
+              "markdown": "assets/walkthrough/10_command_center.md"
+            },
+            "completionEvents": [
+              "onCommand:gherkinPowerTools.commandCenter"
             ]
           },
           {

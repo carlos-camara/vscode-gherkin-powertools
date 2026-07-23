@@ -2,6 +2,17 @@
 
 Interactive visual demonstrations of Gherkin PowerTools features.
 
+## General
+
+### Command Center
+Discover all extension capabilities from a single, unified interface!
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/command-center.gif" alt="Command Center" width="600" />
+</div>
+
+---
+
 ## Setup & Onboarding Demos
 
 ### Zero-Configuration Onboarding & Diagnostics
