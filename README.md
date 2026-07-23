@@ -63,6 +63,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 * **Automated Project Onboarding:** Upon opening a Python Behave workspace, Gherkin PowerTools automatically detects step files, `@given`/`@when`/`@then` decorators, and dependency manifests. If step files exist outside standard globs, a non-blocking prompt offers 1-click updates to workspace settings or `.gherkin-powertoolsrc.json`.
 * **Zero-Config Non-Behave Support:** Pure Gherkin, Cucumber.js, or SpecFlow projects work 100% zero-configuration for formatting and linting without ever displaying notifications.
+* **🐳 100% DevContainer & Remote Ready:** Fully compatible with VS Code Remote (WSL, SSH, Codespaces, DevContainers). Execution processes correctly spawn inside containers, and settings sync reliably without configuration loss.
 
 ### Key Shortcuts
 
@@ -109,7 +110,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ### 3. 🚀 1-Click Execution & Debugging (CodeLens)
 **Problem:** Switching context between the editor and terminal to run isolated scenarios or attach debuggers breaks focus.  
-**Solution:** Interactive `▶ Run`, `🐞 Debug`, and `✏️ Edit` buttons appear directly above Features and Scenarios. Execute tests using your active VS Code Python environment or step through Python step definitions with breakpoints.
+**Solution:** Interactive `▶ Run`, `🐞 Debug`, and `✏️ Edit` buttons appear directly above Features and Scenarios. Additionally, minimal `▶` and `🐞` icons appear next to individual `Examples` data rows. Execute tests using your active VS Code Python environment or step through Python step definitions with breakpoints.
 
 <div align="center">
 

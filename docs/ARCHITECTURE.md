@@ -48,8 +48,8 @@ graph LR
 | `parser.ts`    | Handles AST parsing and caching of Gherkin documents |
 | `dialect.ts`   | Provides i18n support by matching localized Gherkin keywords |
 | `discovery.ts` | Centralized Behave file discovery service handling glob normalization and reactive file watchers |
-| `execution.ts` | Terminal and execution orchestration for Behave runs |
-| `codelens.ts`  | Injects Run/Debug/Edit lenses above features and scenarios |
+| `execution.ts` | Orchestrates VS Code Tasks via array-based `ProcessExecution` APIs for secure Behave test runs without shell injection risks |
+| `codelens.ts`  | Injects Run/Debug/Edit lenses above features/scenarios using a resilient, dialect-aware text scanner (avoids AST crashes) |
 | `configuration.ts`| Provides typesafe access to user and workspace configuration settings |
 
 ## Hot-Reloading Configuration

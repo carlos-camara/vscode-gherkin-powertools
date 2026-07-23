@@ -814,4 +814,29 @@ def step_impl(context):
         assert.ok(Array.isArray(analysis.uncoveredStepFiles));
         assert.ok(Array.isArray(analysis.suggestedStepGlobs));
     });
+
+    test('Simulate Run Feature Execution (ProcessExecution via Task)', async () => {
+        if (!vscode.workspace.workspaceFolders) {
+            assert.fail('No workspace folder open for E2E test');
+        }
+
+        const workspaceUri = vscode.workspace.workspaceFolders[0].uri;
+        const fixtureUri = vscode.Uri.joinPath(workspaceUri, 'src', 'test', 'fixtures', 'behave', 'features', 'hello.feature');
+        
+        const document = await vscode.workspace.openTextDocument(fixtureUri);
+        await vscode.window.showTextDocument(document);
+
+        // Give the extension a moment to activate CodeLens etc
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        let errorThrown = false;
+        try {
+            await vscode.commands.executeCommand('gherkinPowerTools.runFeature', fixtureUri);
+        } catch (e) {
+            errorThrown = true;
+            console.error(e);
+        }
+
+        assert.strictEqual(errorThrown, false, 'runFeature command threw an error');
+    });
 });

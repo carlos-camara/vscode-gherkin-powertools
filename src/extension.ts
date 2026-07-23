@@ -11,7 +11,7 @@ import { GherkinCodeActionProvider, createStepDefinition } from './codeAction';
 import { GherkinCompletionProvider } from './completion';
 import { GherkinHoverProvider } from './hover';
 import { discoveryService } from './discovery';
-import { runBehave, runBehaveWithPrompt, debugBehave } from './execution';
+import { runBehave, runBehaveWithPrompt, debugBehave, registerExecutionListeners } from './execution';
 import { BehaveCodeLensProvider } from './codelens';
 import { showDiagnosticsReport } from './diagnostics';
 import { showOnboardingNotificationIfNeeded } from './onboarding';
@@ -28,6 +28,8 @@ const GHERKIN_LANGUAGES = ['feature', 'gherkin'];
  */
 export async function activate(context: vscode.ExtensionContext) {
     logger.info('Extension "vscode-gherkin-powertools" is now active.');
+    
+    registerExecutionListeners(context);
 
     const configDiagnostics = vscode.languages.createDiagnosticCollection('gherkin-configuration');
     context.subscriptions.push(configDiagnostics);

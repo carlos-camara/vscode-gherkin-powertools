@@ -25,8 +25,12 @@ Gherkin parsers are notoriously strict and often crash completely (failing to re
 
 To guarantee that you always receive accurate diagnostics regardless of how "broken" the file is, our Linter employs a **Multi-Pass Hybrid Parsing Strategy**:
 1. **Primary AST Pass**: Uses the official `@cucumber/gherkin` parser to validate strict structural and semantic rules.
-2. **Custom Heuristic Fallback**: If the official parser crashes due to a syntax error (e.g., typing `Whe` instead of `When`), our custom engine kicks in. It scans the document via text-based heuristics to ensure structural rules (like forbidding an `Examples` table under a standard `Scenario`) are still enforced.
-3. **Dynamic Line Mapping**: Parsers often silently strip blank lines from descriptions, causing error diagnostics to point to the wrong physical lines in your editor. Our engine dynamically maps AST logic back to the exact physical lines in VS Code, ensuring pixel-perfect accuracy for every red underline.
+2. **Cascading Error Suppression**: When the official parser crashes due to a structural error (e.g., missing a `:`
+   after `Scenario`), it traditionally breaks the internal state machine, causing a massive "wall of red squiggles"
+   on perfectly valid steps below the error. The linter now intelligently suppresses these cascading syntax errors
+   on locally valid lines, pinpointing exactly where the true structural error occurred without overwhelming the user.
+3. **Custom Heuristic Fallback**: If the official parser crashes entirely (e.g., typing `Whe` instead of `When`), our custom engine kicks in. It scans the document via text-based heuristics to ensure structural rules (like forbidding an `Examples` table under a standard `Scenario`) are still enforced.
+4. **Dynamic Line Mapping**: Parsers often silently strip blank lines from descriptions, causing error diagnostics to point to the wrong physical lines in your editor. Our engine dynamically maps AST logic back to the exact physical lines in VS Code, ensuring pixel-perfect accuracy for every red underline.
 
 ## 🌍 Global Dialect Support (i18n)
 
