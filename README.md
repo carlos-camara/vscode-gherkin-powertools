@@ -80,7 +80,19 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ## Core Capabilities
 
-### 1. ⚡ AST-Powered Formatting
+### 1. 🎛️ Command Center
+**Problem:** Memorizing keyboard shortcuts and discovering extension capabilities can be overwhelming.  
+**Solution:** A unified QuickPick menu provides one-click access to Formatting, Execution, Diagnostics, Statistics, and Code Generation. Access it via the Command Palette (`Gherkin PowerTools: Command Center`).
+
+<div align="center">
+
+![Command Center](assets/command-center.gif)
+
+</div>
+
+---
+
+### 2. ⚡ AST-Powered Formatting
 **Problem:** Misaligned table pipes, messy tags, and erratic indentation create noisy git diffs and slow code reviews.  
 **Solution:** Format Document rewrites your feature file using the official `@cucumber/gherkin` AST parser. Tables snap to step text, tags wrap cleanly at 80 characters, and formatting is 100% idempotent.
 
@@ -94,7 +106,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ---
 
-### 2. 🛡️ Real-Time Linter & Quick Fixes
+### 3. 🛡️ Real-Time Linter & Quick Fixes
 **Problem:** A missing colon or misspelled keyword silently reaches CI and breaks your test pipeline.  
 **Solution:** A fully **dialect-aware** AST linter flags structural errors across 70+ languages as you type. One-click Quick Fixes (<kbd>Ctrl+.</kbd> / <kbd>⌘.</kbd>) fix common typos and missing colons instantly.
 
@@ -108,7 +120,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ---
 
-### 3. 🚀 1-Click Execution & Debugging (CodeLens)
+### 4. 🚀 1-Click Execution & Debugging (CodeLens)
 **Problem:** Switching context between the editor and terminal to run isolated scenarios or attach debuggers breaks focus.  
 **Solution:** Interactive `▶ Run`, `🐞 Debug`, and `✏️ Edit` buttons appear directly above Features and Scenarios. Additionally, minimal `▶` and `🐞` icons appear next to individual `Examples` data rows. Execute tests using your active VS Code Python environment or step through Python step definitions with breakpoints.
 
@@ -122,7 +134,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ---
 
-### 4. 🔍 Python/Behave Navigation & Step IntelliSense
+### 5. 🔍 Python/Behave Navigation & Step IntelliSense
 **Problem:** Finding the Python implementation behind a Gherkin step requires searching through step folders manually.  
 **Solution:** <kbd>Cmd+Click</kbd> / <kbd>Ctrl+Click</kbd> any step to jump straight to its Python `@given`, `@when`, `@then` decorator. Get context-aware step completion and preview function signatures on hover.
 
@@ -136,7 +148,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ---
 
-### 5. 📊 Workspace BDD Analytics
+### 6. 📊 Workspace BDD Analytics
 **Problem:** Difficulty assessing the size, health, and test distribution of your BDD suite.  
 **Solution:** The Project Statistics dashboard compiles workspace metrics: feature counts, scenario outlines, step ratios, tag telemetry, and a Gherkin Quality Indicator.
 
@@ -150,7 +162,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 ---
 
-### 6. 🤖 Zero-Configuration Onboarding & Diagnostics
+### 7. 🤖 Zero-Configuration Onboarding & Diagnostics
 **Problem:** Setting up paths and configuring the extension for complex Python workspaces requires reading documentation and tweaking JSON.  
 **Solution:** A silent background scanner automatically detects Behave projects, analyzes coverage gaps, and proactively offers to configure your workspace with 1 click. Run deep workspace diagnostics to troubleshoot setup issues instantly.
 

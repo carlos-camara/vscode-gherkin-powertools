@@ -15,6 +15,7 @@ import { runBehave, runBehaveWithPrompt, debugBehave, registerExecutionListeners
 import { BehaveCodeLensProvider } from './codelens';
 import { showDiagnosticsReport } from './diagnostics';
 import { showOnboardingNotificationIfNeeded } from './onboarding';
+import { showCommandCenter } from './commandCenter';
 
 import { ConfigurationService } from './configuration';
 
@@ -129,30 +130,49 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('gherkinPowerTools.createStepDefinition', createStepDefinition)
     );
 
+    // Register Command Center
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.commandCenter', showCommandCenter)
+    );
+
     // Register Behave execution commands
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinPowerTools.runFeature', (uri: vscode.Uri) => {
-            runBehave(uri, undefined, configService);
+        vscode.commands.registerCommand('gherkinPowerTools.runFeature', (uri?: vscode.Uri) => {
+            const finalUri = uri || vscode.window.activeTextEditor?.document.uri;
+            if (finalUri) runBehave(finalUri, undefined, configService);
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinPowerTools.runScenario', (uri: vscode.Uri, line: number) => {
-            runBehave(uri, line, configService);
+        vscode.commands.registerCommand('gherkinPowerTools.runScenario', (uri?: vscode.Uri, line?: number) => {
+            const finalUri = uri || vscode.window.activeTextEditor?.document.uri;
+            const finalLine = line !== undefined ? line : vscode.window.activeTextEditor?.selection.active.line;
+            if (finalUri) runBehave(finalUri, finalLine, configService);
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinPowerTools.runFeatureWithArgs', (uri: vscode.Uri) => {
-            runBehaveWithPrompt(uri, undefined, configService);
+        vscode.commands.registerCommand('gherkinPowerTools.runFeatureWithArgs', (uri?: vscode.Uri) => {
+            const finalUri = uri || vscode.window.activeTextEditor?.document.uri;
+            if (finalUri) runBehaveWithPrompt(finalUri, undefined, configService);
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinPowerTools.runScenarioWithArgs', (uri: vscode.Uri, line: number) => {
-            runBehaveWithPrompt(uri, line, configService);
+        vscode.commands.registerCommand('gherkinPowerTools.runScenarioWithArgs', (uri?: vscode.Uri, line?: number) => {
+            const finalUri = uri || vscode.window.activeTextEditor?.document.uri;
+            const finalLine = line !== undefined ? line : vscode.window.activeTextEditor?.selection.active.line;
+            if (finalUri) runBehaveWithPrompt(finalUri, finalLine, configService);
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('gherkinPowerTools.debugScenario', (uri: vscode.Uri, line: number) => {
-            debugBehave(uri, line, configService);
+        vscode.commands.registerCommand('gherkinPowerTools.debugScenario', (uri?: vscode.Uri, line?: number) => {
+            const finalUri = uri || vscode.window.activeTextEditor?.document.uri;
+            const finalLine = line !== undefined ? line : vscode.window.activeTextEditor?.selection.active.line;
+            if (finalUri) debugBehave(finalUri, finalLine, configService);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('gherkinPowerTools.debugFeature', (uri?: vscode.Uri) => {
+            const finalUri = uri || vscode.window.activeTextEditor?.document.uri;
+            if (finalUri) debugBehave(finalUri, undefined, configService);
         })
     );
 

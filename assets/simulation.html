@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    background: #1e1e1e;
+    color: #cccccc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding-top: 50px;
+    height: 100vh;
+    box-sizing: border-box;
+  }
+  .palette {
+    width: 600px;
+    margin: 0 auto;
+    background: #252526;
+    border: 1px solid #454545;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+  }
+  .input-container {
+    padding: 10px;
+    border-bottom: 1px solid #454545;
+    display: flex;
+    align-items: center;
+  }
+  .input {
+    flex: 1;
+    background: #3c3c3c;
+    border: 1px solid #007acc;
+    color: #cccccc;
+    padding: 6px 10px;
+    font-size: 13px;
+    outline: none;
+    border-radius: 2px;
+  }
+  .input::after {
+    content: "|";
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .list {
+    padding: 4px 0;
+    display: none; /* hidden initially */
+  }
+  .item {
+    padding: 8px 10px 8px 30px;
+    display: flex;
+    flex-direction: column;
+    cursor: default;
+    font-size: 13px;
+  }
+  .item.selected {
+    background: #04395e;
+    color: #fff;
+  }
+  .item-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .item-desc {
+    color: #9cdcfe;
+    font-size: 12px;
+    padding-left: 24px;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+  <div class="palette" id="palette">
+    <div class="input-container">
+      <div class="input" id="input">&gt; </div>
+    </div>
+    
+    <div class="list" id="options-list">
+      <div class="item selected" id="opt1">
+        <div class="item-title"><span>✨</span> Formatting: Format Document</div>
+        <div class="item-desc">Format the current Gherkin document</div>
+      </div>
+      <div class="item" id="opt2">
+        <div class="item-title"><span>🚀</span> Execution: Run Feature</div>
+        <div class="item-desc">Run the current Gherkin feature</div>
+      </div>
+      <div class="item" id="opt3">
+        <div class="item-title"><span>🚀</span> Execution: Run Scenario</div>
+        <div class="item-desc">Run the selected scenario</div>
+      </div>
+      <div class="item" id="opt4">
+        <div class="item-title"><span>🧭</span> Navigation: Go to Step Definition</div>
+        <div class="item-desc">Navigate to the code implementation of a step</div>
+      </div>
+      <div class="item" id="opt5">
+        <div class="item-title"><span>🔍</span> Diagnostics: Diagnose Workspace</div>
+        <div class="item-desc">Find all undefined and unused steps in the workspace</div>
+      </div>
+      <div class="item" id="opt6">
+        <div class="item-title"><span>📊</span> Statistics: Show Statistics</div>
+        <div class="item-desc">Show statistics for the workspace</div>
+      </div>
+      <div class="item" id="opt7">
+        <div class="item-title"><span>⚙️</span> Configuration: Settings</div>
+        <div class="item-desc">Open extension settings</div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const input = document.getElementById('input');
+    const list = document.getElementById('options-list');
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    
+    async function run() {
+      await sleep(500);
+      
+      const text = "Gherkin PowerTools: Command Center";
+      let current = "> ";
+      for(let i=0; i<text.length; i++) {
+        current += text[i];
+        input.innerText = current;
+        // slightly randomize typing speed
+        await sleep(30 + Math.random() * 30);
+      }
+      
+      await sleep(500);
+      
+      // Show options list
+      list.style.display = 'block';
+      await sleep(600);
+      
+      // Move down
+      const sequence = [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [4, 3],
+        [3, 2]
+      ];
+      
+      for(let pair of sequence) {
+        document.getElementById('opt' + pair[0]).classList.remove('selected');
+        document.getElementById('opt' + pair[1]).classList.add('selected');
+        await sleep(600);
+      }
+      
+      // Blink selection to simulate pressing enter
+      for(let i=0; i<3; i++) {
+        document.getElementById('opt2').classList.remove('selected');
+        await sleep(150);
+        document.getElementById('opt2').classList.add('selected');
+        await sleep(150);
+      }
+      
+      // Keep it visible forever at the end.
+    }
+    
+    run();
+  </script>
+</body>
+</html>
