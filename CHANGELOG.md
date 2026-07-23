@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Added
 - **Command Center**: A unified interactive QuickPick menu to access all extension capabilities (formatting, execution, debugging, step navigation, and diagnostics) from a single place. Open it via `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux) -> "Gherkin PowerTools: Command Center".
 
+### ⚡ Performance
+- **Instant Activation (O(1))**: The extension now activates instantly upon opening VS Code. Heavy workspace parsing (Python steps and Feature file tagging) has been successfully offloaded to background threads. This ensures that features like formatting, syntax highlighting, and code action commands are immediately available without blocking the extension host, dramatically improving startup times in massive enterprise projects.
+
 ### 🐛 Fixed
 - 
 

@@ -61,6 +61,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 2. Open any `.feature` file.
 3. Press <kbd>Shift+Alt+F</kbd> (<kbd>⇧⌥F</kbd> on macOS) to format your file instantly.
 
+* **⚡ Instant Activation:** Activation executes in O(1) time without blocking VS Code. Heavy workspace parsing (Python steps and Feature file tagging) is silently offloaded to background threads.
 * **Automated Project Onboarding:** Upon opening a Python Behave workspace, Gherkin PowerTools automatically detects step files, `@given`/`@when`/`@then` decorators, and dependency manifests. If step files exist outside standard globs, a non-blocking prompt offers 1-click updates to workspace settings or `.gherkin-powertoolsrc.json`.
 * **Zero-Config Non-Behave Support:** Pure Gherkin, Cucumber.js, or SpecFlow projects work 100% zero-configuration for formatting and linting without ever displaying notifications.
 * **🐳 100% DevContainer & Remote Ready:** Fully compatible with VS Code Remote (WSL, SSH, Codespaces, DevContainers). Execution processes correctly spawn inside containers, and settings sync reliably without configuration loss.
