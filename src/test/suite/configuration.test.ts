@@ -62,6 +62,11 @@ suite('ConfigurationService Test Suite', () => {
                 if (key === 'indentation.steps') return 2;
                 if (key === 'tags.format') return 'singleLine';
                 return undefined;
+            },
+            inspect: (key: string) => {
+                if (key === 'indentation.steps') return { workspaceValue: 2 };
+                if (key === 'tags.format') return { workspaceValue: 'singleLine' };
+                return undefined;
             }
         } as any);
 
@@ -89,6 +94,11 @@ suite('ConfigurationService Test Suite', () => {
                 if (key === 'indentation.steps') return 2;
                 // Workspace setting which should apply because it's not in project config
                 if (key === 'tags.format') return 'singleLine';
+                return undefined;
+            },
+            inspect: (key: string) => {
+                if (key === 'indentation.steps') return { workspaceValue: 2 };
+                if (key === 'tags.format') return { workspaceValue: 'singleLine' };
                 return undefined;
             }
         } as any);
@@ -231,5 +241,42 @@ suite('ConfigurationService Test Suite', () => {
 
         assert.strictEqual(config.indentation.steps, 4);
         assert.ok(diagnostics.length > 0);
+    });
+    test('12. Resolves configuration profiles correctly', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        
+        fs.writeFileSync(configPath, JSON.stringify({
+            profile: "minimal"
+        }));
+
+        let diagnostics: vscode.Diagnostic[] = [];
+        mockDiagnostics.set = ((_uri: any, diags: vscode.Diagnostic[]) => { diagnostics = diags; }) as any;
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+
+        // Minimal profile sets steps to 2 and alignToKeyword to false
+        assert.strictEqual(config.indentation.steps, 2);
+        assert.strictEqual(config.tables.alignToKeyword, false);
+        assert.strictEqual(config.tags.format, 'singleLine');
+        assert.strictEqual(diagnostics.length, 0);
+    });
+
+    test('13. User overrides take precedence over profile baseline', () => {
+        const configPath = path.join(workspacePath, '.gherkin-powertoolsrc.json');
+        
+        fs.writeFileSync(configPath, JSON.stringify({
+            profile: "minimal",
+            indentation: { steps: 8 }
+        }));
+
+        let diagnostics: vscode.Diagnostic[] = [];
+        mockDiagnostics.set = ((_uri: any, diags: vscode.Diagnostic[]) => { diagnostics = diags; }) as any;
+
+        const config = configService.getConfiguration(vscode.workspace.workspaceFolders?.[0].uri);
+
+        // Steps should be overridden to 8, but others remain from 'minimal' profile
+        assert.strictEqual(config.indentation.steps, 8);
+        assert.strictEqual(config.tables.alignToKeyword, false);
+        assert.strictEqual(diagnostics.length, 0);
     });
 });

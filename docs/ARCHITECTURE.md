@@ -52,6 +52,15 @@ graph LR
 | `codelens.ts`  | Injects Run/Debug/Edit lenses above features/scenarios using a resilient, dialect-aware text scanner (avoids AST crashes) |
 | `configuration.ts`| Provides typesafe access to user and workspace configuration settings |
 
+## Activation Lifecycle (O(1) Instant Start)
+
+The extension is designed for instantaneous **O(1) activation**, even in massive enterprise repositories with thousands of files.
+
+During startup (`extension.ts`):
+1. **Synchronous Providers**: Language formatters, linters, hover providers, and the Command Center are registered synchronously. This guarantees that basic syntax highlighting, code formatting, and error diagnostics are immediately available to the user the second the extension boots.
+2. **Asynchronous Caching**: Heavy workspace operations—specifically parsing the `SymbolCache` (Python step definitions) and the `FeatureCache` (Gherkin tag indexing for statistics and execution constraints)—are explicitly offloaded to non-blocking background Promises. 
+3. **Graceful Fallbacks**: Features that rely on these caches (like Autocomplete or Go-to-Definition) will gracefully await the cache initialization or fall back safely if invoked within the first milliseconds of startup before the cache finishes indexing.
+
 ## Hot-Reloading Configuration
 
 The extension is designed to respond to configuration changes instantly without requiring a window reload.

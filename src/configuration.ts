@@ -10,18 +10,60 @@ export interface Configuration {
     behave: { stepGlobs: string[]; ignoreGlobs: string[]; additionalArguments: string[]; command: string; };
 }
 
-export const DEFAULT_CONFIG: Configuration = {
-    indentation: { steps: 4 },
-    tables: { alignToKeyword: true },
-    tags: { format: 'wrap', sort: 'preserve' },
-    emptyLines: { betweenScenarios: 1 },
-    behave: {
-        stepGlobs: ["**/steps/**/*.py", "**/features/steps/**/*.py"],
-        ignoreGlobs: ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"],
-        additionalArguments: [],
-        command: "behave"
+export type ConfigurationProfile = 'team' | 'strict' | 'minimal' | 'legacy';
+
+export const PROFILES: Record<ConfigurationProfile, Configuration> = {
+    team: {
+        indentation: { steps: 4 },
+        tables: { alignToKeyword: true },
+        tags: { format: 'wrap', sort: 'preserve' },
+        emptyLines: { betweenScenarios: 1 },
+        behave: {
+            stepGlobs: ["**/steps/**/*.py", "**/features/steps/**/*.py"],
+            ignoreGlobs: ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"],
+            additionalArguments: [],
+            command: "behave"
+        }
+    },
+    strict: {
+        indentation: { steps: 4 },
+        tables: { alignToKeyword: true },
+        tags: { format: 'wrap', sort: 'alphabetical' },
+        emptyLines: { betweenScenarios: 1 },
+        behave: {
+            stepGlobs: ["**/steps/**/*.py", "**/features/steps/**/*.py"],
+            ignoreGlobs: ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"],
+            additionalArguments: [],
+            command: "behave"
+        }
+    },
+    minimal: {
+        indentation: { steps: 2 },
+        tables: { alignToKeyword: false },
+        tags: { format: 'singleLine', sort: 'preserve' },
+        emptyLines: { betweenScenarios: 1 },
+        behave: {
+            stepGlobs: ["**/steps/**/*.py", "**/features/steps/**/*.py"],
+            ignoreGlobs: ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"],
+            additionalArguments: [],
+            command: "behave"
+        }
+    },
+    legacy: {
+        indentation: { steps: 2 },
+        tables: { alignToKeyword: true },
+        tags: { format: 'singleLine', sort: 'preserve' },
+        emptyLines: { betweenScenarios: 1 },
+        behave: {
+            stepGlobs: ["**/steps/**/*.py", "**/features/steps/**/*.py"],
+            ignoreGlobs: ["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"],
+            additionalArguments: [],
+            command: "behave"
+        }
     }
 };
+
+export const DEFAULT_CONFIG: Configuration = PROFILES.team;
 
 export interface ConfigError {
     key: string;
@@ -42,13 +84,27 @@ export function validateAndMergeConfig(parsed: any, baseConfig?: Configuration):
         return { errors, config };
     }
 
-    const validSections = ['indentation', 'tables', 'tags', 'emptyLines', 'behave'];
+    if (parsed.profile) {
+        if (typeof parsed.profile === 'string' && Object.keys(PROFILES).includes(parsed.profile)) {
+            const profileConfig = PROFILES[parsed.profile as ConfigurationProfile];
+            Object.assign(config.indentation, profileConfig.indentation);
+            Object.assign(config.tables, profileConfig.tables);
+            Object.assign(config.tags, profileConfig.tags);
+            Object.assign(config.emptyLines, profileConfig.emptyLines);
+        } else {
+            errors.push({ key: 'profile', message: `"profile" must be one of: ${Object.keys(PROFILES).join(', ')}.` });
+        }
+    }
+
+    const validSections = ['profile', 'indentation', 'tables', 'tags', 'emptyLines', 'behave'];
 
     for (const key of Object.keys(parsed)) {
         if (!validSections.includes(key)) {
             errors.push({ key, message: `Unknown configuration section: "${key}".` });
             continue;
         }
+
+        if (key === 'profile') continue;
 
         if (typeof parsed[key] !== 'object' || parsed[key] === null || Array.isArray(parsed[key])) {
             errors.push({ key, message: `Section "${key}" must be an object.` });
@@ -216,31 +272,38 @@ export class ConfigurationService {
 
     private getVsCodeSettings(uri: vscode.Uri | undefined): Configuration {
         const workspaceConfig = vscode.workspace.getConfiguration('gherkinPowerTools', uri);
-        const config: Configuration = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        
+        // 1. Determine base profile
+        const profileStr = workspaceConfig.get<string>('profile') || 'team';
+        const profile = (Object.keys(PROFILES).includes(profileStr) ? profileStr : 'team') as ConfigurationProfile;
+        const config: Configuration = JSON.parse(JSON.stringify(PROFILES[profile]));
 
-        const indentationSteps = workspaceConfig.get<number>('indentation.steps');
-        if (indentationSteps !== undefined && typeof indentationSteps === 'number') {
-            config.indentation.steps = indentationSteps;
+        // 2. Apply explicit user/workspace overrides
+        const inspectIndentationSteps = workspaceConfig.inspect ? workspaceConfig.inspect<number>('indentation.steps') : undefined;
+        if (inspectIndentationSteps && (inspectIndentationSteps.globalValue !== undefined || inspectIndentationSteps.workspaceValue !== undefined || inspectIndentationSteps.workspaceFolderValue !== undefined)) {
+            config.indentation.steps = workspaceConfig.get<number>('indentation.steps')!;
         }
 
-        const alignToKeyword = workspaceConfig.get<boolean>('tables.alignToKeyword');
-        if (alignToKeyword !== undefined && typeof alignToKeyword === 'boolean') {
-            config.tables.alignToKeyword = alignToKeyword;
+        const inspectAlignToKeyword = workspaceConfig.inspect ? workspaceConfig.inspect<boolean>('tables.alignToKeyword') : undefined;
+        if (inspectAlignToKeyword && (inspectAlignToKeyword.globalValue !== undefined || inspectAlignToKeyword.workspaceValue !== undefined || inspectAlignToKeyword.workspaceFolderValue !== undefined)) {
+            config.tables.alignToKeyword = workspaceConfig.get<boolean>('tables.alignToKeyword')!;
         }
 
-        const tagsFormat = workspaceConfig.get<'wrap' | 'singleLine'>('tags.format');
-        if (tagsFormat !== undefined && (tagsFormat === 'wrap' || tagsFormat === 'singleLine')) {
-            config.tags.format = tagsFormat;
+        const inspectTagsFormat = workspaceConfig.inspect ? workspaceConfig.inspect<'wrap' | 'singleLine'>('tags.format') : undefined;
+        if (inspectTagsFormat && (inspectTagsFormat.globalValue !== undefined || inspectTagsFormat.workspaceValue !== undefined || inspectTagsFormat.workspaceFolderValue !== undefined)) {
+            const val = workspaceConfig.get<'wrap' | 'singleLine'>('tags.format')!;
+            if (val === 'wrap' || val === 'singleLine') config.tags.format = val;
         }
 
-        const tagsSort = workspaceConfig.get<'preserve' | 'alphabetical'>('tags.sort');
-        if (tagsSort !== undefined && (tagsSort === 'preserve' || tagsSort === 'alphabetical')) {
-            config.tags.sort = tagsSort;
+        const inspectTagsSort = workspaceConfig.inspect ? workspaceConfig.inspect<'preserve' | 'alphabetical'>('tags.sort') : undefined;
+        if (inspectTagsSort && (inspectTagsSort.globalValue !== undefined || inspectTagsSort.workspaceValue !== undefined || inspectTagsSort.workspaceFolderValue !== undefined)) {
+            const val = workspaceConfig.get<'preserve' | 'alphabetical'>('tags.sort')!;
+            if (val === 'preserve' || val === 'alphabetical') config.tags.sort = val;
         }
 
-        const emptyLinesBetween = workspaceConfig.get<number>('emptyLines.betweenScenarios');
-        if (emptyLinesBetween !== undefined && typeof emptyLinesBetween === 'number') {
-            config.emptyLines.betweenScenarios = emptyLinesBetween;
+        const inspectEmptyLines = workspaceConfig.inspect ? workspaceConfig.inspect<number>('emptyLines.betweenScenarios') : undefined;
+        if (inspectEmptyLines && (inspectEmptyLines.globalValue !== undefined || inspectEmptyLines.workspaceValue !== undefined || inspectEmptyLines.workspaceFolderValue !== undefined)) {
+            config.emptyLines.betweenScenarios = workspaceConfig.get<number>('emptyLines.betweenScenarios')!;
         }
 
         const stepGlobs = workspaceConfig.get<string[]>('behave.stepGlobs');

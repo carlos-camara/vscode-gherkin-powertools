@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🚀 Added
+- **Configuration Profiles**: Dramatically simplified project setup with predefined configuration profiles (`team`, `strict`, `minimal`, and `legacy`). You can now instantly apply a baseline formatting style across your workspace using `gherkinPowerTools.profile`, while still retaining the ability to override individual settings.
 - **Command Center**: A unified interactive QuickPick menu to access all extension capabilities (formatting, execution, debugging, step navigation, and diagnostics) from a single place. Open it via `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux) -> "Gherkin PowerTools: Command Center".
 - **Examples Execution CodeLens**: You can now execute and debug individual rows within `Examples` tables! The extension injects non-intrusive `▶` (Run) and `🐞` (Debug) icons strictly aligned to the left of each data row. When clicked, it passes the exact line number to Behave so that only that specific parameter set runs, saving time when debugging large scenario outlines.
 - **Security & Reliability Hardening for Execution**: Execution and debugging CodeLens actions now use VS Code Tasks and array-based `ProcessExecution` APIs, entirely eliminating shell injection vulnerabilities for malicious or celomplex file paths.

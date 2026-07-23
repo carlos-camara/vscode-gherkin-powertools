@@ -18,6 +18,26 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 
 <br>
 
+## Configuration Profiles
+
+To dramatically simplify project setup, you can set a baseline `gherkinPowerTools.profile` in your configuration file. Predefined profiles automatically configure all styling options simultaneously.
+
+| Profile | Indentation | Table Alignment | Tags | Description |
+|---------|-------------|-----------------|------|-------------|
+| `team` (default) | 4 spaces | Aligned to keyword | Wrapped, preserved | Recommended standard for new teams |
+| `strict` | 4 spaces | Aligned to keyword | Wrapped, alphabetical | For teams enforcing strict tag sorting |
+| `minimal` | 2 spaces | Off | Single-line | Compact formatting, avoids table padding |
+| `legacy` | 2 spaces | Aligned to keyword | Single-line | Best for older projects with 2-space indents |
+
+```json
+{
+  "profile": "minimal",
+  "indentation": { "steps": 4 } // You can still override individual settings!
+}
+```
+
+<br>
+
 **ℹ️ NOTE:** *Changes to the `behave.stepGlobs` or `behave.ignoreGlobs` settings take effect immediately. The extension will automatically reload its step cache and live watchers without requiring you to restart VS Code.*
 
 <br>

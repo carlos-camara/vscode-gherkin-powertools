@@ -54,6 +54,17 @@
     "configuration": {
       "title": "Gherkin PowerTools",
       "properties": {
+        "gherkinPowerTools.profile": {
+          "type": "string",
+          "enum": [
+            "team",
+            "strict",
+            "minimal",
+            "legacy"
+          ],
+          "default": "team",
+          "description": "Base configuration profile. 'team' (default), 'strict' (enforces wrap and alphabetical sort), 'minimal' (no table alignment, 2 spaces), 'legacy' (table alignment, 2 spaces, single-line tags)."
+        },
         "gherkinPowerTools.indentation.steps": {
           "type": "number",
           "default": 4,
