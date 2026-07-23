@@ -50,10 +50,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Initialize Feature Cache for workspace-wide tag statistics
     const featureCache = new FeatureCache();
-    const featureInit = featureCache.initialize();
+    featureCache.initialize().catch(err => {
+        logger.error(`Error during initial feature cache load: ${err}`);
+    });
 
-    // Deterministic activation: wait for caches to initialize
-    await Promise.all([symbolInit, featureInit]);
+    // Non-blocking activation: initialize caches in the background
+    // symbolInit and featureInit are Promises that run asynchronously
 
     const linter = new GherkinLinter(symbolCache);
 
@@ -64,6 +66,14 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         });
     };
+
+    // Once the symbol cache finishes its initial background load, re-lint 
+    // all open files so that "undefined step" diagnostics appear.
+    symbolInit.then(() => {
+        reLintOpenFiles();
+    }).catch(err => {
+        logger.error(`Error during initial symbol cache load: ${err}`);
+    });
 
     // Watch for changes in Python step files
     const setupStepWatchers = () => {
