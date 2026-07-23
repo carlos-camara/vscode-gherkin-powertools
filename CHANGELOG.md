@@ -20,7 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Instant Activation (O(1))**: The extension now activates instantly upon opening VS Code. Heavy workspace parsing (Python steps and Feature file tagging) has been successfully offloaded to background threads. This ensures that features like formatting, syntax highlighting, and code action commands are immediately available without blocking the extension host, dramatically improving startup times in massive enterprise projects.
 
 ### 🐛 Fixed
-- 
+- **Linter Error Cascading**: Fixed a bug where a single missing colon (e.g., in `Scenario`) would completely break the internal Gherkin AST parser state, resulting in a massive wall of false-positive red squiggles on perfectly valid steps and tables below the error.
+  The linter now intelligently suppresses cascading syntax errors on locally valid lines to pinpoint exactly where the true structural error occurred.
+- **CodeLens Robustness**: Refactored the CodeLens provider (`Run Scenario`, `Debug`, etc.) to use a resilient, dialect-aware text scanner instead of relying on the AST parser.
+  This guarantees that all valid scenarios will always display execution buttons, even if previous syntax errors in the file break the parser.
+- **CodeLens Compatibility**: Fixed a bug where CodeLenses would silently fail to appear if the VS Code language identifier was set to `gherkin` instead of `feature`. The extension now fully supports both language IDs for all CodeLens actions.
+- **DevContainer Compatibility**: Fixed a bug where saving interactive execution arguments permanently to Workspace Settings would fail to apply inside DevContainers or multi-root workspaces. The settings are now correctly scoped to the active Workspace Folder's `.vscode/settings.json`.
 
 ## [1.7.7] - 2026-07-23
 
@@ -32,12 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Configuration resolution now strictly enforces property-level precedence: Project (`.gherkin-powertoolsrc.json`) > Workspace Settings > User Settings > Defaults. Partial project config files now seamlessly inherit unmentioned fields from workspace/user settings.
 
 ### 🐛 Fixed
-- **Linter Error Cascading**: Fixed a bug where a single missing colon (e.g., in `Scenario`) would completely break the internal Gherkin AST parser state, resulting in a massive wall of false-positive red squiggles on perfectly valid steps and tables below the error.
-  The linter now intelligently suppresses cascading syntax errors on locally valid lines to pinpoint exactly where the true structural error occurred.
-- **CodeLens Robustness**: Refactored the CodeLens provider (`Run Scenario`, `Debug`, etc.) to use a resilient, dialect-aware text scanner instead of relying on the AST parser.
-  This guarantees that all valid scenarios will always display execution buttons, even if previous syntax errors in the file break the parser.
-- **CodeLens Compatibility**: Fixed a bug where CodeLenses would silently fail to appear if the VS Code language identifier was set to `gherkin` instead of `feature`. The extension now fully supports both language IDs for all CodeLens actions.
-- **DevContainer Compatibility**: Fixed a bug where saving interactive execution arguments permanently to Workspace Settings would fail to apply inside DevContainers or multi-root workspaces. The settings are now correctly scoped to the active Workspace Folder's `.vscode/settings.json`.
 - **Automated CI Configuration Drift Guard**: Added `check:config` task and CI verification step (`scripts/check-config-sync.js`) that enforces 100% synchronization between implemented settings, JSON schema, `package.json`, and documentation.
 - **Gherkin: Diagnose Workspace Command**: Added a new diagnostic command (`gherkinPowerTools.diagnoseWorkspace`)
   that analyzes environment versions, workspace layout, discovered feature/step files, indexed definitions, Python extension status, and `.gherkin-powertoolsrc.json` validity.
