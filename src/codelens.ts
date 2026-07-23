@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { parseGherkin } from './parser';
+import { dialectService } from './dialect';
 
 export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
     private onDidChangeCodeLensesEmitter = new vscode.EventEmitter<void>();
@@ -14,99 +14,106 @@ export class BehaveCodeLensProvider implements vscode.CodeLensProvider {
     public async provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): Promise<vscode.CodeLens[]> {
         const lenses: vscode.CodeLens[] = [];
         
-        if (document.languageId !== 'feature') {
+        if (document.languageId !== 'feature' && document.languageId !== 'gherkin') {
             return lenses;
         }
         
-        const { document: gherkinDocument } = await parseGherkin(document.getText());
-        if (!gherkinDocument || !gherkinDocument.feature) {
+        const dialect = dialectService.getDialect(document);
+        if (!dialect) {
             return lenses;
         }
         
-        const feature = gherkinDocument.feature;
+        const featureKeywords = dialect.feature.map(k => k.trim() + ':');
+        // Rule also gets Scenario-level code lenses because it can contain scenarios, but normally we execute the scenario inside.
+        // Actually, users might want to execute a specific Rule. We'll map Rule to scenario execution which takes line numbers.
+        const scenarioKeywords = [...dialect.scenario, ...dialect.scenarioOutline, ...dialect.rule].map(k => k.trim() + ':');
+        const examplesKeywords = dialect.examples.map(k => k.trim() + ':');
         
-        if (feature.location && feature.location.line) {
-            const line = feature.location.line - 1;
-            const range = new vscode.Range(line, 0, line, 100);
-            const command: vscode.Command = {
-                title: "▶ Run Feature",
-                command: "gherkinPowerTools.runFeature",
-                arguments: [document.uri]
-            };
-            lenses.push(new vscode.CodeLens(range, command));
-
-            const debugCommand: vscode.Command = {
-                title: "🐞 Debug",
-                command: "gherkinPowerTools.debugFeature",
-                arguments: [document.uri]
-            };
-            lenses.push(new vscode.CodeLens(range, debugCommand));
-
-            const argsCommand: vscode.Command = {
-                title: "$(edit) Edit",
-                command: "gherkinPowerTools.runFeatureWithArgs",
-                arguments: [document.uri]
-            };
-            lenses.push(new vscode.CodeLens(range, argsCommand));
-        }
-
-        for (const child of feature.children) {
+        let inExamples = false;
+        let headerPassed = false;
+        
+        for (let i = 0; i < document.lineCount; i++) {
             if (token.isCancellationRequested) {
                 break;
             }
-            if (child.scenario && child.scenario.location && child.scenario.location.line) {
-                const line = child.scenario.location.line - 1;
-                const range = new vscode.Range(line, 0, line, 100);
-                const command: vscode.Command = {
-                    title: "▶ Run Scenario",
-                    command: "gherkinPowerTools.runScenario",
-                    arguments: [document.uri, child.scenario.location.line]
-                };
-                lenses.push(new vscode.CodeLens(range, command));
-
-                const debugCommand: vscode.Command = {
-                    title: "🐞 Debug",
-                    command: "gherkinPowerTools.debugScenario",
-                    arguments: [document.uri, child.scenario.location.line]
-                };
-                lenses.push(new vscode.CodeLens(range, debugCommand));
-
-                const argsCommand: vscode.Command = {
-                    title: "$(edit) Edit",
-                    command: "gherkinPowerTools.runScenarioWithArgs",
-                    arguments: [document.uri, child.scenario.location.line]
-                };
-                lenses.push(new vscode.CodeLens(range, argsCommand));
-            } else if (child.rule) {
-                for (const ruleChild of child.rule.children) {
-                    if (token.isCancellationRequested) {
+            
+            const lineText = document.lineAt(i).text.trim();
+            if (!lineText || lineText.startsWith('#')) {
+                continue;
+            }
+            
+            if (inExamples) {
+                if (lineText.startsWith('|')) {
+                    if (!headerPassed) {
+                        headerPassed = true;
+                    } else {
+                        const firstCharIndex = document.lineAt(i).firstNonWhitespaceCharacterIndex;
+                        const range = new vscode.Range(i, firstCharIndex, i, 100);
+                        const args = [document.uri, i + 1];
+                        lenses.push(new vscode.CodeLens(range, { title: "▶", tooltip: "Run Example", command: "gherkinPowerTools.runScenario", arguments: args }));
+                        lenses.push(new vscode.CodeLens(range, { title: "🐞", tooltip: "Debug Example", command: "gherkinPowerTools.debugScenario", arguments: args }));
+                    }
+                    continue;
+                } else {
+                    inExamples = false;
+                    headerPassed = false;
+                }
+            }
+            
+            let isFeature = false;
+            let isScenario = false;
+            let isExamples = false;
+            
+            for (const fk of featureKeywords) {
+                if (lineText.startsWith(fk)) {
+                    isFeature = true;
+                    break;
+                }
+            }
+            
+            if (!isFeature) {
+                for (const sk of scenarioKeywords) {
+                    if (lineText.startsWith(sk)) {
+                        isScenario = true;
                         break;
                     }
-                    if (ruleChild.scenario && ruleChild.scenario.location && ruleChild.scenario.location.line) {
-                        const line = ruleChild.scenario.location.line - 1;
-                        const range = new vscode.Range(line, 0, line, 100);
-                        const command: vscode.Command = {
-                            title: "▶ Run Scenario",
-                            command: "gherkinPowerTools.runScenario",
-                            arguments: [document.uri, ruleChild.scenario.location.line]
-                        };
-                        lenses.push(new vscode.CodeLens(range, command));
-
-                        const debugCommand: vscode.Command = {
-                            title: "🐞 Debug",
-                            command: "gherkinPowerTools.debugScenario",
-                            arguments: [document.uri, ruleChild.scenario.location.line]
-                        };
-                        lenses.push(new vscode.CodeLens(range, debugCommand));
-
-                        const argsCommand: vscode.Command = {
-                            title: "$(edit) Edit",
-                            command: "gherkinPowerTools.runScenarioWithArgs",
-                            arguments: [document.uri, ruleChild.scenario.location.line]
-                        };
-                        lenses.push(new vscode.CodeLens(range, argsCommand));
+                }
+            }
+            
+            if (!isFeature && !isScenario) {
+                for (const ek of examplesKeywords) {
+                    if (lineText.startsWith(ek)) {
+                        isExamples = true;
+                        break;
                     }
                 }
+            }
+            
+            if (isExamples) {
+                inExamples = true;
+                headerPassed = false;
+                continue;
+            }
+            
+            if (isFeature || isScenario) {
+                const range = new vscode.Range(i, 0, i, 100);
+                const isF = isFeature; // capture for the closure/objects
+                
+                const runTitle = isF ? "▶ Run Feature" : "▶ Run Scenario";
+                const runCmd = isF ? "gherkinPowerTools.runFeature" : "gherkinPowerTools.runScenario";
+                
+                const dbgTitle = "🐞 Debug";
+                const dbgCmd = isF ? "gherkinPowerTools.debugFeature" : "gherkinPowerTools.debugScenario";
+                
+                const argsTitle = "$(edit) Edit";
+                const argsCmd = isF ? "gherkinPowerTools.runFeatureWithArgs" : "gherkinPowerTools.runScenarioWithArgs";
+                
+                // arguments for scenarios are [uri, line_number] (1-indexed)
+                const args = isF ? [document.uri] : [document.uri, i + 1];
+                
+                lenses.push(new vscode.CodeLens(range, { title: runTitle, command: runCmd, arguments: args }));
+                lenses.push(new vscode.CodeLens(range, { title: dbgTitle, command: dbgCmd, arguments: args }));
+                lenses.push(new vscode.CodeLens(range, { title: argsTitle, command: argsCmd, arguments: args }));
             }
         }
         

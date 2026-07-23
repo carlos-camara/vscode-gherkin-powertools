@@ -8,11 +8,22 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.7] - 2026-07-23
+
+### 🚀 Added
+- **Examples Execution CodeLens**: You can now execute and debug individual rows within `Examples` tables! The extension injects non-intrusive `▶` (Run) and `🐞` (Debug) icons strictly aligned to the left of each data row. When clicked, it passes the exact line number to Behave so that only that specific parameter set runs, saving time when debugging large scenario outlines.
+- **Security & Reliability Hardening for Execution**: Execution and debugging CodeLens actions now use VS Code Tasks and array-based `ProcessExecution` APIs, entirely eliminating shell injection vulnerabilities for malicious or celomplex file paths. Additionally, interpreter detection now dynamically and aggressively prioritizes your active `ms-python.python` environment to guarantee reliability.
+
+### 🐛 Fixed
+- **Linter Error Cascading**: Fixed a bug where a single missing colon (e.g., in `Scenario`) would completely break the internal Gherkin AST parser state, resulting in a massive wall of false-positive red squiggles on perfectly valid steps and tables below the error. The linter now intelligently suppresses cascading syntax errors on locally valid lines to pinpoint exactly where the true structural error occurred.
+- **CodeLens Robustness**: Refactored the CodeLens provider (`Run Scenario`, `Debug`, etc.) to use a resilient, dialect-aware text scanner instead of relying on the AST parser. This guarantees that all valid scenarios will always display execution buttons, even if previous syntax errors in the file break the parser.
+- **CodeLens Compatibility**: Fixed a bug where CodeLenses would silently fail to appear if the VS Code language identifier was set to `gherkin` instead of `feature`. The extension now fully supports both language IDs for all CodeLens actions.
+- **DevContainer Compatibility**: Fixed a bug where saving interactive execution arguments permanently to Workspace Settings would fail to apply inside DevContainers or multi-root workspaces. The settings are now correctly scoped to the active Workspace Folder's `.vscode/settings.json`.
+
 ## [1.7.7] - 2026-07-22
 
 ### 🚀 Added
 - **Interactive Execution Arguments Persistence**: `Edit Scenario/Feature` CodeLens commands now provide an interactive dialog letting you choose whether to save custom parameters (e.g., `--tags=@wip`) permanently to the Workspace Settings or keep them volatile for the current session.
-- **Security & Reliability Hardening for Execution**: Execution and debugging CodeLens actions now use VS Code Tasks and array-based `ProcessExecution` APIs, entirely eliminating shell injection vulnerabilities for malicious or complex file paths. Additionally, interpreter detection now dynamically and aggressively prioritizes your active `ms-python.python` environment to guarantee reliability.
 - **Behave Debugging CodeLens**: Debug features and scenarios directly from the editor using new `🐞 Debug` CodeLens buttons.
   The extension automatically detects your Python interpreter via the official Python extension and constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
 - **Single Typed Configuration Contract & Precedence Pipeline**:

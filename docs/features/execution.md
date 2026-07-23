@@ -6,18 +6,26 @@ Gherkin PowerTools allows you to execute your Behave tests directly from the edi
   <img src="https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/run-debug.gif" alt="Execute Scenarios via CodeLens" width="600" />
 </div>
 
-## Run Feature and Run Scenario CodeLens
+## Run Feature, Scenario, and Examples CodeLens
 
 Above every `Feature`, `Scenario`, and `Scenario Outline` in your `.feature` files, you will see three CodeLens buttons:
 - `▶ Run Feature` (or Scenario)
 - `🐞 Debug`
 - `✎ Edit`
 
+Additionally, inside `Examples` tables, **every single data row** will display minimal, non-intrusive icons perfectly aligned to the left of the table element:
+- `▶` (Run Example)
+- `🐞` (Debug Example)
+
+This allows you to execute or debug a single set of parameters from an Examples table without having to run the entire Scenario Outline!
+
+> **Robust CodeLens Engine**: The extension's CodeLens provider uses a resilient, dialect-aware text scanner rather than relying on a strict AST parser. This guarantees that **all valid scenarios and examples will always display execution buttons**, even if there are severe syntax errors elsewhere in the file. CodeLenses fully support files identified with either the `feature` or `gherkin` VS Code language IDs.
+
 ### `▶ Run`
 
 Clicking the **Run** button will:
-1. Verify if the active Python interpreter is configured in your workspace (via the `ms-python.python` extension). If available, it executes Behave securely as a python module (`-m behave`). If not, it falls back to the configured `command`.
-2. Construct the execution task securely avoiding the shell entirely, ensuring that scenarios with spaces or special characters in their names run correctly and securely without shell injection risks.
+1. Verify if the active Python interpreter is configured in your workspace. The extension **dynamically prioritizes your active `ms-python.python` environment**, ensuring absolute reliability when launching tests. If not available, it falls back to the configured `command`.
+2. Construct the execution task securely using native **VS Code Tasks and array-based `ProcessExecution` APIs**. This completely eliminates the use of raw shells, guaranteeing that malicious or complex file paths (e.g. paths with spaces, quotes, or special characters) execute securely without shell injection vulnerabilities.
 3. Execute the specific feature or scenario exactly where you clicked within a VS Code Background Task.
 
 > **Note:** When running a scenario, the extension passes the exact line number of the scenario to Behave as an argument vector (e.g. `["features/login.feature:12"]`), ensuring that only that scenario runs.
@@ -30,7 +38,7 @@ Clicking the **Edit** button will:
 1. Open an input box pre-filled with the exact command the extension is about to run.
 2. Allow you to manually add parameters anywhere in the string.
 3. Prompt you with a choice on how to save these arguments:
-   - **Save to Workspace**: Parses your custom arguments and saves them permanently in your `.vscode/settings.json` under `gherkinPowerTools.behave.additionalArguments`. They won't be lost when you restart VS Code.
+   - **Save to Workspace**: Parses your custom arguments and saves them permanently in your `.vscode/settings.json` under `gherkinPowerTools.behave.additionalArguments`. The extension intelligently targets the active **Workspace Folder**, ensuring that this setting survives and applies correctly inside **DevContainers** or multi-root workspaces.
    - **Just for this session**: Saves your customized arguments in volatile memory. They will be applied to subsequent executions but will be wiped when you restart the editor.
 
 ### `🐞 Debug`
@@ -38,7 +46,7 @@ Clicking the **Edit** button will:
 Clicking the **Debug** button allows you to visually debug Python step definitions for the specific scenario.
 
 When you click **Debug**:
-1. The extension constructs a temporary debugging configuration for Behave.
+1. The extension constructs a temporary debugging configuration for Behave securely using VS Code's launch APIs without intermediate shell commands.
 2. It launches Behave using the official VS Code Python debugger (`ms-python.python`).
 3. Execution pauses at any breakpoints you have placed in your Python step definitions, allowing you to inspect variables and step through code.
 
