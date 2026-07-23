@@ -106,7 +106,8 @@ jobs:
         run: |
           TAG="${{ steps.vars.outputs.tag }}"
           VSIX="${{ steps.vars.outputs.vsix }}"
-          if gh release view "$TAG" --json assets -q ".assets[].name" | grep -qx "$VSIX"; then
+          if gh release view "$TAG" \
+            --json assets -q ".assets[].name" | grep -qx "$VSIX"; then
             echo "Asset $VSIX already uploaded to release $TAG."
           else
             echo "Uploading asset $VSIX to release $TAG..."

@@ -19,7 +19,10 @@ Additionally, inside `Examples` tables, **every single data row** will display m
 
 This allows you to execute or debug a single set of parameters from an Examples table without having to run the entire Scenario Outline!
 
-> **Robust CodeLens Engine**: The extension's CodeLens provider uses a resilient, dialect-aware text scanner rather than relying on a strict AST parser. This guarantees that **all valid scenarios and examples will always display execution buttons**, even if there are severe syntax errors elsewhere in the file. CodeLenses fully support files identified with either the `feature` or `gherkin` VS Code language IDs.
+> **Robust CodeLens Engine**: The extension's CodeLens provider uses a resilient, dialect-aware text scanner
+> rather than relying on a strict AST parser. This guarantees that **all valid scenarios and examples will always
+> display execution buttons**, even if there are severe syntax errors elsewhere in the file. CodeLenses fully
+> support files identified with either the `feature` or `gherkin` VS Code language IDs.
 
 ### `▶ Run`
 
