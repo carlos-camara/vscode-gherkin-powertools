@@ -71,6 +71,8 @@ export class GherkinLinter {
         gherkinDocument = result.document;
         const errors = result.errors;
         
+        let hasFatalSyntaxError = false;
+
         for (const error of errors) {
             const location = error.location;
             if (location && typeof location.line === 'number') {
@@ -98,6 +100,23 @@ export class GherkinLinter {
                     if (gotMatch) {
                         const gotText = gotMatch[1];
                         
+                        // Suppress cascading errors from broken AST state
+                        const bKeywords = dialectService.getBlockKeywords(dialect).map(k => k.trim());
+                        const sKeywords = dialectService.getStepKeywords(dialect).map(k => k.trim());
+                        let isLocallyValid = false;
+                        
+                        if (bKeywords.some(kw => gotText.startsWith(kw + ':'))) {
+                            isLocallyValid = true;
+                        } else if (sKeywords.some(kw => gotText.startsWith(kw + ' ') || gotText === kw)) {
+                            isLocallyValid = true;
+                        } else if (gotText.trim().startsWith('|') || gotText.trim().startsWith('"""') || gotText.trim().startsWith("'''") || gotText.trim().startsWith('@') || gotText.trim().startsWith('#')) {
+                            isLocallyValid = true;
+                        }
+                        
+                        if (hasFatalSyntaxError && isLocallyValid) {
+                            continue;
+                        }
+
                         const blockKeywords = dialectService.getBlockKeywords(dialect);
                         const startsWithBlockKeyword = blockKeywords.find(k => gotText.startsWith(k));
                         
@@ -236,6 +255,10 @@ export class GherkinLinter {
                     }
                     
                     diagnostics.push(diagnostic);
+                    
+                    if (code !== 'INCONSISTENT_CELL_COUNT') {
+                        hasFatalSyntaxError = true;
+                    }
                 }
             }
 

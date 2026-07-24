@@ -37,4 +37,12 @@ code --install-extension vscode-gherkin-powertools-<version>.vsix
 
 *Add this to your `.vscode/settings.json` or your global User Settings.*
 
-<br>
+## 🐳 Remote Development & DevContainers
+
+Gherkin PowerTools is built ground-up to be 100% compatible with VS Code Remote Development (DevContainers, WSL, SSH, GitHub Codespaces).
+
+Because the extension uses native VS Code APIs for all file access and process execution (`ProcessExecution` and `vscode.workspace.fs`), it seamlessly bridges your host machine and the containerized environment.
+
+- **Intelligent Pathing**: All background tasks, path redacting in diagnostics, and step file discovery natively understand your remote workspace folders.
+- **Persistent Settings**: Interactive execution flags (via the `✎ Edit` CodeLens) correctly target your container's `.vscode/settings.json` via Workspace Folder targeting, guaranteeing that parameters aren't lost when your DevContainer restarts.
+- **Isolated Execution**: When you click `▶ Run` or `🐞 Debug`, the underlying process strictly spawns **inside** your active DevContainer using your configured Linux environment and Python dependencies.

@@ -6,6 +6,7 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 
 | Setting | Default | Description |
 |---------|---------|-------------|
+| `gherkinPowerTools.profile` | `"custom"` | Select a configuration profile (`custom`, `strict`, `team`, `minimal`, `legacy`). Individual settings override the profile defaults. |
 | `gherkinPowerTools.indentation.steps` | `4` | Number of spaces to indent all steps (`Given`, `When`, `Then`, `And`, `But`). |
 | `gherkinPowerTools.tables.alignToKeyword` | `true` | If enabled, tables dynamically pad their left border to match the text length of the preceding step. |
 | `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Enforces the exact number of blank lines between `Scenario` and `Rule` blocks. |
@@ -13,7 +14,7 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 | `gherkinPowerTools.tags.sort` | `"preserve"` | Choose `"preserve"` to keep their original source order, or `"alphabetical"` to sort them A-Z. |
 | `gherkinPowerTools.behave.stepGlobs` | `["**/steps/**/*.py", "**/features/steps/**/*.py"]` | An array of glob patterns pointing to Python files that contain Behave steps. Used for linking, hovers, linting, and autocomplete. |
 | `gherkinPowerTools.behave.ignoreGlobs` | `["**/node_modules/**", "**/.venv/**", "**/venv/**", "**/env/**"]` | An array of glob patterns to exclude from step discovery. |
-| `gherkinPowerTools.behave.additionalArguments` | `[]` | Additional flags passed to Behave when executing via CodeLens. |
+| `gherkinPowerTools.behave.additionalArguments` | `[]` | Additional flags passed to Behave when executing via CodeLens. **Tip:** You can edit these interactively at runtime by clicking the `✎ Edit` CodeLens above any scenario, which can save them here for you (fully DevContainer compatible). |
 | `gherkinPowerTools.behave.command` | `"behave"` | The base command used to run Behave when executing via CodeLens. |
 
 <br>
@@ -21,6 +22,16 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 **ℹ️ NOTE:** *Changes to the `behave.stepGlobs` or `behave.ignoreGlobs` settings take effect immediately. The extension will automatically reload its step cache and live watchers without requiring you to restart VS Code.*
 
 <br>
+
+## Configuration Profiles
+
+To simplify the onboarding experience, Gherkin PowerTools provides built-in configuration profiles. You can select a profile to establish a baseline set of formatting rules, and then selectively override any individual setting you prefer.
+
+* **`custom` (Default)**: Uses the extension's default settings.
+* **`strict`**: Enforces strict formatting and consistency. Alphabetically sorts tags and uses 4 spaces indentation.
+* **`team`**: A standard baseline designed for large teams to ensure formatting consistency without being overly restrictive.
+* **`minimal`**: Minimal interference for quick edits. Uses 2 spaces indentation, disables table keyword alignment, keeps tags on a single line, and doesn't enforce empty lines between scenarios.
+* **`legacy`**: Targets older codebases or SpecFlow defaults. Uses 2 spaces indentation and disables table keyword alignment.
 
 ## Automated First-Run Onboarding
 
@@ -64,9 +75,13 @@ You can create a standalone configuration file named `.gherkin-powertoolsrc.json
 
 The extension provides full JSON schema validation, autocompletion, and hover documentation when editing this file in VS Code.
 
+> [!WARNING]
+> Unlike VS Code's `settings.json`, properties inside `.gherkin-powertoolsrc.json` **do not** use the `gherkinPowerTools.` prefix and are formatted as nested objects instead of flat keys. Rely on VS Code's autocompletion (`Ctrl + Space`) inside the file to guide you.
+
 **Example `.gherkin-powertoolsrc.json`:**
 ```json
 {
+    "profile": "strict",
     "indentation": {
         "steps": 4
     },
@@ -95,5 +110,6 @@ The extension provides full JSON schema validation, autocompletion, and hover do
 }
 ```
 
-!!! tip "Team Standardization"
-    Commit a `.gherkin-powertoolsrc.json` to your repository so all contributors share the same formatting rules and step discovery paths!
+> [!TIP]
+> **Team Standardization**
+> Commit a `.gherkin-powertoolsrc.json` to your repository so all contributors share the same formatting rules and step discovery paths!

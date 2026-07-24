@@ -2,7 +2,7 @@
   "name": "vscode-gherkin-powertools",
   "displayName": "Gherkin PowerTools - BDD & Python Behave Toolkit",
   "description": "Gherkin formatting, linting, project analysis, Python/Behave navigation, and execution/debugging for BDD.",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -13,26 +13,10 @@
   ],
   "keywords": [
     "gherkin",
-    "gherkin formatter",
-    "gherkin linter",
-    "behave",
-    "behave debugger",
     "cucumber",
-    "cucumber formatter",
     "bdd",
-    "bdd tools",
-    "feature",
-    "feature files",
-    "step definitions",
-    "python",
-    "python testing",
-    "testing",
-    "test automation",
-    "test-runner",
-    "debugger",
-    "formatter",
-    "linter",
-    "quick fixes"
+    "behave",
+    "python"
   ],
   "publisher": "carloscamara",
   "author": "Carlos Camara",
@@ -70,6 +54,12 @@
     "configuration": {
       "title": "Gherkin PowerTools",
       "properties": {
+        "gherkinPowerTools.profile": {
+          "type": "string",
+          "enum": ["custom", "strict", "team", "minimal", "legacy"],
+          "default": "custom",
+          "description": "Select a configuration profile. Individual settings override the profile defaults."
+        },
         "gherkinPowerTools.indentation.steps": {
           "type": "number",
           "default": 4,
@@ -143,6 +133,11 @@
       }
     },
     "commands": [
+      {
+        "command": "gherkinPowerTools.commandCenter",
+        "title": "Gherkin PowerTools: Command Center",
+        "category": "Gherkin"
+      },
       {
         "command": "gherkinPowerTools.format",
         "title": "Format Gherkin Document"
@@ -296,6 +291,17 @@
             },
             "completionEvents": [
               "onCommand:editor.action.quickFix"
+            ]
+          },
+          {
+            "id": "commandCenter",
+            "title": "Gherkin Command Center",
+            "description": "Discover all extension capabilities from a single interactive menu. [Open Command Center](command:gherkinPowerTools.commandCenter)",
+            "media": {
+              "markdown": "assets/walkthrough/10_command_center.md"
+            },
+            "completionEvents": [
+              "onCommand:gherkinPowerTools.commandCenter"
             ]
           },
           {

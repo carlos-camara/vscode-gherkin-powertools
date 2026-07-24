@@ -8,7 +8,29 @@ All notable changes to the "vscode-gherkin-powertools" extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.7.7] - 2026-07-22
+## [Unreleased]
+
+### 🚀 Added
+- **Command Center**: A unified interactive QuickPick menu to access all extension capabilities (formatting, execution, debugging, step navigation, and diagnostics) from a single place. Open it via `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux) -> "Gherkin PowerTools: Command Center".
+- **Examples Execution CodeLens**: You can now execute and debug individual rows within `Examples` tables! The extension injects non-intrusive `▶` (Run) and `🐞` (Debug) icons strictly aligned to the left of each data row. When clicked, it passes the exact line number to Behave so that only that specific parameter set runs, saving time when debugging large scenario outlines.
+- **Security & Reliability Hardening for Execution**: Execution and debugging CodeLens actions now use VS Code Tasks and array-based `ProcessExecution` APIs, entirely eliminating shell injection vulnerabilities for malicious or celomplex file paths.
+  Additionally, interpreter detection now dynamically and aggressively prioritizes your active `ms-python.python` environment to guarantee reliability.
+
+- **Instant Activation (O(1))**: The extension now activates instantly upon opening VS Code.
+  Heavy workspace parsing (Python steps and Feature file tagging) has been successfully offloaded
+  to background threads. This ensures that features like formatting, syntax highlighting, and code
+  action commands are immediately available without blocking the extension host, dramatically
+  improving startup times in massive enterprise projects.
+
+### 🐛 Fixed
+- **Linter Error Cascading**: Fixed a bug where a single missing colon (e.g., in `Scenario`) would completely break the internal Gherkin AST parser state, resulting in a massive wall of false-positive red squiggles on perfectly valid steps and tables below the error.
+  The linter now intelligently suppresses cascading syntax errors on locally valid lines to pinpoint exactly where the true structural error occurred.
+- **CodeLens Robustness**: Refactored the CodeLens provider (`Run Scenario`, `Debug`, etc.) to use a resilient, dialect-aware text scanner instead of relying on the AST parser.
+  This guarantees that all valid scenarios will always display execution buttons, even if previous syntax errors in the file break the parser.
+- **CodeLens Compatibility**: Fixed a bug where CodeLenses would silently fail to appear if the VS Code language identifier was set to `gherkin` instead of `feature`. The extension now fully supports both language IDs for all CodeLens actions.
+- **DevContainer Compatibility**: Fixed a bug where saving interactive execution arguments permanently to Workspace Settings would fail to apply inside DevContainers or multi-root workspaces. The settings are now correctly scoped to the active Workspace Folder's `.vscode/settings.json`.
+
+## [1.7.7] - 2026-07-23
 
 ### 🚀 Added
 - **Interactive Execution Arguments Persistence**: `Edit Scenario/Feature` CodeLens commands now provide an interactive dialog letting you choose whether to save custom parameters (e.g., `--tags=@wip`) permanently to the Workspace Settings or keep them volatile for the current session.
@@ -16,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The extension automatically detects your Python interpreter via the official Python extension and constructs a temporary launch configuration to seamlessly pause at breakpoints in your Python step definitions.
 - **Single Typed Configuration Contract & Precedence Pipeline**:
   Configuration resolution now strictly enforces property-level precedence: Project (`.gherkin-powertoolsrc.json`) > Workspace Settings > User Settings > Defaults. Partial project config files now seamlessly inherit unmentioned fields from workspace/user settings.
+
+### 🐛 Fixed
 - **Automated CI Configuration Drift Guard**: Added `check:config` task and CI verification step (`scripts/check-config-sync.js`) that enforces 100% synchronization between implemented settings, JSON schema, `package.json`, and documentation.
 - **Gherkin: Diagnose Workspace Command**: Added a new diagnostic command (`gherkinPowerTools.diagnoseWorkspace`)
   that analyzes environment versions, workspace layout, discovered feature/step files, indexed definitions, Python extension status, and `.gherkin-powertoolsrc.json` validity.
@@ -24,7 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that detects Python Behave projects (via step files, decorators, `environment.py`, and dependency manifests), checks `stepGlobs` coverage, and offers non-blocking 1-click recommendations to apply settings or create `.gherkin-powertoolsrc.json` without modifying files unconfirmed or interrupting non-Behave Gherkin projects.
 - **Dedicated Visual Demo Gallery**: Added a standalone `docs/demos.md` gallery showcasing all feature animations.
 
-### 🐛 Fixed
 - **Behave Step File Watching & Discovery Alignment (Issue #137)**: Redesigned file system watching logic
   so watchers are built dynamically per workspace folder using resolved `behave.stepGlobs` configuration.
   Standardized ignore glob filtering (`behave.ignoreGlobs`) across initial discovery and live events
