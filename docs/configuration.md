@@ -110,5 +110,6 @@ The extension provides full JSON schema validation, autocompletion, and hover do
 }
 ```
 
-!!! tip "Team Standardization"
-    Commit a `.gherkin-powertoolsrc.json` to your repository so all contributors share the same formatting rules and step discovery paths!
+> [!TIP]
+> **Team Standardization**
+> Commit a `.gherkin-powertoolsrc.json` to your repository so all contributors share the same formatting rules and step discovery paths!
