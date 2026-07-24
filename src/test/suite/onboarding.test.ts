@@ -133,16 +133,18 @@ suite('Onboarding Engine Test Suite', () => {
         assert.deepStrictEqual(parsedMalformed['gherkinPowerTools.behave.stepGlobs'], newGlobs);
     });
 
-    test('mergeProjectConfigFile handles empty or malformed JSON gracefully', () => {
+    test('mergeProjectConfigFile handles empty or malformed JSON gracefully and defaults to strict profile', () => {
         const newGlobs = ['**/steps/**/*.py'];
 
         const fromEmpty = mergeProjectConfigFile('', newGlobs);
         const parsedEmpty = JSON.parse(fromEmpty);
         assert.deepStrictEqual(parsedEmpty.behave.stepGlobs, newGlobs);
+        assert.strictEqual(parsedEmpty.profile, 'strict');
 
         const fromMalformed = mergeProjectConfigFile('{ invalid json', newGlobs);
         const parsedMalformed = JSON.parse(fromMalformed);
         assert.deepStrictEqual(parsedMalformed.behave.stepGlobs, newGlobs);
+        assert.strictEqual(parsedMalformed.profile, 'strict');
     });
 
     test('OnboardingEngine ignores step files matching ignoreGlobs', async () => {
