@@ -62,12 +62,19 @@ export function validateAndMergeConfig(parsed: any, baseConfig?: Configuration):
         return { errors, config };
     }
 
-    const validSections = ['indentation', 'tables', 'tags', 'emptyLines', 'behave'];
+    const validSections = ['profile', 'indentation', 'tables', 'tags', 'emptyLines', 'behave'];
 
     for (const key of Object.keys(parsed)) {
         if (!validSections.includes(key)) {
             errors.push({ key, message: `Unknown configuration section: "${key}".` });
             continue;
+        }
+
+        if (key === 'profile') {
+            if (typeof parsed[key] !== 'string' || !PROFILES[parsed[key]]) {
+                errors.push({ key, message: `"profile" must be one of: custom, strict, team, minimal, legacy.` });
+            }
+            continue; // Applied before validation
         }
 
         if (typeof parsed[key] !== 'object' || parsed[key] === null || Array.isArray(parsed[key])) {
@@ -193,50 +200,61 @@ export class ConfigurationService {
     }
 
     private resolveConfiguration(workspaceFolder: vscode.WorkspaceFolder | undefined, uri: vscode.Uri | undefined): Configuration {
-        const vsCodeConfig = this.getVsCodeSettings(uri);
+        let parsedProjectConfig: any = null;
+        let projectProfile: string | undefined = undefined;
+        let configPath = '';
+        let fileContent = '';
 
-        if (!workspaceFolder) {
-            return vsCodeConfig;
-        }
-
-        const configPath = path.join(workspaceFolder.uri.fsPath, '.gherkin-powertoolsrc.json');
-        
-        if (fs.existsSync(configPath)) {
-            try {
-                const content = fs.readFileSync(configPath, 'utf8');
-                const parsed = JSON.parse(content);
-                const { errors, config } = validateAndMergeConfig(parsed, vsCodeConfig);
-                
-                if (errors.length > 0) {
-                    const diagnostics = errors.map(err => {
-                        let line = 0;
-                        const lines = content.split('\n');
-                        const idx = lines.findIndex(l => l.includes(`"${err.key}"`));
-                        if (idx >= 0) { line = idx; }
-                        const range = new vscode.Range(line, 0, line, 100);
-                        return new vscode.Diagnostic(range, err.message, vscode.DiagnosticSeverity.Error);
-                    });
-                    this.diagnosticCollection.set(vscode.Uri.file(configPath), diagnostics);
-                } else {
-                    this.diagnosticCollection.delete(vscode.Uri.file(configPath));
+        if (workspaceFolder) {
+            configPath = path.join(workspaceFolder.uri.fsPath, '.gherkin-powertoolsrc.json');
+            if (fs.existsSync(configPath)) {
+                try {
+                    fileContent = fs.readFileSync(configPath, 'utf8');
+                    parsedProjectConfig = JSON.parse(fileContent);
+                    if (parsedProjectConfig && typeof parsedProjectConfig.profile === 'string') {
+                        projectProfile = parsedProjectConfig.profile;
+                    }
+                } catch (e) {
+                    // Will be handled below
                 }
-                
-                return config;
-            } catch (e) {
-                const range = new vscode.Range(0, 0, 0, 100);
-                const diag = new vscode.Diagnostic(range, `Invalid JSON: ${(e as Error).message}`, vscode.DiagnosticSeverity.Error);
-                this.diagnosticCollection.set(vscode.Uri.file(configPath), [diag]);
-                return vsCodeConfig;
             }
         }
 
-        this.diagnosticCollection.delete(vscode.Uri.file(configPath));
-        return vsCodeConfig;
+        const vsCodeConfig = this.getVsCodeSettings(uri, projectProfile);
+
+        if (!parsedProjectConfig) {
+            if (configPath && fs.existsSync(configPath)) {
+                const range = new vscode.Range(0, 0, 0, 100);
+                const diag = new vscode.Diagnostic(range, `Invalid JSON`, vscode.DiagnosticSeverity.Error);
+                this.diagnosticCollection.set(vscode.Uri.file(configPath), [diag]);
+            } else if (configPath) {
+                this.diagnosticCollection.delete(vscode.Uri.file(configPath));
+            }
+            return vsCodeConfig;
+        }
+
+        const { errors, config } = validateAndMergeConfig(parsedProjectConfig, vsCodeConfig);
+        
+        if (errors.length > 0) {
+            const diagnostics = errors.map(err => {
+                let line = 0;
+                const lines = fileContent.split('\n');
+                const idx = lines.findIndex(l => l.includes(`"${err.key}"`));
+                if (idx >= 0) { line = idx; }
+                const range = new vscode.Range(line, 0, line, 100);
+                return new vscode.Diagnostic(range, err.message, vscode.DiagnosticSeverity.Error);
+            });
+            this.diagnosticCollection.set(vscode.Uri.file(configPath), diagnostics);
+        } else {
+            this.diagnosticCollection.delete(vscode.Uri.file(configPath));
+        }
+        
+        return config;
     }
 
-    private getVsCodeSettings(uri: vscode.Uri | undefined): Configuration {
+    private getVsCodeSettings(uri: vscode.Uri | undefined, projectProfile?: string): Configuration {
         const workspaceConfig = vscode.workspace.getConfiguration('gherkinPowerTools', uri);
-        const profileName = workspaceConfig.get<string>('profile') || 'custom';
+        const profileName = projectProfile || workspaceConfig.get<string>('profile') || 'custom';
         const baseConfig = PROFILES[profileName] || PROFILES['custom'];
         const config: Configuration = JSON.parse(JSON.stringify(baseConfig));
 
