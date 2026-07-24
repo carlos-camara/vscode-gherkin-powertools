@@ -16,8 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security & Reliability Hardening for Execution**: Execution and debugging CodeLens actions now use VS Code Tasks and array-based `ProcessExecution` APIs, entirely eliminating shell injection vulnerabilities for malicious or celomplex file paths.
   Additionally, interpreter detection now dynamically and aggressively prioritizes your active `ms-python.python` environment to guarantee reliability.
 
-### ⚡ Performance
-- **Instant Activation (O(1))**: The extension now activates instantly upon opening VS Code. Heavy workspace parsing (Python steps and Feature file tagging) has been successfully offloaded to background threads. This ensures that features like formatting, syntax highlighting, and code action commands are immediately available without blocking the extension host, dramatically improving startup times in massive enterprise projects.
+- **Instant Activation (O(1))**: The extension now activates instantly upon opening VS Code.
+  Heavy workspace parsing (Python steps and Feature file tagging) has been successfully offloaded
+  to background threads. This ensures that features like formatting, syntax highlighting, and code
+  action commands are immediately available without blocking the extension host, dramatically
+  improving startup times in massive enterprise projects.
 
 ### 🐛 Fixed
 - **Linter Error Cascading**: Fixed a bug where a single missing colon (e.g., in `Scenario`) would completely break the internal Gherkin AST parser state, resulting in a massive wall of false-positive red squiggles on perfectly valid steps and tables below the error.
