@@ -6,6 +6,7 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 
 | Setting | Default | Description |
 |---------|---------|-------------|
+| `gherkinPowerTools.profile` | `"custom"` | Select a configuration profile (`custom`, `strict`, `team`, `minimal`, `legacy`). Individual settings override the profile defaults. |
 | `gherkinPowerTools.indentation.steps` | `4` | Number of spaces to indent all steps (`Given`, `When`, `Then`, `And`, `But`). |
 | `gherkinPowerTools.tables.alignToKeyword` | `true` | If enabled, tables dynamically pad their left border to match the text length of the preceding step. |
 | `gherkinPowerTools.emptyLines.betweenScenarios` | `1` | Enforces the exact number of blank lines between `Scenario` and `Rule` blocks. |
@@ -21,6 +22,16 @@ Gherkin PowerTools works out-of-the-box, but you can tailor it to your team's st
 **ℹ️ NOTE:** *Changes to the `behave.stepGlobs` or `behave.ignoreGlobs` settings take effect immediately. The extension will automatically reload its step cache and live watchers without requiring you to restart VS Code.*
 
 <br>
+
+## Configuration Profiles
+
+To simplify the onboarding experience, Gherkin PowerTools provides built-in configuration profiles. You can select a profile to establish a baseline set of formatting rules, and then selectively override any individual setting you prefer.
+
+* **`custom` (Default)**: Uses the extension's default settings.
+* **`strict`**: Enforces strict formatting and consistency. Alphabetically sorts tags and uses 4 spaces indentation.
+* **`team`**: A standard baseline designed for large teams to ensure formatting consistency without being overly restrictive.
+* **`minimal`**: Minimal interference for quick edits. Uses 2 spaces indentation, disables table keyword alignment, keeps tags on a single line, and doesn't enforce empty lines between scenarios.
+* **`legacy`**: Targets older codebases or SpecFlow defaults. Uses 2 spaces indentation and disables table keyword alignment.
 
 ## Automated First-Run Onboarding
 

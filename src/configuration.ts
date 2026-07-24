@@ -23,6 +23,26 @@ export const DEFAULT_CONFIG: Configuration = {
     }
 };
 
+export const PROFILES: Record<string, Configuration> = {
+    custom: JSON.parse(JSON.stringify(DEFAULT_CONFIG)),
+    strict: {
+        ...JSON.parse(JSON.stringify(DEFAULT_CONFIG)),
+        tags: { format: 'wrap', sort: 'alphabetical' }
+    },
+    team: JSON.parse(JSON.stringify(DEFAULT_CONFIG)),
+    minimal: {
+        ...JSON.parse(JSON.stringify(DEFAULT_CONFIG)),
+        indentation: { steps: 2 },
+        tables: { alignToKeyword: false },
+        tags: { format: 'singleLine', sort: 'preserve' },
+        emptyLines: { betweenScenarios: 0 }
+    },
+    legacy: {
+        ...JSON.parse(JSON.stringify(DEFAULT_CONFIG)),
+        indentation: { steps: 2 },
+        tables: { alignToKeyword: false }
+    }
+};
 export interface ConfigError {
     key: string;
     message: string;
@@ -216,49 +236,61 @@ export class ConfigurationService {
 
     private getVsCodeSettings(uri: vscode.Uri | undefined): Configuration {
         const workspaceConfig = vscode.workspace.getConfiguration('gherkinPowerTools', uri);
-        const config: Configuration = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        const profileName = workspaceConfig.get<string>('profile') || 'custom';
+        const baseConfig = PROFILES[profileName] || PROFILES['custom'];
+        const config: Configuration = JSON.parse(JSON.stringify(baseConfig));
 
-        const indentationSteps = workspaceConfig.get<number>('indentation.steps');
+        const getOverride = <T>(key: string): T | undefined => {
+            const inspect = workspaceConfig.inspect<T>(key);
+            if (inspect) {
+                if (inspect.workspaceFolderValue !== undefined) return inspect.workspaceFolderValue;
+                if (inspect.workspaceValue !== undefined) return inspect.workspaceValue;
+                if (inspect.globalValue !== undefined) return inspect.globalValue;
+            }
+            return undefined;
+        };
+
+        const indentationSteps = getOverride<number>('indentation.steps');
         if (indentationSteps !== undefined && typeof indentationSteps === 'number') {
             config.indentation.steps = indentationSteps;
         }
 
-        const alignToKeyword = workspaceConfig.get<boolean>('tables.alignToKeyword');
+        const alignToKeyword = getOverride<boolean>('tables.alignToKeyword');
         if (alignToKeyword !== undefined && typeof alignToKeyword === 'boolean') {
             config.tables.alignToKeyword = alignToKeyword;
         }
 
-        const tagsFormat = workspaceConfig.get<'wrap' | 'singleLine'>('tags.format');
+        const tagsFormat = getOverride<'wrap' | 'singleLine'>('tags.format');
         if (tagsFormat !== undefined && (tagsFormat === 'wrap' || tagsFormat === 'singleLine')) {
             config.tags.format = tagsFormat;
         }
 
-        const tagsSort = workspaceConfig.get<'preserve' | 'alphabetical'>('tags.sort');
+        const tagsSort = getOverride<'preserve' | 'alphabetical'>('tags.sort');
         if (tagsSort !== undefined && (tagsSort === 'preserve' || tagsSort === 'alphabetical')) {
             config.tags.sort = tagsSort;
         }
 
-        const emptyLinesBetween = workspaceConfig.get<number>('emptyLines.betweenScenarios');
+        const emptyLinesBetween = getOverride<number>('emptyLines.betweenScenarios');
         if (emptyLinesBetween !== undefined && typeof emptyLinesBetween === 'number') {
             config.emptyLines.betweenScenarios = emptyLinesBetween;
         }
 
-        const stepGlobs = workspaceConfig.get<string[]>('behave.stepGlobs');
+        const stepGlobs = getOverride<string[]>('behave.stepGlobs');
         if (stepGlobs !== undefined && Array.isArray(stepGlobs) && stepGlobs.every(i => typeof i === 'string')) {
             config.behave.stepGlobs = stepGlobs;
         }
 
-        const ignoreGlobs = workspaceConfig.get<string[]>('behave.ignoreGlobs');
+        const ignoreGlobs = getOverride<string[]>('behave.ignoreGlobs');
         if (ignoreGlobs !== undefined && Array.isArray(ignoreGlobs) && ignoreGlobs.every(i => typeof i === 'string')) {
             config.behave.ignoreGlobs = ignoreGlobs;
         }
 
-        const additionalArguments = workspaceConfig.get<string[]>('behave.additionalArguments');
+        const additionalArguments = getOverride<string[]>('behave.additionalArguments');
         if (additionalArguments !== undefined && Array.isArray(additionalArguments) && additionalArguments.every(i => typeof i === 'string')) {
             config.behave.additionalArguments = additionalArguments;
         }
 
-        const command = workspaceConfig.get<string>('behave.command');
+        const command = getOverride<string>('behave.command');
         if (command !== undefined && typeof command === 'string') {
             config.behave.command = command;
         }
