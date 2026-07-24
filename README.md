@@ -87,7 +87,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 <div align="center">
 
-![Command Center](assets/command-center.gif)
+![Command Center](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/command-center.gif)
 
 </div>
 
