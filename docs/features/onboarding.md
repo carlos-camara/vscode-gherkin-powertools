@@ -21,7 +21,7 @@ Gherkin PowerTools automatically detects Python/Behave workspaces on startup, an
 | Action | Description |
 |--------|-------------|
 | **⚙️ Settings** | Appends the detected step patterns directly to your `.vscode/settings.json`. |
-| **📄 Config** | Generates or merges the recommended step globs into a team-shared `.gherkin-powertoolsrc.json` config file. |
+| **📄 Config** | Generates or merges the recommended step globs into a team-shared `.gherkin-powertoolsrc.json` config file. When creating a new file, it automatically enables the `strict` formatting profile. |
 | **🩺 Diagnostics** | Launches `Gherkin: Diagnose Workspace` to generate a full system report. |
 
 ---
