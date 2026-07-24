@@ -121,6 +121,20 @@ suite('Onboarding Engine Test Suite', () => {
         assert.deepStrictEqual(parsed.behave.stepGlobs, newGlobs);
     });
 
+    test('mergeProjectConfigFile retains existing profile and does not overwrite it', () => {
+        const existing = JSON.stringify({
+            profile: 'legacy',
+            behave: {}
+        }, null, 2);
+
+        const newGlobs = ['**/steps/**/*.py'];
+        const merged = mergeProjectConfigFile(existing, newGlobs);
+
+        const parsed = JSON.parse(merged);
+        assert.strictEqual(parsed.profile, 'legacy');
+        assert.deepStrictEqual(parsed.behave.stepGlobs, newGlobs);
+    });
+
     test('mergeSettingsJson handles empty or malformed JSON gracefully', () => {
         const newGlobs = ['**/steps/**/*.py'];
 
