@@ -4,6 +4,12 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "profile": {
+      "type": "string",
+      "enum": ["custom", "strict", "team", "minimal", "legacy"],
+      "default": "custom",
+      "description": "Select a configuration profile. Individual settings override the profile defaults."
+    },
     "indentation": {
       "type": "object",
       "additionalProperties": false,

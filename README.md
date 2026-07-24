@@ -87,7 +87,7 @@ AST-powered formatting, validation, navigation, execution, debugging and analyti
 
 <div align="center">
 
-![Command Center](assets/command-center.gif)
+![Command Center](https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/assets/command-center.gif)
 
 </div>
 
@@ -237,6 +237,7 @@ Or enable **Format on Save** in your VS Code settings:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
+| `gherkinPowerTools.profile` | `"custom"` | Select a base formatting profile (`strict`, `team`, `minimal`, `legacy`). Individual overrides apply on top. |
 | `gherkinPowerTools.indentation.steps` | `4` | Number of spaces to indent steps |
 | `gherkinPowerTools.tables.alignToKeyword` | `true` | Align pipes to step text start |
 | `gherkinPowerTools.tags.format` | `"wrap"` | `"wrap"` or `"singleLine"` for tag lists |
