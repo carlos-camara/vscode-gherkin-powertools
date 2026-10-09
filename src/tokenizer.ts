@@ -124,7 +124,7 @@ export function parsePythonDecorators(content: string): TokenizedDecorator[] {
 
                                 stringsFound.push(strContent);
                             } else {
-                                if (c !== ' ' && c !== '\t' && c !== '\r' && c !== '\n' && c !== '#') {
+                                if (c !== ' ' && c !== '\t' && c !== '\r' && c !== '\n' && c !== '#' && c !== ',') {
                                     nonWhitespaceEncounteredOutsideString = true;
                                 }
                                 // Handle inline comments if they exist

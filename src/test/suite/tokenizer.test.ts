@@ -115,6 +115,18 @@ with valid credentials""")`;
         assert.strictEqual(res[0].argumentText, 'I am real');
     });
 
+    test('Multiline decorator with trailing comma', () => {
+        const content = `@step(
+            "some test step",
+        )
+        def step_impl(): pass`;
+        const res = parsePythonDecorators(content);
+        assert.strictEqual(res.length, 1);
+        assert.strictEqual(res[0].argumentText, 'some test step');
+        assert.strictEqual(res[0].isStringLiteral, true);
+    });
+
+
     test('parseExecuteSteps parses programmatic step invocations', () => {
         const content = `
 @when('I do X')

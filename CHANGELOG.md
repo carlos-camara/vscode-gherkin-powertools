@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 🔗 **[Read the full release notes on GitHub](https://github.com/carlos-camara/vscode-gherkin-powertools/releases)**
 
+## [1.8.6.1] - 2026-10-10
+
+### 🐛 Fixed
+- **Multiline Step Definitions**: Fixed an issue where Behave step decorators containing multiline function calls with trailing commas (e.g. `@step(\n "name",\n)`) were incorrectly parsed, causing them to show as undefined steps in Gherkin files.
+
+### 📦 Dependencies
+- Bumped various development and GitHub Actions dependencies to their latest versions (`markdown-it`, `undici`, `js-yaml`, `@types/vscode`, `@types/node`, `super-linter`, etc.) to improve security and maintainability.
+
 ## [1.8.6] - 2026-08-28
 
 ### 🚀 Added
