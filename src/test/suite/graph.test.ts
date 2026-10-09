@@ -28,6 +28,29 @@ suite('WorkspaceGraph Test Suite', () => {
         assert.strictEqual(dups.length, 0);
     });
 
+    test('initialize rejects on failure and marks state as failed', async () => {
+        // Force the AST parser or a VFS read to fail to simulate graph init failure
+        const originalFindFiles = vscode.workspace.findFiles;
+        (vscode.workspace as any).findFiles = async () => {
+            throw new Error('Simulated graph init failure');
+        };
+
+        try {
+            await graph.initialize();
+            assert.fail('Should have thrown an error');
+        } catch (err: any) {
+            assert.strictEqual(err.message, 'Simulated graph init failure');
+            assert.strictEqual((graph as any).isInitialized, false);
+        } finally {
+            (vscode.workspace as any).findFiles = originalFindFiles;
+        }
+
+        // Calling it again while failed should start a new initialization promise
+        (vscode.workspace as any).findFiles = async () => [];
+        await graph.initialize();
+        assert.strictEqual((graph as any).isInitialized, true);
+    });
+
     test('should resolve impacted scenarios for a tag', () => {
         const tagNode = {
             id: 'Tag:@smoke',

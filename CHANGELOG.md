@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Fixed
 - **Multiline Step Definitions**: Fixed an issue where Behave step decorators containing multiline function calls with trailing commas (e.g. `@step(\n "name",\n)`) were incorrectly parsed, causing them to show as undefined steps in Gherkin files.
+- **Component Initialization Race Condition**: Fixed a bug where a failed cache initialization promise would silently resolve, causing the workspace graph to incorrectly assume the initialization was successful and preventing backoff retry logic from triggering.
+
+### 📚 Documentation
+- **Comprehensive Docs Audit**: Performed a full repository-wide documentation audit. Updated `architecture.md` and `troubleshooting.md` to accurately document the new initialization rejection contract and troubleshooting strategies.
+
+### 🧪 Tests
+- **Integration Test Mocking**: Fixed a leaking workspace configuration mock in `conformance.test.ts` that caused downstream integration tests to incorrectly report 0 discovered feature files. Added a robust `try-finally` block ensuring proper test environment isolation.
 
 ### 📦 Dependencies
 - Bumped various development and GitHub Actions dependencies to their latest versions (`markdown-it`, `undici`, `js-yaml`, `@types/vscode`, `@types/node`, `super-linter`, etc.) to improve security and maintainability.

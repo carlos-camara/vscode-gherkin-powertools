@@ -250,6 +250,7 @@ export class WorkspaceGraph {
                 this.isInitialized = true;
             } catch (err) {
                 logger.error(`WorkspaceGraph: Error during initialization`, err);
+                throw err;
             } finally {
                 this.initPromise = null;
             }
