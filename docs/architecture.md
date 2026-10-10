@@ -26,7 +26,11 @@ In earlier versions, each feature (like the Test Controller, Symbol Cache, and L
 The `WorkspaceEvent` union type includes payloads for:
 - **Feature Files (`featureFileCreated`, `featureFileChanged`, `featureFileDeleted`)**: Triggers Test Explorer updates and Feature Cache invalidation.
 - **Step Files (`stepFileCreated`, `stepFileChanged`, `stepFileDeleted`)**: Triggers Python parsing in the Symbol Cache to update step definitions.
-- **Configuration & Discovery (`stepDiscoveryConfigChanged`, `featureDiscoveryConfigChanged`, `diagnosticsConfigChanged`, `formattingConfigChanged`, `executionConfigChanged`, `suppressionsChanged`)**: Highly granular events that trigger UI updates, specific cache invalidation, or targeted per-folder cache flushes only when relevant configuration sections mutate, completely replacing the legacy broad `configurationChanged` event to preserve unrelated cache state.
+- **Configuration & Discovery (`stepDiscoveryConfigChanged`, `featureDiscoveryConfigChanged`,
+  `diagnosticsConfigChanged`, `formattingConfigChanged`, `executionConfigChanged`, `suppressionsChanged`)**: Highly
+  granular events that trigger UI updates, specific cache invalidation, or targeted per-folder cache flushes only when
+  relevant configuration sections mutate, completely replacing the legacy broad `configurationChanged` event to preserve
+  unrelated cache state.
 - **Editor State (`textDocumentOpened`, `textDocumentChanged`, `activeEditorChanged`)**: Drives real-time diagnostic linting and semantic highlighting.
 
 ### Execution Output & Custom Formatting
