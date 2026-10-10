@@ -25,12 +25,16 @@ export class FeatureDiscoveryService {
         this.eventBusDisposable?.dispose();
         if (this._eventBus) {
             this.eventBusDisposable = this._eventBus.onEvent(e => {
-                if (e.type === 'configurationChanged') {
-                    this.disposeWatchers();
-                    this.setupWatchers();
+                if (e.type === 'featureDiscoveryConfigChanged') {
+                    this.rebuildWatchers();
                 }
             });
         }
+    }
+
+    private rebuildWatchers() {
+        this.disposeWatchers();
+        this.setupWatchers();
     }
 
     public get eventBus(): WorkspaceEventBus | undefined {

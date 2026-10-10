@@ -59,8 +59,31 @@ export class SymbolCache {
                 }
             } else if (e.type === 'stepFileDeleted') {
                 this.removeFile(e.uri);
-            } else if (e.type === 'configurationChanged') {
-                if (e.event && (e.event.affectsConfiguration('gherkinPowerTools.behave.stepGlobs') || e.event.affectsConfiguration('gherkinPowerTools.behave.ignoreGlobs'))) {
+            } else if (e.type === 'stepDiscoveryConfigChanged') {
+                if (e.folder) {
+                    // Remove only files for this workspace folder
+                    const urisToRemove: vscode.Uri[] = [];
+                    for (const uriString of this.cache.keys()) {
+                        const uri = vscode.Uri.parse(uriString);
+                        const folder = vscode.workspace.getWorkspaceFolder(uri);
+                        if (folder && folder.uri.toString() === e.folder.uri.toString()) {
+                            urisToRemove.push(uri);
+                        }
+                    }
+                    for (const uri of urisToRemove) {
+                        this.removeFile(uri);
+                    }
+                    // Re-discover files for this folder
+                    discoveryService.getStepFiles().then(files => {
+                        const folderFiles = files.filter(f => {
+                            const folder = vscode.workspace.getWorkspaceFolder(f);
+                            return folder && folder.uri.toString() === e.folder!.uri.toString();
+                        });
+                        Promise.all(folderFiles.map(f => this.updateFile(f))).catch(() => {
+                            // ignore errors
+                        });
+                    });
+                } else {
                     this.clear();
                     this.ensureInitialized();
                 }
@@ -99,6 +122,7 @@ export class SymbolCache {
             } catch (err) {
                 this.state = 'failed';
                 logger.error('Error initializing symbol cache:', err);
+                throw err;
             }
         })();
 
@@ -389,6 +413,35 @@ export class FeatureCache {
                 this.updateFile(e.uri);
             } else if (e.type === 'featureFileDeleted') {
                 this.removeFile(e.uri);
+            } else if (e.type === 'featureDiscoveryConfigChanged') {
+                if (e.folder) {
+                    const urisToRemove: vscode.Uri[] = [];
+                    for (const uriString of this.fileTagCounts.keys()) {
+                        const uri = vscode.Uri.parse(uriString);
+                        const folder = vscode.workspace.getWorkspaceFolder(uri);
+                        if (folder && folder.uri.toString() === e.folder.uri.toString()) {
+                            urisToRemove.push(uri);
+                        }
+                    }
+                    for (const uri of urisToRemove) {
+                        this.removeFile(uri);
+                    }
+                    // Re-discover files for this folder
+                    featureDiscoveryService.getFeatureFiles().then(files => {
+                        const folderFiles = files.filter(f => {
+                            const folder = vscode.workspace.getWorkspaceFolder(f);
+                            return folder && folder.uri.toString() === e.folder!.uri.toString();
+                        });
+                        Promise.all(folderFiles.map(f => this.updateFile(f))).catch(() => {
+                            // ignore errors
+                        });
+                    });
+                } else {
+                    this.fileTagCounts.clear();
+                    this.globalTagCount.clear();
+                    this.state = 'uninitialized';
+                    this.ensureInitialized();
+                }
             }
         });
     }
@@ -410,6 +463,7 @@ export class FeatureCache {
             } catch (err) {
                 this.state = 'failed';
                 logger.error('Error initializing feature cache:', err);
+                throw err;
             }
         })();
 

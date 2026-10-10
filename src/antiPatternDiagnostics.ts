@@ -31,10 +31,11 @@ export class AntiPatternDiagnosticsManager {
                 event.type === 'featureFileChanged' ||
                 event.type === 'stepFileChanged' ||
                 event.type === 'stepDefinitionsUpdated' ||
-                event.type === 'configurationChanged' ||
+                event.type === 'diagnosticsConfigChanged' ||
+                event.type === 'suppressionsChanged' ||
                 event.type === 'textDocumentOpened' // To show diagnostics when opening a file
             ) {
-                const immediate = (event.type === 'textDocumentOpened' || event.type === 'configurationChanged');
+                const immediate = (event.type === 'textDocumentOpened' || event.type === 'diagnosticsConfigChanged' || event.type === 'suppressionsChanged');
                 this.triggerAnalysis(immediate);
             }
         });

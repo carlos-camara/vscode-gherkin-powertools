@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { WorkspaceEventBus } from './eventBus';
 
 interface Configuration {
     indentation: { steps: number; };
@@ -251,10 +252,15 @@ export class ConfigurationService {
     private projectConfigs = new Map<string, ProjectConfiguration>();
     private diagnosticCollection: vscode.DiagnosticCollection;
     private loader: ConfigurationLoader;
+    private eventBus?: WorkspaceEventBus;
 
     constructor(diagnosticCollection: vscode.DiagnosticCollection, loader: ConfigurationLoader) {
         this.diagnosticCollection = diagnosticCollection;
         this.loader = loader;
+    }
+
+    public setEventBus(eventBus: WorkspaceEventBus) {
+        this.eventBus = eventBus;
     }
 
     public async initialize(): Promise<void> {
@@ -282,8 +288,7 @@ export class ConfigurationService {
             this.projectConfigs.delete(folderUri);
         }
 
-        // Invalidate and re-resolve
-        this.cache.set(folderUri, this.resolveConfiguration(workspaceFolder, uri));
+        this.recalculateAndEmit(workspaceFolder, uri);
     }
 
     public getConfiguration(uri: vscode.Uri | undefined): Configuration {
@@ -303,16 +308,55 @@ export class ConfigurationService {
         if (uri) {
             const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
             if (workspaceFolder) {
-                const folderUriStr = workspaceFolder.uri.toString();
-                this.cache.delete(folderUriStr);
-                const projectConfig = this.projectConfigs.get(folderUriStr);
-                if (projectConfig && projectConfig.uri) {
-                    this.diagnosticCollection.delete(projectConfig.uri);
-                }
+                this.recalculateAndEmit(workspaceFolder, uri);
             }
         } else {
-            this.cache.clear();
-            this.diagnosticCollection.clear();
+            if (vscode.workspace.workspaceFolders) {
+                for (const folder of vscode.workspace.workspaceFolders) {
+                    this.recalculateAndEmit(folder, folder.uri);
+                }
+            }
+            this.recalculateAndEmit(undefined, undefined);
+        }
+    }
+
+    private recalculateAndEmit(workspaceFolder: vscode.WorkspaceFolder | undefined, uri: vscode.Uri | undefined) {
+        const folderUriStr = workspaceFolder ? workspaceFolder.uri.toString() : 'global';
+        const oldConfig = this.cache.get(folderUriStr);
+        
+        // Re-resolve
+        const newConfig = this.resolveConfiguration(workspaceFolder, uri);
+        this.cache.set(folderUriStr, newConfig);
+        
+        if (!oldConfig || !this.eventBus) return;
+        
+        if (JSON.stringify(oldConfig.behave.stepGlobs) !== JSON.stringify(newConfig.behave.stepGlobs) ||
+            JSON.stringify(oldConfig.behave.ignoreGlobs) !== JSON.stringify(newConfig.behave.ignoreGlobs)) {
+            this.eventBus.publish({ type: 'stepDiscoveryConfigChanged', folder: workspaceFolder });
+        }
+        
+        if (JSON.stringify(oldConfig.featureGlobs) !== JSON.stringify(newConfig.featureGlobs)) {
+            this.eventBus.publish({ type: 'featureDiscoveryConfigChanged', folder: workspaceFolder });
+        }
+        
+        if (JSON.stringify(oldConfig.linter) !== JSON.stringify(newConfig.linter) ||
+            JSON.stringify(oldConfig.rules) !== JSON.stringify(newConfig.rules)) {
+            this.eventBus.publish({ type: 'diagnosticsConfigChanged', folder: workspaceFolder });
+        }
+        
+        if (JSON.stringify(oldConfig.indentation) !== JSON.stringify(newConfig.indentation) ||
+            JSON.stringify(oldConfig.tables) !== JSON.stringify(newConfig.tables) ||
+            JSON.stringify(oldConfig.docStrings) !== JSON.stringify(newConfig.docStrings) ||
+            JSON.stringify(oldConfig.emptyLines) !== JSON.stringify(newConfig.emptyLines) ||
+            JSON.stringify(oldConfig.tags) !== JSON.stringify(newConfig.tags) ||
+            oldConfig.formatter.enabled !== newConfig.formatter.enabled) {
+            this.eventBus.publish({ type: 'formattingConfigChanged', folder: workspaceFolder });
+        }
+        
+        if (JSON.stringify(oldConfig.behave.execution) !== JSON.stringify(newConfig.behave.execution) ||
+            JSON.stringify(oldConfig.behave.additionalArguments) !== JSON.stringify(newConfig.behave.additionalArguments) ||
+            oldConfig.behave.localExecutable !== newConfig.behave.localExecutable) {
+            this.eventBus.publish({ type: 'executionConfigChanged', folder: workspaceFolder });
         }
     }
 

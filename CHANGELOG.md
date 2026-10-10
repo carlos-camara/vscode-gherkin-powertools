@@ -6,6 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 🔗 **[Read the full release notes on GitHub](https://github.com/carlos-camara/vscode-gherkin-powertools/releases)**
 
+## [1.8.7] - 2026-10-11
+
+### 🚀 Added
+- **Test Explorer Focus Mode**: Clicking on a Test, Scenario, or Example row in the Test Explorer now triggers an automatic "Focus Mode" that illuminates the active block with a strong accent border in the editor. This makes the selected test instantly distinguishable from the surrounding code.
+
+### 🐛 Fixed
+- **Semantic Configuration Invalidation**: Fixed a major architecture issue where the `WorkspaceEventBus` exposed a broad `configurationChanged` event, causing discovery services to constantly drop cache state unnecessarily on unrelated formatting or diagnostic setting changes. Replaced entirely with a granular, diff-based event system (`stepDiscoveryConfigChanged`, `diagnosticsConfigChanged`, etc.), eliminating global cache thrashing while still maintaining flawless cache synchronization.
+- **Exception Node Execution Scope**: Fixed an issue where clicking "Run" directly on a Test Explorer Exception node (e.g., `Failed at line X`) would inadvertently run the entire feature file instead of the isolated scenario. The line extractor now correctly handles exception node suffixes.
+- **Linter False Positives on Short Keywords**: Fixed an aggressive typo diagnostic (Levenshtein distance) that incorrectly flagged short valid words (like `I` or `As`) as typos of Gherkin keywords.
+- **Suppressions Schema Type**: Fixed a bug where `.gherkin-pt-suppressions.json` would show a "yellow squiggle" warning because its internal schema incorrectly expected a `string` instead of an `array` of objects.
+- **Anti-pattern Real-time Diagnostics**: Fixed an issue where editing `.gherkin-pt-suppressions.json` did not immediately clear the corresponding red squiggles in the editor. The Anti-pattern diagnostics engine now correctly intercepts `suppressionsChanged` events to instantly reflect rule suppressions.
+- **Test Explorer Duplicates**: Fixed a visual bug on Windows and macOS where the Test Explorer would duplicate `.feature` items in the tree. The controller now normalizes file URIs to prevent casing mismatches between the file watcher and open documents.
+- **Flaky CI Infrastructure**: Increased timeouts in the internal `DeferredBootstrap` integration test to resolve a race condition that incorrectly flagged cache rejection logic as "running" instead of "failed" on slower CI runners (e.g., macOS-latest).
+
+## [1.8.6.1] - 2026-10-10
+- **Multiline Step Definitions**: Fixed an issue where Behave step decorators containing multiline function calls with trailing commas (e.g. `@step(\n "name",\n)`) were incorrectly parsed, causing them to show as undefined steps in Gherkin files.
+- **Component Initialization Race Condition**: Fixed a bug where a failed cache initialization promise would silently resolve, causing the workspace graph to incorrectly assume the initialization was successful and preventing backoff retry logic from triggering.
+
+### 📚 Documentation
+- **Comprehensive Docs Audit**: Performed a full repository-wide documentation audit. Updated `architecture.md` and `troubleshooting.md` to accurately document the new initialization rejection contract and troubleshooting strategies.
+
+### 🧪 Tests
+- **Integration Test Mocking**: Fixed a leaking workspace configuration mock in `conformance.test.ts` that caused downstream integration tests to incorrectly report 0 discovered feature files. Added a robust `try-finally` block ensuring proper test environment isolation.
+
+### 📦 Dependencies
+- Bumped various development and GitHub Actions dependencies to their latest versions (`markdown-it`, `undici`, `js-yaml`, `@types/vscode`, `@types/node`, `super-linter`, etc.) to improve security and maintainability.
+
 ## [1.8.6] - 2026-08-28
 
 ### 🚀 Added

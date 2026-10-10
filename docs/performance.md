@@ -32,8 +32,16 @@ When Behave is detected, the extension builds a robust index to provide navigati
 - **Transactional Mass Updates**: During massive file changes (e.g., switching git branches where thousands of files change simultaneously), the `WorkspaceGraph` employs an immutable `WorkspaceGraphGeneration` model. It coalesces all file events, safely aborts stale index requests, and commits updates atomically.
   This guarantees O(1) structural indexing across the entire workspace without locking the extension host or causing event-loop delays.
 - **Authoritative Feature Discovery**: The `FeatureDiscoveryService` acts as a single, debounced source of truth for all `*.feature` files, avoiding redundant file system scans by the Test Explorer, diagnostics engine, and caching layers.
-- **Optimized Behave File Discovery**: The `BehaveFileDiscoveryService` avoids blindly destroying and recreating file system watchers. It caches active configuration globs and only reconstructs watchers when resolved patterns genuinely change.
-  In multi-root workspaces, it selectively rebuilds only the affected workspace folders. Furthermore, it aggressively deduplicates overlapping concurrent file-system events into a single pending state per URI, neutralizing "thundering herd" bursts (like `git reset --hard`) before they reach downstream components.
+- **Optimized Behave File Discovery**: The `BehaveFileDiscoveryService` and `FeatureDiscoveryService` avoid blindly
+  destroying and recreating file system watchers. They cache active configuration globs and only reconstruct watchers
+  when resolved patterns genuinely change. In multi-root workspaces, they selectively rebuild only the affected
+  workspace folders. Furthermore, they aggressively deduplicate overlapping concurrent file-system events into a
+  single pending state per URI, neutralizing "thundering herd" bursts (like `git reset --hard`) before they reach
+  downstream components.
+- **Targeted Cache Invalidation**: When profile-based configurations change (e.g., via `.gherkin-powertoolsrc.json`),
+  the Workspace Event Bus emits fine-grained `stepDiscoveryConfigChanged` and `featureDiscoveryConfigChanged` events.
+  The `SymbolCache` and `FeatureCache` intercept these events to flush and rebuild *only* the specific workspace
+  folder's cache that was affected, avoiding costly, full-workspace rebuilds.
 - **Impact Analysis CodeLenses**: The real-time Blast Radius CodeLenses rely on the `WorkspaceGraph` to resolve usages instantaneously, ensuring that no file-system scanning is performed when you open a Python step definition file.
 - **Proactive BDD Anti-pattern Analysis**: When generating the Gherkin Health Dashboard, the Anti-pattern Engine actively fetches and parses all `.feature` and `.py` files to ensure 100% accurate coverage. This one-off deep scan guarantees accuracy but is isolated to the execution of that specific command, preserving editor responsiveness during normal typing.
 

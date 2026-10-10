@@ -2,52 +2,41 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Gherkin PowerTools Suppressions",
     "description": "Configuration file for suppressing BDD anti-pattern findings.",
-    "type": "object",
-    "properties": {
-        "suppressions": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "rule": {
-                        "type": "string",
-                        "description": "The ID of the rule to suppress (e.g., 'oversized-scenario')."
-                    },
-                    "path": {
-                        "type": "string",
-                        "description": "Glob pattern for the files this suppression applies to."
-                    },
-                    "scope": {
-                        "type": "object",
-                        "description": "Optional structural scope to limit the suppression to a specific scenario or feature.",
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "enum": ["feature", "scenario", "step"]
-                            },
-                            "value": {
-                                "type": "string",
-                                "description": "The exact name or text of the structure."
-                            }
-                        },
-                        "required": ["type", "value"]
-                    },
-                    "reason": {
-                        "type": "string",
-                        "description": "Mandatory explanation for why this technical debt is being accepted."
-                    },
-                    "author": {
-                        "type": "string"
-                    },
-                    "expiresAt": {
-                        "type": "string",
-                        "format": "date",
-                        "description": "Optional expiration date for this suppression."
-                    }
-                },
-                "required": ["rule", "path", "reason"]
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "ruleId": {
+                "type": "string",
+                "description": "The ID of the rule to suppress (e.g., 'oversized-scenario')."
+            },
+            "uri": {
+                "type": "string",
+                "description": "Glob pattern or exact URI path for the files this suppression applies to."
+            },
+            "scopeType": {
+                "type": "string",
+                "enum": ["feature", "scenario", "step"],
+                "description": "Optional structural scope type to limit the suppression."
+            },
+            "scopeValue": {
+                "type": "string",
+                "description": "The exact name or text of the structure."
+            },
+            "reason": {
+                "type": "string",
+                "description": "Mandatory explanation for why this technical debt is being accepted."
+            },
+            "by": {
+                "type": "string",
+                "description": "The user who created the suppression."
+            },
+            "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Creation timestamp for this suppression."
             }
-        }
-    },
-    "required": ["suppressions"]
+        },
+        "required": ["ruleId"]
+    }
 }

@@ -37,16 +37,16 @@ suite('FeatureDiscoveryService Test Suite', () => {
         assert.deepStrictEqual(service.getFeatureGlobs(), ['**/*.spec', '**/*.gherkin']);
     });
 
-    test('eventBus subscription resets watchers on configurationChanged', () => {
+    test('eventBus subscription resets watchers on featureDiscoveryConfigChanged', () => {
         let called = false;
         sandbox.stub(service, 'setupWatchers').callsFake(() => {
             called = true;
             return [];
         });
 
-        mockEventBus.publish({ type: 'configurationChanged' });
+        mockEventBus.publish({ type: 'featureDiscoveryConfigChanged' });
 
-        assert.ok(called, 'setupWatchers should be called on configurationChanged');
+        assert.ok(called, 'setupWatchers should be called on featureDiscoveryConfigChanged');
     });
 
     test('isIgnored checks default ignores', () => {

@@ -32,11 +32,18 @@ suite('CLI Parity & Conformance Test Suite', () => {
 
         const originalFindFiles = vscode.workspace.findFiles;
         (vscode.workspace as any).findFiles = async (include: any, exclude?: any, max?: any, token?: any) => {
-            // Rewrite any relative patterns to use our fixturePath base
-            if (include && typeof include !== 'string' && include.baseUri) {
-                include = new vscode.RelativePattern(vscode.Uri.file(fixturePath), include.pattern);
-            } else if (typeof include === 'string') {
-                include = new vscode.RelativePattern(vscode.Uri.file(fixturePath), include);
+            const pattern = (include && typeof include !== 'string' && include.pattern) ? include.pattern : include;
+            if (typeof pattern === 'string' && pattern.includes('.feature')) {
+                // Mock for feature files
+                const { globSync } = require('glob');
+                const files = globSync('**/*.feature', { cwd: fixturePath, absolute: true });
+                return files.map((f: string) => vscode.Uri.file(f));
+            }
+            if (typeof pattern === 'string' && pattern.includes('.py')) {
+                // Mock for python files
+                const { globSync } = require('glob');
+                const files = globSync('**/*.py', { cwd: fixturePath, absolute: true });
+                return files.map((f: string) => vscode.Uri.file(f));
             }
             return await originalFindFiles(include, exclude, max, token);
         };
@@ -51,29 +58,32 @@ suite('CLI Parity & Conformance Test Suite', () => {
             configurable: true
         });
 
-        await graph.initialize();
-        const metrics = await calculateHealthMetrics(graph, symbolCache);
-        const engine = new AntiPatternEngine();
+        try {
+            await graph.initialize();
+            
+            const metrics = await calculateHealthMetrics(graph, symbolCache);
+            const engine = new AntiPatternEngine();
 
-        const ruleConfig = {
-            "oversized-scenario": "warning",
-            "oversized-feature": "info",
-            "duplicated-steps": "error",
-            "unused-steps": "info",
-            "ambiguous-steps": "error",
-            "undefined-steps": "error",
-            "excessive-tags": "info",
-            "inconsistent-formatting": "info"
-        };
-        const antiPatterns = engine.generateAntiPatterns(graph, metrics, ruleConfig as any);
+            const ruleConfig = {
+                "oversized-scenario": "warning",
+                "oversized-feature": "info",
+                "duplicated-steps": "error",
+                "unused-steps": "info",
+                "ambiguous-steps": "error",
+                "undefined-steps": "error",
+                "excessive-tags": "info",
+                "inconsistent-formatting": "info"
+            };
+            const antiPatterns = engine.generateAntiPatterns(graph, metrics, ruleConfig as any);
 
-        // Restore
-        (vscode.workspace as any).findFiles = originalFindFiles;
-        if (originalWorkspaceFolders) {
-            Object.defineProperty(vscode.workspace, 'workspaceFolders', originalWorkspaceFolders);
+            return { metrics, antiPatterns };
+        } finally {
+            // Restore
+            (vscode.workspace as any).findFiles = originalFindFiles;
+            if (originalWorkspaceFolders) {
+                Object.defineProperty(vscode.workspace, 'workspaceFolders', originalWorkspaceFolders);
+            }
         }
-
-        return { metrics, antiPatterns };
     };
 
     test('Valid Gherkin Conformance', async () => {

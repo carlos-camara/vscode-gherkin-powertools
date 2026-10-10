@@ -26,7 +26,11 @@ In earlier versions, each feature (like the Test Controller, Symbol Cache, and L
 The `WorkspaceEvent` union type includes payloads for:
 - **Feature Files (`featureFileCreated`, `featureFileChanged`, `featureFileDeleted`)**: Triggers Test Explorer updates and Feature Cache invalidation.
 - **Step Files (`stepFileCreated`, `stepFileChanged`, `stepFileDeleted`)**: Triggers Python parsing in the Symbol Cache to update step definitions.
-- **Configuration (`configurationChanged`)**: Triggers full cache flushes when critical settings like `stepGlobs` are modified.
+- **Configuration & Discovery (`stepDiscoveryConfigChanged`, `featureDiscoveryConfigChanged`,
+  `diagnosticsConfigChanged`, `formattingConfigChanged`, `executionConfigChanged`, `suppressionsChanged`)**: Highly
+  granular events that trigger UI updates, specific cache invalidation, or targeted per-folder cache flushes only when
+  relevant configuration sections mutate, completely replacing the legacy broad `configurationChanged` event to preserve
+  unrelated cache state.
 - **Editor State (`textDocumentOpened`, `textDocumentChanged`, `activeEditorChanged`)**: Drives real-time diagnostic linting and semantic highlighting.
 
 ### Execution Output & Custom Formatting
@@ -179,6 +183,15 @@ sequenceDiagram
     end
 ```
 
+### Initialization Contract
+
+Capabilities managed by `DeferredBootstrap` must adhere to a strict asynchronous initialization contract:
+- **Success:** The component resolves its initialization `Promise`.
+- **Failure:** The component must **reject** its initialization `Promise`.
+
+It is a strict anti-pattern for a component to catch its own initialization error, set a failed internal state, and resolve the promise silently.
+By rejecting explicitly, `DeferredBootstrap.runWithRetry()` cleanly intercepts the failure, automatically schedules exponential backoff retries, marks the capability as `failed` in the diagnostics map, and safely prevents downstream dependent capabilities (e.g., `WorkspaceGraph`) from initializing against broken baseline state.
+
 ### Capability-Based Fault Isolation
 To ensure high availability of critical services (like file watchers), the initialization process is broken down into isolated **Capabilities**.
 - **Essential Capabilities** (e.g., File Watchers, Event Bus): Run synchronously. If they fail, the error is logged, but they don't halt other services.
@@ -256,7 +269,7 @@ The extension implements a dedicated `AntiPatternEngine` that operates asynchron
 The `GherkinLinter` validates `.feature` files in real-time, leveraging the shared AST Repository.
 
 ### Batched Invalidation Queue
-To protect the Extension Host against catastrophic event spikes (such as a large `git checkout` mutating 500 files at once), the Linter acts as an event sink. Events (`documentOpened`, `documentChanged`, `configurationChanged`, `stepDefinitionsUpdated`) are deduplicated into an `invalidationQueue`.
+To protect the Extension Host against catastrophic event spikes (such as a large `git checkout` mutating 500 files at once), the Linter acts as an event sink. Events (`documentOpened`, `documentChanged`, `diagnosticsConfigChanged`, `stepDefinitionsUpdated`) are deduplicated into an `invalidationQueue`.
 
 ### Concurrency Limiting
 A centralized `flush()` cycle executes after a short debounce window. During flushing, the Linter processes invalidated documents concurrently, but relies on a strict concurrency limiter (e.g., maximum 5 concurrent AST operations) to maintain a low Extension Host CPU profile.

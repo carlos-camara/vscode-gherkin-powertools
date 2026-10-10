@@ -76,6 +76,7 @@ suite('Walkthrough Commands Tests', () => {
     let mockFormatter: sinon.SinonStubbedInstance<GherkinFormattingEditProvider>;
     let mockConfigService: sinon.SinonStubbedInstance<ConfigurationService>;
     let sandbox: sinon.SinonSandbox;
+    const callbacks: { [cmd: string]: Function } = {};
 
     setup(() => {
         sandbox = sinon.createSandbox();
@@ -86,61 +87,140 @@ suite('Walkthrough Commands Tests', () => {
         mockConfigService.getConfiguration.returns({
             formatter: { enabled: true }
         } as any);
+
+        sandbox.stub(vscode.commands, 'registerCommand').callsFake((cmd: string, callback: Function) => {
+            callbacks[cmd] = callback;
+            return { dispose: () => {} } as vscode.Disposable;
+        });
+
+        // Register the commands
+        const { registerWalkthroughCommands } = require('../../activation/walkthrough');
+        registerWalkthroughCommands(mockFormatter, mockConfigService);
     });
 
     teardown(() => {
         sandbox.restore();
     });
 
-    test('gherkinPowerTools.format provides edits', async () => {
-        const executeSpy = sandbox.spy(vscode.commands, 'executeCommand');
-        mockFormatter.provideDocumentFormattingEdits.resolves([new vscode.TextEdit(new vscode.Range(0,0,0,0), "format")]);
+    test('gherkinPowerTools.demoQuickFix executes quick fix when feature file is active', async () => {
+        sandbox.stub(vscode.window, 'activeTextEditor').value({ document: { languageId: 'feature' } });
+        const executeSpy = sandbox.stub(vscode.commands, 'executeCommand').resolves();
+
+        await callbacks['gherkinPowerTools.demoQuickFix']();
         
-        // This command interacts deeply with vscode.window.activeTextEditor which is hard to mock in full integration, 
-        // but we can ensure it doesn't crash when executed with no active editor.
-        try {
-            await vscode.commands.executeCommand('gherkinPowerTools.format');
-        } catch(e) {
-            // Might throw depending on vscode environment without actual text documents, but command is registered.
-        }
-        assert.ok(executeSpy.calledWith('gherkinPowerTools.format'));
+        assert.ok(executeSpy.calledWith('editor.action.quickFix'));
     });
 
-    test('gherkinPowerTools.format shows warning on invalid syntax', async () => {
-        const executeSpy = sandbox.spy(vscode.commands, 'executeCommand');
-        // We will just invoke the command. To fully mock the astRepository without exporting it is hard.
-        // The command executes and we just ensure it doesn't crash.
-        try {
-            await vscode.commands.executeCommand('gherkinPowerTools.format');
-        } catch(e) {
-        }
-        assert.ok(executeSpy.calledWith('gherkinPowerTools.format'));
-    });
-
-
-    test('gherkinPowerTools.demoQuickFix triggers editor.action.quickFix', async () => {
+    test('gherkinPowerTools.demoQuickFix opens new document when no feature file is active', async () => {
+        sandbox.stub(vscode.window, 'activeTextEditor').value(undefined);
+        const openStub = sandbox.stub(vscode.workspace, 'openTextDocument').resolves({} as any);
+        const showStub = sandbox.stub(vscode.window, 'showTextDocument').resolves({ selection: null } as any);
         const executeSpy = sandbox.stub(vscode.commands, 'executeCommand').resolves();
         sandbox.stub(vscode.window, 'showInformationMessage').resolves();
+
+        const clock = sandbox.useFakeTimers();
         
-        try {
-            // Note: because the command simulates UI delay with setTimeout, this test validates registration
-            // and the quick path if active editor is present.
-            await vscode.commands.executeCommand('gherkinPowerTools.demoQuickFix');
-        } catch(e) {
-            // Handle VS Code mock limitations
-        }
-        assert.ok(executeSpy.calledWith('gherkinPowerTools.demoQuickFix'));
+        await callbacks['gherkinPowerTools.demoQuickFix']();
+        
+        assert.ok(openStub.calledOnce);
+        assert.ok(showStub.calledOnce);
+        
+        clock.tick(2000);
+        assert.ok(executeSpy.calledWith('editor.action.quickFix'));
     });
 
-    test('gherkinPowerTools.demoGoToDefinition triggers editor.action.revealDefinition', async () => {
+    test('gherkinPowerTools.demoGoToDefinition executes revealDefinition when feature file is active', async () => {
+        sandbox.stub(vscode.window, 'activeTextEditor').value({ document: { languageId: 'feature' } });
         const executeSpy = sandbox.stub(vscode.commands, 'executeCommand').resolves();
-        sandbox.stub(vscode.window, 'showInformationMessage').resolves();
+
+        await callbacks['gherkinPowerTools.demoGoToDefinition']();
         
-        try {
-            await vscode.commands.executeCommand('gherkinPowerTools.demoGoToDefinition');
-        } catch(e) {
-            // Handle VS Code mock limitations
-        }
-        assert.ok(executeSpy.calledWith('gherkinPowerTools.demoGoToDefinition'));
+        assert.ok(executeSpy.calledWith('editor.action.revealDefinition'));
+    });
+
+    test('gherkinPowerTools.demoGoToDefinition shows message when no feature file is active', async () => {
+        sandbox.stub(vscode.window, 'activeTextEditor').value(undefined);
+        const infoSpy = sandbox.stub(vscode.window, 'showInformationMessage').resolves();
+
+        await callbacks['gherkinPowerTools.demoGoToDefinition']();
+        
+        assert.ok(infoSpy.calledOnce);
+    });
+
+    test('gherkinPowerTools.format formats existing active feature file', async () => {
+        const mockEdit = sandbox.stub().callsFake((callback) => {
+            const builder = { replace: sandbox.stub() };
+            callback(builder);
+            return Promise.resolve(true);
+        });
+        const doc = { languageId: 'feature', uri: vscode.Uri.file('/test.feature') };
+        sandbox.stub(vscode.window, 'activeTextEditor').value({
+            document: doc,
+            edit: mockEdit
+        });
+
+        mockFormatter.provideDocumentFormattingEdits.resolves([
+            new vscode.TextEdit(new vscode.Range(0, 0, 0, 0), "formatted")
+        ]);
+
+        await callbacks['gherkinPowerTools.format']();
+        
+        assert.ok(mockFormatter.provideDocumentFormattingEdits.calledOnce);
+        assert.ok(mockEdit.calledOnce);
+    });
+
+    test('gherkinPowerTools.format creates new messy feature file if no feature file is visible', async () => {
+        sandbox.stub(vscode.window, 'activeTextEditor').value(undefined);
+        sandbox.stub(vscode.window, 'visibleTextEditors').value([]);
+        
+        const openStub = sandbox.stub(vscode.workspace, 'openTextDocument').resolves({ uri: vscode.Uri.file('/new.feature') } as any);
+        const mockEdit = sandbox.stub().resolves(true);
+        const showStub = sandbox.stub(vscode.window, 'showTextDocument').resolves({
+            document: { uri: vscode.Uri.file('/new.feature') },
+            edit: mockEdit
+        } as any);
+        sandbox.stub(vscode.window, 'showInformationMessage').resolves();
+
+        mockFormatter.provideDocumentFormattingEdits.resolves([
+            new vscode.TextEdit(new vscode.Range(0, 0, 0, 0), "formatted")
+        ]);
+        
+        await callbacks['gherkinPowerTools.format']();
+        
+        assert.ok(openStub.calledOnce);
+        assert.ok(showStub.calledOnce);
+        assert.ok(mockFormatter.provideDocumentFormattingEdits.calledOnce);
+        assert.ok(mockEdit.calledOnce);
+    });
+
+    test('gherkinPowerTools.format stops if formatting disabled in settings', async () => {
+        sandbox.stub(vscode.window, 'activeTextEditor').value({
+            document: { languageId: 'feature', uri: vscode.Uri.file('/test.feature') }
+        });
+        mockConfigService.getConfiguration.returns({ formatter: { enabled: false } } as any);
+        
+        const warnSpy = sandbox.stub(vscode.window, 'showWarningMessage').resolves();
+
+        await callbacks['gherkinPowerTools.format']();
+        
+        assert.ok(warnSpy.calledWith("Formatting is disabled in settings."));
+        assert.ok(mockFormatter.provideDocumentFormattingEdits.notCalled);
+    });
+
+    test('gherkinPowerTools.format warns if syntax errors exist and no edits', async () => {
+        sandbox.stub(vscode.window, 'activeTextEditor').value({
+            document: { languageId: 'feature', uri: vscode.Uri.file('/test.feature') }
+        });
+        mockFormatter.provideDocumentFormattingEdits.resolves([]);
+        
+        const { astRepository } = require('../../ast');
+        sandbox.stub(astRepository, 'getAST').resolves({ errors: [{}] });
+        
+        const warnSpy = sandbox.stub(vscode.window, 'showWarningMessage').resolves();
+
+        await callbacks['gherkinPowerTools.format']();
+        
+        assert.ok(warnSpy.calledWith("Cannot format document with syntax errors. Check diagnostics."));
     });
 });
+

@@ -24,8 +24,8 @@ class BehaveFileDiscoveryService {
         this.eventBusDisposable?.dispose();
         if (this._eventBus) {
             this.eventBusDisposable = this._eventBus.onEvent(e => {
-                if (e.type === 'configurationChanged') {
-                    this.handleConfigurationChange();
+                if (e.type === 'stepDiscoveryConfigChanged') {
+                    this.rebuildWatchers(e.folder);
                 }
             });
         }
@@ -241,30 +241,18 @@ class BehaveFileDiscoveryService {
         this.pendingEvents.set(uriString, { type: nextType, timer });
     }
 
-    public async handleConfigurationChange() {
+    public async rebuildWatchers(folder?: vscode.WorkspaceFolder) {
         if (this.isRebuildingWatchers) return;
         this.isRebuildingWatchers = true;
 
         try {
-            if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-                const currentStepGlobs = this.getStepGlobs(undefined).sort().join('|');
-                const currentIgnoreGlobs = this.getIgnoreGlobs(undefined).sort().join('|');
-                const active = this.activeGlobs.get('global');
-                if (!active || active.stepGlobs.sort().join('|') !== currentStepGlobs || active.ignoreGlobs.sort().join('|') !== currentIgnoreGlobs) {
-                    this.disposeWatchersFor('global');
-                    this.setupWatchersFor(undefined, 'global');
-                }
+            if (!folder) {
+                this.disposeWatchersFor('global');
+                this.setupWatchersFor(undefined, 'global');
             } else {
-                for (const folder of vscode.workspace.workspaceFolders) {
-                    const id = folder.uri.toString();
-                    const currentStepGlobs = this.getStepGlobs(folder.uri).sort().join('|');
-                    const currentIgnoreGlobs = this.getIgnoreGlobs(folder.uri).sort().join('|');
-                    const active = this.activeGlobs.get(id);
-                    if (!active || active.stepGlobs.sort().join('|') !== currentStepGlobs || active.ignoreGlobs.sort().join('|') !== currentIgnoreGlobs) {
-                        this.disposeWatchersFor(id);
-                        this.setupWatchersFor(folder, id);
-                    }
-                }
+                const id = folder.uri.toString();
+                this.disposeWatchersFor(id);
+                this.setupWatchersFor(folder, id);
             }
         } finally {
             this.isRebuildingWatchers = false;
@@ -308,7 +296,7 @@ class BehaveFileDiscoveryService {
 
     public setupWatchers(): vscode.FileSystemWatcher[] {
         this.disposeWatchers();
-        this.handleConfigurationChange();
+        this.rebuildWatchers(undefined);
         return this.stepWatchers;
     }
 
