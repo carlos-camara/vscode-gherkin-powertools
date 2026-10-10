@@ -13,6 +13,10 @@ export function extractLineFromId(id: string): number | undefined {
     return match ? parseInt(match[1], 10) : undefined;
 }
 
+export function getCanonicalId(uri: vscode.Uri): string {
+    return process.platform === 'linux' ? uri.toString() : uri.toString().toLowerCase();
+}
+
 
 export class GherkinTestController {
     private controller: vscode.TestController;
@@ -92,12 +96,12 @@ export class GherkinTestController {
             } else if (e.type === 'featureFileChanged') {
                 this.parseTestsInFileContents(this.getOrCreateFile(e.uri));
             } else if (e.type === 'featureFileDeleted') {
-                this.controller.items.delete(e.uri.toString());
+                this.controller.items.delete(getCanonicalId(e.uri));
             } else if (e.type === 'textDocumentOpened' || e.type === 'textDocumentChanged') {
                 const doc = e.type === 'textDocumentOpened' ? e.document : e.event.document;
                 if (!doc.uri.fsPath.endsWith('.feature')) { return; }
 
-                const key = doc.uri.toString();
+                const key = getCanonicalId(doc.uri);
                 const existing = this.debounceTimers.get(key);
                 if (existing) { clearTimeout(existing); }
 
@@ -128,7 +132,7 @@ export class GherkinTestController {
 
     private clearActiveStepDecoration(uri?: vscode.Uri) {
         for (const editor of vscode.window.visibleTextEditors) {
-            if (!uri || editor.document.uri.toString() === uri.toString()) {
+            if (!uri || getCanonicalId(editor.document.uri) === getCanonicalId(uri)) {
                 editor.setDecorations(this.activeStepDecoration, []);
                 editor.setDecorations(this.focusDecoration, []);
             }
@@ -145,7 +149,7 @@ export class GherkinTestController {
         const uri = editor.document.uri;
         const line = editor.selection.active.line;
         
-        const featureItem = this.controller.items.get(uri.toString());
+        const featureItem = this.controller.items.get(getCanonicalId(uri));
         if (!featureItem) {
             editor.setDecorations(this.focusDecoration, []);
             return;
@@ -180,7 +184,7 @@ export class GherkinTestController {
     }
 
     private getOrCreateFile(uri: vscode.Uri): vscode.TestItem {
-        const existing = this.controller.items.get(uri.toString());
+        const existing = this.controller.items.get(getCanonicalId(uri));
         if (existing) { return existing; }
         
         const fileName = path.basename(uri.fsPath);
@@ -189,7 +193,7 @@ export class GherkinTestController {
             .replace(/[-_]/g, ' ')
             .replace(/\b\w/g, c => c.toUpperCase());
 
-        const file = this.controller.createTestItem(uri.toString(), niceName, uri);
+        const file = this.controller.createTestItem(getCanonicalId(uri), niceName, uri);
         file.description = fileName;
         
         this.controller.items.add(file);
@@ -216,7 +220,7 @@ export class GherkinTestController {
 
             const feature = docAST.feature;
             const featureItem = this.controller.createTestItem(
-                `${fileItem.uri.toString()}#feature`,
+                `${fileItem.id}#feature`,
                 feature.name || 'Unnamed Feature',
                 fileItem.uri
             );
@@ -234,7 +238,7 @@ export class GherkinTestController {
                     this.addScenario(featureItem, child.scenario, fileItem.uri);
                 } else if (child.rule) {
                     const ruleItem = this.controller.createTestItem(
-                        `${fileItem.uri.toString()}#rule:${child.rule.location.line}`,
+                        `${fileItem.id}#rule:${child.rule.location.line}`,
                         child.rule.name || 'Unnamed Rule',
                         fileItem.uri
                     );
@@ -260,7 +264,7 @@ export class GherkinTestController {
         const isOutline = scenario.keyword?.trim().toLowerCase().includes('outline');
         
         const scenarioItem = this.controller.createTestItem(
-            `${uri.toString()}#scenario:${line}`,
+            `${getCanonicalId(uri)}#scenario:${line}`,
             scenario.name || `Unnamed ${isOutline ? 'Outline' : 'Scenario'}`,
             uri
         );
@@ -286,7 +290,7 @@ export class GherkinTestController {
                     // Build a readable label using first two columns as preview
                     const preview = cellValues.slice(0, 2).map((v, i) => `${headerCells[i]}=${v}`).join(', ');
                     const exampleItem = this.controller.createTestItem(
-                        `${uri.toString()}#scenario:${rowLine}`,
+                        `${getCanonicalId(uri)}#scenario:${rowLine}`,
                         preview || `Row ${rowLine}`,
                         uri
                     );
@@ -415,7 +419,7 @@ export class GherkinTestController {
                             }
                         } else if (event.event === 'step_start') {
                             if (currentScenarioItem && currentScenarioItem.uri) {
-                                const editor = vscode.window.visibleTextEditors.find(e => e.document.uri.toString() === currentScenarioItem!.uri!.toString());
+                                const editor = vscode.window.visibleTextEditors.find(e => getCanonicalId(e.document.uri) === getCanonicalId(currentScenarioItem!.uri!));
                                 if (editor && event.data.line) {
                                     const line = event.data.line - 1;
                                     const range = new vscode.Range(line, 0, line, 0);

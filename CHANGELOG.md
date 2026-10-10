@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Linter False Positives on Short Keywords**: Fixed an aggressive typo diagnostic (Levenshtein distance) that incorrectly flagged short valid words (like `I` or `As`) as typos of Gherkin keywords.
 - **Suppressions Schema Type**: Fixed a bug where `.gherkin-pt-suppressions.json` would show a "yellow squiggle" warning because its internal schema incorrectly expected a `string` instead of an `array` of objects.
 - **Anti-pattern Real-time Diagnostics**: Fixed an issue where editing `.gherkin-pt-suppressions.json` did not immediately clear the corresponding red squiggles in the editor. The Anti-pattern diagnostics engine now correctly intercepts `suppressionsChanged` events to instantly reflect rule suppressions.
+- **Test Explorer Duplicates**: Fixed a visual bug on Windows and macOS where the Test Explorer would duplicate `.feature` items in the tree. The controller now normalizes file URIs to prevent casing mismatches between the file watcher and open documents.
 - **Flaky CI Infrastructure**: Increased timeouts in the internal `DeferredBootstrap` integration test to resolve a race condition that incorrectly flagged cache rejection logic as "running" instead of "failed" on slower CI runners (e.g., macOS-latest).
 
 ## [1.8.6.1] - 2026-10-10
