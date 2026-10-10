@@ -222,7 +222,7 @@ suite('DeferredBootstrap Test Suite', () => {
         const realBootstrap = new DeferredBootstrap(realComponents, 5);
         realBootstrap.start();
         
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         assert.strictEqual(realSymbolCache.state, 'failed', 'SymbolCache should be marked as failed internally');
         

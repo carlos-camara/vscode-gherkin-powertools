@@ -14,6 +14,8 @@ export type WorkspaceEvent =
     | { type: 'stepFileDeleted', uri: vscode.Uri }
     | { type: 'stepDefinitionsUpdated', uri: vscode.Uri }
     | { type: 'configurationChanged', event?: vscode.ConfigurationChangeEvent }
+    | { type: 'stepDiscoveryConfigChanged', folder?: vscode.WorkspaceFolder }
+    | { type: 'featureDiscoveryConfigChanged', folder?: vscode.WorkspaceFolder }
     | { type: 'textDocumentChanged', event: vscode.TextDocumentChangeEvent }
     | { type: 'textDocumentOpened', document: vscode.TextDocument }
     | { type: 'textDocumentClosed', document: vscode.TextDocument }
