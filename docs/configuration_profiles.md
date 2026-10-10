@@ -43,6 +43,12 @@ You can specify a base `profile` to inherit a predefined set of formatting rules
 
 Gherkin PowerTools automatically contributes a JSON schema for `.gherkin-powertoolsrc.json`. When editing this file in VS Code, you will receive autocomplete, hover descriptions, and validation for all supported settings.
 
+## Refresh Behavior and Performance
+
+When you save changes to `.gherkin-powertoolsrc.json`, the extension automatically detects the changes and re-evaluates the active configuration.
+
+To prevent expensive, full-workspace rebuilds when configuration changes, Gherkin PowerTools emits fine-grained invalidation events (`stepDiscoveryConfigChanged`, `featureDiscoveryConfigChanged`). The caching layers intercept these events and selectively rebuild *only* the specific workspace folder's cache that was affected by the profile change.
+
 ## Precedence and Overrides
 
 Configuration values are resolved in the following order (highest precedence first):

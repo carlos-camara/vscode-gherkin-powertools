@@ -12,9 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Test Explorer Focus Mode**: Clicking on a Test, Scenario, or Example row in the Test Explorer now triggers an automatic "Focus Mode" that illuminates the active block with a strong accent border in the editor. This makes the selected test instantly distinguishable from the surrounding code.
 
 ### 🐛 Fixed
-- **Exception Node Execution Execution Scope**: Fixed an issue where clicking "Run" directly on a Test Explorer Exception node (e.g., `Failed at line X`) would inadvertently run the entire feature file instead of the isolated scenario. The line extractor now correctly handles exception node suffixes.
+- **Configuration Synchronization Invalidation**: Fixed an issue where file-based configuration profiles (e.g., `.gherkin-powertoolsrc.json`) were not triggering proper cache invalidation. The system now uses targeted per-folder cache flushes via `stepDiscoveryConfigChanged` and `featureDiscoveryConfigChanged` events, eliminating stale cache bugs while avoiding expensive full-workspace rebuilds.
+- **Exception Node Execution Scope**: Fixed an issue where clicking "Run" directly on a Test Explorer Exception node (e.g., `Failed at line X`) would inadvertently run the entire feature file instead of the isolated scenario. The line extractor now correctly handles exception node suffixes.
 - **Linter False Positives on Short Keywords**: Fixed an aggressive typo diagnostic (Levenshtein distance) that incorrectly flagged short valid words (like `I` or `As`) as typos of Gherkin keywords.
 - **Suppressions Schema Type**: Fixed a bug where `.gherkin-pt-suppressions.json` would show a "yellow squiggle" warning because its internal schema incorrectly expected a `string` instead of an `array` of objects.
+- **Flaky CI Infrastructure**: Increased timeouts in the internal `DeferredBootstrap` integration test to resolve a race condition that incorrectly flagged cache rejection logic as "running" instead of "failed" on slower CI runners (e.g., macOS-latest).
 
 ## [1.8.6.1] - 2026-10-10
 - **Multiline Step Definitions**: Fixed an issue where Behave step decorators containing multiline function calls with trailing commas (e.g. `@step(\n "name",\n)`) were incorrectly parsed, causing them to show as undefined steps in Gherkin files.
