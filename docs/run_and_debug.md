@@ -42,7 +42,10 @@ Version 1.7.8 introduced the ability to run or debug specific data rows within a
 ### Console Output & Failure Reporting
 When you execute a test, the VS Code **Test Results** panel will display Behave's live standard output and standard error.
 
-If a test fails, the node in the tree will turn red. To keep your editor clean, error messages and stack traces are **collapsed by default**. You can view the exact failure details by explicitly clicking on the failed step or the error message within the Test Explorer. Exception stack traces are fully formatted as **Markdown code blocks** for pristine readability inside the Test Peek view. You can also quickly re-run only the failed scenario directly by clicking the "Run" icon next to the exception node (e.g., `Failed at line X`) in the Test Explorer.
+If a test fails, the node in the tree will turn red. To keep your editor clean, error messages and stack traces are **collapsed by default**.
+You can view the exact failure details by explicitly clicking on the failed step or the error message within the Test Explorer.
+Exception stack traces are fully formatted as **Markdown code blocks** for pristine readability inside the Test Peek view.
+You can also quickly re-run only the failed scenario directly by clicking the "Run" icon next to the exception node (e.g., `Failed at line X`) in the Test Explorer.
 
 ### Live Step Tracking (Execution Animation)
 As Behave executes your scenarios in the background, Gherkin PowerTools receives real-time `step_start` events. The extension uses VS Code's decoration API to visually highlight the exact step currently executing in the `.feature` file. You can watch your scenario "run" line by line right inside the editor!

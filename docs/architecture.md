@@ -185,7 +185,7 @@ Capabilities managed by `DeferredBootstrap` must adhere to a strict asynchronous
 - **Success:** The component resolves its initialization `Promise`.
 - **Failure:** The component must **reject** its initialization `Promise`.
 
-It is a strict anti-pattern for a component to catch its own initialization error, set a failed internal state, and resolve the promise silently. 
+It is a strict anti-pattern for a component to catch its own initialization error, set a failed internal state, and resolve the promise silently.
 By rejecting explicitly, `DeferredBootstrap.runWithRetry()` cleanly intercepts the failure, automatically schedules exponential backoff retries, marks the capability as `failed` in the diagnostics map, and safely prevents downstream dependent capabilities (e.g., `WorkspaceGraph`) from initializing against broken baseline state.
 
 ### Capability-Based Fault Isolation
