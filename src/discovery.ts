@@ -253,6 +253,7 @@ class BehaveFileDiscoveryService {
                 if (!active || active.stepGlobs.sort().join('|') !== currentStepGlobs || active.ignoreGlobs.sort().join('|') !== currentIgnoreGlobs) {
                     this.disposeWatchersFor('global');
                     this.setupWatchersFor(undefined, 'global');
+                    this._eventBus?.publish({ type: 'stepDiscoveryConfigChanged', folder: undefined });
                 }
             } else {
                 for (const folder of vscode.workspace.workspaceFolders) {
@@ -263,6 +264,7 @@ class BehaveFileDiscoveryService {
                     if (!active || active.stepGlobs.sort().join('|') !== currentStepGlobs || active.ignoreGlobs.sort().join('|') !== currentIgnoreGlobs) {
                         this.disposeWatchersFor(id);
                         this.setupWatchersFor(folder, id);
+                        this._eventBus?.publish({ type: 'stepDiscoveryConfigChanged', folder });
                     }
                 }
             }
