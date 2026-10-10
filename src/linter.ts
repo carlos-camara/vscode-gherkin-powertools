@@ -54,8 +54,7 @@ export class GherkinLinter {
                 this.immediateInvalidation({ type: 'documentOpened', document: e.document });
             } else if (e.type === 'textDocumentChanged') {
                 this.queueInvalidation({ type: 'documentChanged', document: e.event.document });
-            } else if (e.type === 'configurationChanged') {
-                // A quick check if it affects linter could be done here, but for simplicity we assume it might.
+            } else if (e.type === 'diagnosticsConfigChanged' || e.type === 'suppressionsChanged') {
                 this.queueInvalidation({ type: 'configurationChanged', affectsLinter: true });
             } else if (e.type === 'stepDefinitionsUpdated' || e.type === 'stepFileDeleted') {
                 let affected: vscode.Uri[] | undefined = undefined;

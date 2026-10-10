@@ -87,8 +87,6 @@ export class SymbolCache {
                     this.clear();
                     this.ensureInitialized();
                 }
-            } else if (e.type === 'configurationChanged') {
-                // Ignore generic configuration changes; we rely on specific discovery events now
             }
         });
     }

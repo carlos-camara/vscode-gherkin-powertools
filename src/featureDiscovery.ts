@@ -25,31 +25,16 @@ export class FeatureDiscoveryService {
         this.eventBusDisposable?.dispose();
         if (this._eventBus) {
             this.eventBusDisposable = this._eventBus.onEvent(e => {
-                if (e.type === 'configurationChanged') {
-                    this.handleConfigurationChange();
+                if (e.type === 'featureDiscoveryConfigChanged') {
+                    this.rebuildWatchers();
                 }
             });
         }
     }
 
-    private lastGlobsConfig: string = '';
-
-    private handleConfigurationChange() {
-        let currentConfig = '';
-        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-            currentConfig = this.getFeatureGlobs(undefined).sort().join('|') + '##' + this.getIgnoreGlobs(undefined).sort().join('|');
-        } else {
-            for (const folder of vscode.workspace.workspaceFolders) {
-                currentConfig += folder.uri.toString() + '::' + this.getFeatureGlobs(folder.uri).sort().join('|') + '##' + this.getIgnoreGlobs(folder.uri).sort().join('|') + ';;';
-            }
-        }
-
-        if (this.lastGlobsConfig !== currentConfig) {
-            this.lastGlobsConfig = currentConfig;
-            this.disposeWatchers();
-            this.setupWatchers();
-            this._eventBus?.publish({ type: 'featureDiscoveryConfigChanged', folder: undefined });
-        }
+    private rebuildWatchers() {
+        this.disposeWatchers();
+        this.setupWatchers();
     }
 
     public get eventBus(): WorkspaceEventBus | undefined {
