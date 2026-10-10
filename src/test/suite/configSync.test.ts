@@ -58,7 +58,7 @@ suite('Configuration Synchronization and Cache Invalidation', () => {
         };
 
         // Initialize cache and discovery
-        discoveryService.handleConfigurationChange(); // setup watchers
+        discoveryService.rebuildWatchers(); // setup watchers
         await cache.ensureInitialized();
         
         // Assert shared_steps/common.py is NOT indexed
@@ -68,8 +68,9 @@ suite('Configuration Synchronization and Cache Invalidation', () => {
         // Change project configuration
         currentGlobs = ["features/steps/**/*.py", "sync-test-bug/shared_steps/**/*.py"];
         
-        // Simulate event emitted by configWatcher.onDidChange()
-        eventBus.publish({ type: 'configurationChanged' });
+        // Simulate event emitted by ConfigurationService
+        const folder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
+        eventBus.publish({ type: 'stepDiscoveryConfigChanged', folder });
         
         // Wait for asynchronous processing (give it some time to process the event)
         await new Promise(resolve => setTimeout(resolve, 2000));

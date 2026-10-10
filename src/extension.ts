@@ -90,6 +90,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(configDiagnostics);
     const configLoader = new VsCodeConfigurationLoader();
     const configService = new ConfigurationService(configDiagnostics, configLoader);
+    configService.setEventBus(eventBus);
     await configService.initialize();
 
     const configWatcher = vscode.workspace.createFileSystemWatcher('**/.gherkin-powertoolsrc.json');
@@ -244,7 +245,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 // Re-lint the file to remove the diagnostic immediately
                 const doc = await vscode.workspace.openTextDocument(uri);
                 linter.immediateLint(doc);
-                eventBus.publish({ type: 'configurationChanged' });
+                eventBus.publish({ type: 'suppressionsChanged', folder: workspaceFolder });
             } catch (err) {
                 vscode.window.showErrorMessage(`Failed to add suppression: ${err}`);
             }
@@ -294,25 +295,21 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('gherkinPowerTools')) {
             configService.invalidateCache();
-            eventBus.publish({ type: 'configurationChanged', event: e });
         }
     }));
     configWatcher.onDidChange(async (uri) => {
         await configService.loadConfiguration(uri);
-        eventBus.publish({ type: 'configurationChanged' });
     });
     configWatcher.onDidCreate(async (uri) => {
         await configService.loadConfiguration(uri);
-        eventBus.publish({ type: 'configurationChanged' });
     });
     configWatcher.onDidDelete(async (uri) => {
         await configService.loadConfiguration(uri);
-        eventBus.publish({ type: 'configurationChanged' });
     });
 
-    suppressionWatcher.onDidChange(() => eventBus.publish({ type: 'configurationChanged' }));
-    suppressionWatcher.onDidCreate(() => eventBus.publish({ type: 'configurationChanged' }));
-    suppressionWatcher.onDidDelete(() => eventBus.publish({ type: 'configurationChanged' }));
+    suppressionWatcher.onDidChange(() => eventBus.publish({ type: 'suppressionsChanged' }));
+    suppressionWatcher.onDidCreate(() => eventBus.publish({ type: 'suppressionsChanged' }));
+    suppressionWatcher.onDidDelete(() => eventBus.publish({ type: 'suppressionsChanged' }));
 
     context.subscriptions.push(
         vscode.workspace.onDidOpenTextDocument(document => { eventBus.publish({ type: 'textDocumentOpened', document }); }),
