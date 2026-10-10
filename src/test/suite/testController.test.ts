@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
-import { GherkinTestController } from '../../testController';
+import { GherkinTestController, extractLineFromId } from '../../testController';
 import { ConfigurationService } from '../../configuration';
 
 suite('GherkinTestController Test Suite', () => {
@@ -40,6 +40,18 @@ suite('GherkinTestController Test Suite', () => {
         assert.ok(controller);
         // We can't easily access the private controller property to check items,
         // but we can verify it doesn't throw on initialization.
+    });
+
+    test('extractLineFromId extracts correctly from regular and exception nodes', () => {
+        // Regular scenario ID
+        assert.strictEqual(extractLineFromId('file:///test.feature#scenario:10'), 10);
+        // Exception node ID (suffix #error:X)
+        assert.strictEqual(extractLineFromId('file:///test.feature#scenario:42#error:1'), 42);
+        // Other structures
+        assert.strictEqual(extractLineFromId('file:///test.feature#rule:10'), undefined);
+        assert.strictEqual(extractLineFromId('file:///test.feature'), undefined);
+        // Example ID
+        assert.strictEqual(extractLineFromId('file:///test.feature#scenario:20#example:22'), 20);
     });
 
     test('Parses Gherkin features into TestItems', async () => {

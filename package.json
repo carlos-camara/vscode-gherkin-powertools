@@ -2,7 +2,7 @@
   "name": "vscode-gherkin-powertools",
   "displayName": "Gherkin PowerTools - BDD & Python Behave Toolkit",
   "description": "Write, navigate, and debug BDD scenarios faster. The ultimate Gherkin and Python Behave toolkit for VS Code.",
-  "version": "1.8.6",
+  "version": "1.8.7",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -748,7 +748,7 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^26.4.1",
     "@types/sinon": "^22.0.0",
-    "@types/vscode": "^1.136.0",
+    "@types/vscode": "~1.93.0",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",

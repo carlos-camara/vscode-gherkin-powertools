@@ -6,9 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 🔗 **[Read the full release notes on GitHub](https://github.com/carlos-camara/vscode-gherkin-powertools/releases)**
 
-## [1.8.6.1] - 2026-10-10
+## [1.8.7] - 2026-10-10
+
+### 🚀 Added
+- **Test Explorer Focus Mode**: Clicking on a Test, Scenario, or Example row in the Test Explorer now triggers an automatic "Focus Mode" that illuminates the active block with a strong accent border in the editor. This makes the selected test instantly distinguishable from the surrounding code.
 
 ### 🐛 Fixed
+- **Exception Node Execution Execution Scope**: Fixed an issue where clicking "Run" directly on a Test Explorer Exception node (e.g., `Failed at line X`) would inadvertently run the entire feature file instead of the isolated scenario. The line extractor now correctly handles exception node suffixes.
+- **Linter False Positives on Short Keywords**: Fixed an aggressive typo diagnostic (Levenshtein distance) that incorrectly flagged short valid words (like `I` or `As`) as typos of Gherkin keywords.
+- **Suppressions Schema Type**: Fixed a bug where `.gherkin-pt-suppressions.json` would show a "yellow squiggle" warning because its internal schema incorrectly expected a `string` instead of an `array` of objects.
+
+## [1.8.6.1] - 2026-10-10
 - **Multiline Step Definitions**: Fixed an issue where Behave step decorators containing multiline function calls with trailing commas (e.g. `@step(\n "name",\n)`) were incorrectly parsed, causing them to show as undefined steps in Gherkin files.
 - **Component Initialization Race Condition**: Fixed a bug where a failed cache initialization promise would silently resolve, causing the workspace graph to incorrectly assume the initialization was successful and preventing backoff retry logic from triggering.
 

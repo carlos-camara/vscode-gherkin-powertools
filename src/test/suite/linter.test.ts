@@ -65,6 +65,32 @@ Feature: Invalid Feature
         assert.ok(diagnostics[0].message.includes("Did you mean 'Given'?"));
     });
 
+    test('Short words like "I" or "As" should not trigger misspelled keyword diagnostic', async () => {
+        const text = `
+Feature: Invalid Feature
+  Scenario: Invalid Scenario
+    I am a short word
+    As a short word
+    If a short word
+        `.trim();
+        const doc = createMockDocument(text, 'file:///short-words.feature');
+        await linter.lint(doc);
+
+        const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        // They should just be treated as undefined steps or syntax errors (which might be reported as such, but NOT invalid-keyword with levenshtein)
+        // Wait, 'I' is not a valid keyword at all in english, so it will be flagged as syntax-error or invalid-keyword without suggestions, but it shouldn't say "Did you mean '*'?". Wait, actually the logic in linter.ts:
+        // if (lev <= 2 && !(keyword.trim().length <= 3))
+        // Let's assert that there are no 'invalid-keyword' diagnostics with "Did you mean".
+        const invalidKeywordDiags = diagnostics.filter(d => d.code === 'invalid-keyword');
+        console.log("GENERATED DIAGNOSTICS FOR SHORT WORDS:", invalidKeywordDiags.map(d => d.message));
+        
+        // Actually, if it's not a valid keyword, it WILL be flagged as 'invalid-keyword' but without a "Did you mean" suggestion. Or maybe 'syntax-error'.
+        // Let's check that none of them suggest a Levenshtein correction.
+        invalidKeywordDiags.forEach(d => {
+            assert.ok(!d.message.includes("Did you mean"), "Should not suggest correction for short words: " + d.message);
+        });
+    });
+
     test('Missing colon after Feature/Scenario', async () => {
         const text = `
 Feature Invalid

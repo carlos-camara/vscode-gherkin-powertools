@@ -13,7 +13,7 @@ The real-time AST linter parses your `.feature` files as you type. It immediatel
 - **Undefined Steps (`undefined-step`)**: No matching Python step definition was found.
 - **Ambiguous Steps (`ambiguous-step`)**: Multiple Python step definitions match the step.
 - **Missing Colon (`missing-colon`)**: A required trailing colon is missing after a keyword (e.g. Feature, Scenario).
-- **Invalid Keyword (`invalid-keyword`)**: The keyword used is not valid for the current Gherkin dialect.
+- **Invalid Keyword (`invalid-keyword`)**: The keyword used is not valid for the current Gherkin dialect (short words require an exact match to prevent false positives).
 - **Table Inconsistency (`table-inconsistency`)**: Rows in a Data Table or Examples block have an inconsistent number of cells.
 - **Scenario with Examples (`scenario-with-examples`)**: A "Scenario" keyword is used instead of "Scenario Outline" when Examples are present.
 
