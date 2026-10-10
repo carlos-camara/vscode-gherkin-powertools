@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 🔗 **[Read the full release notes on GitHub](https://github.com/carlos-camara/vscode-gherkin-powertools/releases)**
 
-## [1.8.7] - 2026-10-10
+## [1.8.7] - 2026-10-11
 
 ### 🚀 Added
 - **Test Explorer Focus Mode**: Clicking on a Test, Scenario, or Example row in the Test Explorer now triggers an automatic "Focus Mode" that illuminates the active block with a strong accent border in the editor. This makes the selected test instantly distinguishable from the surrounding code.
