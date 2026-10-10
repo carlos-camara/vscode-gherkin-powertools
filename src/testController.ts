@@ -8,8 +8,8 @@ import * as path from 'path';
 import { WorkspaceEventBus } from './eventBus';
 
 /** Extracts the scenario line number from a TestItem ID of the form `uri#scenario:LINE` */
-function extractLineFromId(id: string): number | undefined {
-    const match = id.match(/#scenario:(\d+)$/);
+export function extractLineFromId(id: string): number | undefined {
+    const match = id.match(/#scenario:(\d+)(?:#|$)/);
     return match ? parseInt(match[1], 10) : undefined;
 }
 
@@ -21,6 +21,7 @@ export class GherkinTestController {
     private eventBusDisposable?: vscode.Disposable;
     private debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
     private activeStepDecoration: vscode.TextEditorDecorationType;
+    private focusDecoration: vscode.TextEditorDecorationType;
 
     constructor(context: vscode.ExtensionContext, configService: ConfigurationService, testControllerId?: string) {
         this.configService = configService;
@@ -34,6 +35,21 @@ export class GherkinTestController {
             borderColor: new vscode.ThemeColor('editor.wordHighlightBorder')
         });
         context.subscriptions.push(this.activeStepDecoration);
+
+        this.focusDecoration = vscode.window.createTextEditorDecorationType({
+            backgroundColor: new vscode.ThemeColor('editor.wordHighlightBackground'),
+            isWholeLine: true,
+            borderWidth: '0 0 0 4px',
+            borderStyle: 'solid',
+            borderColor: new vscode.ThemeColor('list.highlightForeground')
+        });
+        context.subscriptions.push(this.focusDecoration);
+
+        context.subscriptions.push(
+            vscode.window.onDidChangeTextEditorSelection(e => {
+                this.updateFocusDecoration(e.textEditor);
+            })
+        );
 
         this.controller.resolveHandler = async (item) => {
             if (!item) {
@@ -114,11 +130,47 @@ export class GherkinTestController {
         for (const editor of vscode.window.visibleTextEditors) {
             if (!uri || editor.document.uri.toString() === uri.toString()) {
                 editor.setDecorations(this.activeStepDecoration, []);
+                editor.setDecorations(this.focusDecoration, []);
             }
         }
     }
 
 
+
+    private updateFocusDecoration(editor: vscode.TextEditor) {
+        if (!editor || editor.document.languageId !== 'feature') {
+            return;
+        }
+        
+        const uri = editor.document.uri;
+        const line = editor.selection.active.line;
+        
+        const featureItem = this.controller.items.get(uri.toString());
+        if (!featureItem) {
+            editor.setDecorations(this.focusDecoration, []);
+            return;
+        }
+
+        const findMatchingTestRange = (parent: vscode.TestItem, targetLine: number): vscode.Range | undefined => {
+            for (const [_, child] of parent.children) {
+                if (child.range && child.range.start.line === targetLine) {
+                    return child.range;
+                }
+                const found = findMatchingTestRange(child, targetLine);
+                if (found) {
+                    return found;
+                }
+            }
+            return undefined;
+        };
+
+        const range = findMatchingTestRange(featureItem, line);
+        if (range) {
+            editor.setDecorations(this.focusDecoration, [range]);
+        } else {
+            editor.setDecorations(this.focusDecoration, []);
+        }
+    }
 
     private async discoverAllFilesInWorkspace() {
         const files = await featureDiscoveryService.getFeatureFiles();

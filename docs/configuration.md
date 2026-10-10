@@ -154,20 +154,17 @@ You can suppress heuristic rules directly from the editor using the **Suppress f
 
 Example `.gherkin-pt-suppressions.json`:
 ```json
-{
-    "$schema": "https://raw.githubusercontent.com/carlos-camara/vscode-gherkin-powertools/main/schemas/suppressions.schema.json",
-    "suppressions": [
-        {
-            "ruleId": "oversized-scenario",
-            "uri": "features/legacy_checkout.feature",
-            "scopeType": "scenario",
-            "scopeValue": "Legacy fallback checkout flow",
-            "reason": "Approved exception for legacy component",
-            "timestamp": "2026-08-24T12:00:00.000Z",
-            "by": "carlos"
-        }
-    ]
-}
+[
+    {
+        "ruleId": "oversized-scenario",
+        "uri": "features/legacy_checkout.feature",
+        "scopeType": "scenario",
+        "scopeValue": "Legacy fallback checkout flow",
+        "reason": "Approved exception for legacy component",
+        "timestamp": "2026-08-24T12:00:00.000Z",
+        "by": "carlos"
+    }
+]
 ```
 
 The extension and the standalone CLI will both automatically detect and respect this file.

@@ -39,7 +39,7 @@ The real-time AST linter validates your Gherkin structure **as you type**. It gr
 
 ### Structural Diagnostics
 - **Missing Colons:** Ensures `Feature:`, `Scenario:`, `Background:`, etc., have their required trailing colon.
-- **Invalid Keywords:** Detects misspelled Gherkin keywords using Levenshtein distance matching for your specific dialect. (The linter intelligently ignores all text inside `"""` DocStrings, preventing false-positive keyword flags on code snippets or JSON data).
+- **Invalid Keywords:** Detects misspelled Gherkin keywords using Levenshtein distance matching for your specific dialect (short words require an exact match to prevent false positives). (The linter intelligently ignores all text inside `"""` DocStrings, preventing false-positive keyword flags on code snippets or JSON data).
 - **Semantic Errors:** Validates nesting (e.g., placing an `Examples:` block inside a plain `Scenario` instead of a `Scenario Outline`).
 - **Table Inconsistency:** Detects unclosed `|` pipes and inconsistent column counts across rows.
 

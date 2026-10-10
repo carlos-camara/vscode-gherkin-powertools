@@ -99,6 +99,7 @@ export class SymbolCache {
             } catch (err) {
                 this.state = 'failed';
                 logger.error('Error initializing symbol cache:', err);
+                throw err;
             }
         })();
 
@@ -410,6 +411,7 @@ export class FeatureCache {
             } catch (err) {
                 this.state = 'failed';
                 logger.error('Error initializing feature cache:', err);
+                throw err;
             }
         })();
 

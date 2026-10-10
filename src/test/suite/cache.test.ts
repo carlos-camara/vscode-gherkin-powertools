@@ -233,6 +233,26 @@ def step_impl(
         discoveryService.getStepFiles = async () => []; // Re-mock for other tests
     });
 
+    test('ensureInitialized rejects on failure and marks state as failed', async () => {
+        discoveryService.getStepFiles = originalGetStepFiles;
+        discoveryService.getStepFiles = async () => {
+            throw new Error('Simulated discovery failure');
+        };
+
+        try {
+            await cache.ensureInitialized();
+            assert.fail('Should have thrown an error');
+        } catch (err: any) {
+            assert.strictEqual(err.message, 'Simulated discovery failure');
+            assert.strictEqual(cache.state, 'failed');
+        }
+
+        // Calling it again while failed should start a new initialization promise
+        discoveryService.getStepFiles = async () => [];
+        await cache.ensureInitialized();
+        assert.strictEqual(cache.state, 'ready');
+    });
+
     test('Handles URI case insensitivity for step definitions', async () => {
         const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
         try {

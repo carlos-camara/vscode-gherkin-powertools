@@ -293,8 +293,8 @@ export class GherkinLinter {
 
                                 // Typo match (e.g. 'Givn' -> 'Given')
                                 const dist = getLevenshteinDistance(normalizedFirst, normalizedKw);
-                                // Allow up to 2 typos for longer words, 1 typo for short words
-                                const threshold = normalizedKw.length <= 4 ? 1 : 2;
+                                // Allow up to 2 typos for longer words, 1 typo for medium words, 0 for short words
+                                const threshold = normalizedKw.length <= 3 ? 0 : (normalizedKw.length <= 5 ? 1 : 2);
                                 if (dist < lowestDistance && dist <= threshold) {
                                     lowestDistance = dist;
                                     bestMatch = kw;
@@ -604,7 +604,7 @@ export class GherkinLinter {
                         }
                     }
                     const dist = getLevenshteinDistance(normalizedFirst, normalizedKw);
-                    const threshold = normalizedKw.length <= 4 ? 1 : 2;
+                    const threshold = normalizedKw.length <= 3 ? 0 : (normalizedKw.length <= 5 ? 1 : 2);
                     if (dist < lowestDistance && dist <= threshold) {
                         lowestDistance = dist;
                         bestMatch = kw;
@@ -748,7 +748,7 @@ export class GherkinLinter {
                             }
                         }
                         const dist = getLevenshteinDistance(normalizedFirst, normalizedKw);
-                        const threshold = normalizedKw.length <= 4 ? 1 : 2;
+                        const threshold = normalizedKw.length <= 3 ? 0 : (normalizedKw.length <= 5 ? 1 : 2);
                         if (dist < lowestDistance && dist <= threshold) {
                             lowestDistance = dist;
                             bestMatch = kw;

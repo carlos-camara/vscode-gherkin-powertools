@@ -10,6 +10,12 @@ This guide addresses common problems organized by observable symptoms.
 **Diagnostic Steps:** Ensure you have `.feature` files in your workspace.
 **Resolution:** Run **Gherkin PowerTools: Replay Onboarding** from the Command Palette to reset the state and manually trigger the detection process.
 
+## Background Initialization Failures
+**Symptom:** Features like Go to Definition or IntelliSense are intermittently unavailable right after opening a large workspace, and the extension output logs indicate capability initialization errors.
+**Likely Causes:** I/O errors or heavy load caused the Symbol Cache or Workspace Graph to fail their initial startup.
+**Diagnostic Steps:** Check the extension Output Panel. Look for logs showing a capability state as `failed`.
+**Resolution:** The extension handles this automatically. The internal `DeferredBootstrap` supervisor detects initialization rejections and automatically schedules exponential backoff retries. Simply wait a few moments; the capability will typically recover on the next retry, and dependent capabilities (like the Workspace Graph) will safely re-initialize once the baseline caches are ready.
+
 ## Formatting does not run or `.feature` file is not detected
 **Symptom:** You press <kbd>Shift+Alt+F</kbd> and nothing happens, or the extension doesn't seem to activate.
 **Likely Causes:** The file is not recognized as a Gherkin document, or the formatter is disabled.

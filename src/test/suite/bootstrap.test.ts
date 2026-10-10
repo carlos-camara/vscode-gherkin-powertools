@@ -1,8 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { DeferredBootstrap, BootstrapComponents } from '../../bootstrap';
-
-
+import { SymbolCache } from '../../cache';
 suite('DeferredBootstrap Test Suite', () => {
     let components: BootstrapComponents;
     let bootstrap: DeferredBootstrap;
@@ -200,5 +199,39 @@ suite('DeferredBootstrap Test Suite', () => {
         bootstrap.dispose();
         bootstrap.dispose();
         assert.strictEqual(bootstrap.state, 'disposed');
+    });
+
+    test('FIXED: DeferredBootstrap correctly marks rejected cache as failed and blocks dependents', async () => {
+        const realSymbolCache = new SymbolCache();
+        
+        const originalGetStepFiles = require('../../discovery').discoveryService.getStepFiles;
+        require('../../discovery').discoveryService.getStepFiles = async () => {
+            throw new Error('Simulated discovery failure');
+        };
+
+        const realComponents: BootstrapComponents = {
+            symbolCache: realSymbolCache,
+            featureCache: { ensureInitialized: async () => {} },
+            workspaceGraph: { initialize: async () => { workspaceGraphCalled++; } },
+            impactCodeLensProvider: { refresh: () => {} },
+            eventBus: { onEvent: () => ({ dispose: () => {} }), publish: () => {} },
+            discoveryService: { setupWatchers: () => [] },
+            featureDiscoveryService: { setupWatchers: () => [] }
+        };
+
+        const realBootstrap = new DeferredBootstrap(realComponents, 5);
+        realBootstrap.start();
+        
+        await new Promise(resolve => setTimeout(resolve, 250));
+
+        assert.strictEqual(realSymbolCache.state, 'failed', 'SymbolCache should be marked as failed internally');
+        
+        const scDiag = realBootstrap.getDiagnostics().find(d => d.id === 'symbolCache');
+        assert.strictEqual(scDiag?.state, 'failed', 'DeferredBootstrap correctly marks it as failed because promise rejected');
+        
+        assert.strictEqual(workspaceGraphCalled, 0, 'WorkspaceGraph initialization blocked by SymbolCache failure');
+
+        realBootstrap.dispose();
+        require('../../discovery').discoveryService.getStepFiles = originalGetStepFiles;
     });
 });
