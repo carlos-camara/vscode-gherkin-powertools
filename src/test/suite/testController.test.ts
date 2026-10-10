@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
-import { GherkinTestController, extractLineFromId } from '../../testController';
+import { GherkinTestController, extractLineFromId, getCanonicalId } from '../../testController';
 import { ConfigurationService } from '../../configuration';
 
 suite('GherkinTestController Test Suite', () => {
@@ -156,10 +156,10 @@ Feature: Outline Feature
         scenarioOutlineItem!.children.forEach((item: vscode.TestItem) => { exampleItems.push(item); });
 
         assert.strictEqual(exampleItems[0].label, 'arg=1');
-        assert.strictEqual(exampleItems[0].id, `${featureUri.toString()}#scenario:7`);
+        assert.strictEqual(exampleItems[0].id, `${getCanonicalId(featureUri)}#scenario:7`);
 
         assert.strictEqual(exampleItems[1].label, 'arg=2');
-        assert.strictEqual(exampleItems[1].id, `${featureUri.toString()}#scenario:8`);
+        assert.strictEqual(exampleItems[1].id, `${getCanonicalId(featureUri)}#scenario:8`);
     });
     test('Binds to WorkspaceEventBus correctly', () => {
         const { WorkspaceEventBus } = require('../../eventBus');
@@ -170,7 +170,7 @@ Feature: Outline Feature
         const testUri = vscode.Uri.file(path.join(tempDir, 'event.feature'));
         eventBus.publish({ type: 'featureFileCreated', uri: testUri });
 
-        const fileItem = testControllerPrivate.controller.items.get(testUri.toString());
+        const fileItem = testControllerPrivate.controller.items.get(getCanonicalId(testUri));
         assert.ok(fileItem, 'Item should be created on featureFileCreated event');
 
         eventBus.dispose();
@@ -450,7 +450,7 @@ Feature: Skip Feature
             assert.strictEqual(findFilesCalled, true, 'Should have searched for .feature files');
 
             // It should have created the file item
-            const fileItem = testControllerPrivate.controller.items.get(vscode.Uri.file(path.join(tempDir, 'resolve.feature')).toString());
+            const fileItem = testControllerPrivate.controller.items.get(getCanonicalId(vscode.Uri.file(path.join(tempDir, 'resolve.feature'))));
             assert.ok(fileItem, 'File item should have been created');
         } finally {
             vscode.workspace.findFiles = originalFindFiles;
