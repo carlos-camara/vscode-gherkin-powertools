@@ -69,7 +69,7 @@ jobs:
           runner.os == 'Windows' &&
           github.event_name == 'pull_request'
         # v2
-        uses: EnricoMi/publish-unit-test-result-action/windows@d0a4676d0e0b938bc201470d88276b7c74c712b3
+        uses: EnricoMi/publish-unit-test-result-action/windows@da5b7be67623cd59bbbd1a0ce4f022050a55605f
         with:
           files: 'test-results/**/*.xml'
           check_name: "E2E Test Results (${{ matrix.os }})"
